@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019. www.foxtail.cc rights Reserved.
+ * Copyright (c) 2019. www.hoprxi.com rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
