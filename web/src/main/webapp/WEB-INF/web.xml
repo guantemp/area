@@ -22,7 +22,7 @@
     <display-name>Archetype Created Web Application</display-name>
     <servlet>
         <servlet-name>batch</servlet-name>
-        <servlet-class>area.hoprxi.web.servlet.AreaBatchImportServlet</servlet-class>
+        <servlet-class>area.hoprxi.web.servlet.UploadServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>batch</servlet-name>

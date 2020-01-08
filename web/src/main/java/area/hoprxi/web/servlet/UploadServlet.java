@@ -29,8 +29,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /***
@@ -38,8 +36,8 @@ import java.util.List;
  * @since JDK8.0
  * @version 0.0.1 2019-12-29
  */
-@WebServlet(urlPatterns = {"/v1/batch"}, name = "batch", asyncSupported = false)
-public class AreaBatchImportServlet extends HttpServlet {
+@WebServlet(urlPatterns = {"/v1/upload"}, name = "upload", asyncSupported = false)
+public class UploadServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -58,7 +56,6 @@ public class AreaBatchImportServlet extends HttpServlet {
 
         // Configure a repository (to ensure a secure temp location is used)
         ServletContext servletContext = getServletContext();
-        System.out.println(servletContext.getRealPath("tempdir"));
         factory.setRepository(new File(servletContext.getRealPath("tempdir")));
         factory.setSizeThreshold(1024 * 1024);
 
@@ -75,14 +72,15 @@ public class AreaBatchImportServlet extends HttpServlet {
                     //	System.out.println(name+"="+va);
                     ///		request.setAttribute(name, value);
                 } else {
-                    System.out.println(items);
-                    File uploadedFile = new File(servletContext.getRealPath("/upload") + File.separator + dateFolderName() + File.separator + "test.xls");
+                    System.out.println(item.getName());
+                    File uploadedFile = new File(servletContext.getRealPath("/upload") + File.separator + "area.xls");
+                    //LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd")) + File.separator
                     File fileParent = uploadedFile.getParentFile();
                     if (!fileParent.exists()) {
                         fileParent.mkdirs();// 创建多级目录
                     }
-                    if (!uploadedFile.exists())
-                        uploadedFile.createNewFile();
+                    uploadedFile.deleteOnExit();
+                    uploadedFile.createNewFile();
                     item.write(uploadedFile);
                 }
             }
@@ -91,10 +89,6 @@ public class AreaBatchImportServlet extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    private String dateFolderName() {
-        return LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd"));
     }
 
     @Override
