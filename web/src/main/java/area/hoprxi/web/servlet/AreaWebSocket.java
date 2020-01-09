@@ -39,16 +39,16 @@ public class AreaWebSocket {
     public void open(Session session) {
         this.session = session;
 
-        sysLogger.info("*** WebSocket opened from sessionId " + session.getId());
+        System.out.println("*** WebSocket opened from sessionId " + session.getId());
     }
 
     @OnMessage
     public void inMessage(String message) {
-        sysLogger.info("*** WebSocket Received from {},{} ", this.session.getId(), message);
+        System.out.println("*** WebSocket Received from " + this.session.getId() + ":" + message);
     }
 
     @OnClose
     public void end() {
-        sysLogger.info("*** WebSocket closed from {} ", this.session.getId());
+        System.out.println("*** WebSocket closed from {} " + this.session.getId());
     }
 }

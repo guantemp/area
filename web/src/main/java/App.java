@@ -15,6 +15,7 @@
  */
 
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.webapp.WebAppContext;
 
 /***
  * @author <a href="www.hoprxi.com/authors/guan xiangHuan">guan xiangHuang</a>
@@ -23,7 +24,18 @@ import org.eclipse.jetty.server.Server;
  */
 public class App {
     public static void main(String[] args) throws Exception {
-        Server server = new Server(8080);
+        Server server = new Server(8090);
+        WebAppContext context = new WebAppContext();
+        context.setDescriptor("src/main/webapp/WEB-INF/web.xml");
+        context.setResourceBase("src/main/webapp");
+        context.setContextPath("/");
+        context.setParentLoaderPriority(true);
+        //File warFile = JettyDistribution.resolve("demo-base/webapps/async-rest.war").toFile();
+        //context.setWar(warFile.getAbsolutePath());
+
+        // A WebAppContext is a ContextHandler as well so it needs to be set to
+        // the server so it is aware of where to send the appropriate requests.
+        server.setHandler(context);
         server.start();
         server.dumpStdErr();
         server.join();

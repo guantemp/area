@@ -21,11 +21,11 @@
          version="3.1">
     <display-name>Archetype Created Web Application</display-name>
     <servlet>
-        <servlet-name>batch</servlet-name>
+        <servlet-name>upload</servlet-name>
         <servlet-class>area.hoprxi.web.servlet.UploadServlet</servlet-class>
     </servlet>
     <servlet-mapping>
-        <servlet-name>batch</servlet-name>
-        <url-pattern>/v1/batch</url-pattern>
+        <servlet-name>upload</servlet-name>
+        <url-pattern>/v1/upload</url-pattern>
     </servlet-mapping>
 </web-app>
