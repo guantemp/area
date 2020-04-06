@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: com.arangodb:arangodb-java-driver:5.0.7">
+    <CLASSES>
+      <root url="jar://E:/mvn/com/arangodb/arangodb-java-driver/5.0.7/arangodb-java-driver-5.0.7.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://E:/mvn/com/arangodb/arangodb-java-driver/5.0.7/arangodb-java-driver-5.0.7-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://E:/mvn/com/arangodb/arangodb-java-driver/5.0.7/arangodb-java-driver-5.0.7-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
