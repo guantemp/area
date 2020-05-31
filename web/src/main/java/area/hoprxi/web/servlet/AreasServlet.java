@@ -1,17 +1,17 @@
 /*
- * Copyright (c) 2019. www.hoprxi.com rights Reserved.
+ * Copyright (c) 2020. www.hoprxi.com All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
+ *  Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 
 package area.hoprxi.web.servlet;
@@ -37,8 +37,7 @@ import java.util.Collection;
  * @author <a href="www.hoprxi.com/authors/guan xianghuang">guan xiangHuan</a>
  * @since JDK8.0
  * @version 0.0.1 builder 2019-12-29
- *          <p>3
- *
+ *          <p>
  *          restful http<br/>
  *          areas return all country <br/>
  *          areas/key(int) return area where key=area.key,such as:areas/51000
@@ -160,7 +159,7 @@ public class AreasServlet extends HttpServlet {
             }
             if ("name".equals(fieldname)) {
                 jParser.nextToken();
-               // name = jParser.getText();
+                // name = jParser.getText();
             }
             if ("mergerName".equals(fieldname)) {
                 jParser.nextToken();
@@ -221,7 +220,7 @@ public class AreasServlet extends HttpServlet {
         }
         return null;
         //return new Area(id, parentId, name, mergerName, abbreviation, mergerAbbreviation, pinyin, initials, firstChar,
-         //       grade, cityCode, postcode, new WGS84(latitude, longitude), sort, remark);
+        //       grade, cityCode, postcode, new WGS84(latitude, longitude), sort, remark);
     }
 
     /**
