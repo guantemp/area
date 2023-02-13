@@ -23,6 +23,7 @@ import com.hoprxi.application.AreaView;
 import com.hoprxi.domain.model.Area;
 import com.hoprxi.infrastructure.query.PsqlAreaQuery;
 
+import javax.servlet.annotation.WebInitParam;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -51,7 +52,8 @@ import java.util.stream.Collectors;
  *          </ul>
  *          </p>
  */
-@WebServlet(urlPatterns = {"/v1/areas/*"}, name = "areas", asyncSupported = false)
+@WebServlet(urlPatterns = {"/v1/areas/*"}, name = "areas", asyncSupported = false, initParams = {
+        @WebInitParam(name = "database", value = "arangodb")})
 public class AreasServlet extends HttpServlet {
     private static final String[] FIELDS = {"name", "zipcode", "telephoneCode"};
     private static final long serialVersionUID = 1L;

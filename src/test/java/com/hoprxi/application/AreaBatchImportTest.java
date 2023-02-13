@@ -3,10 +3,8 @@ package com.hoprxi.application;
 import com.hoprxi.infrastructure.persistence.PsqlAreaBatchImport;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Paths;
 import java.sql.SQLException;
 
 /***
@@ -20,8 +18,8 @@ public class AreaBatchImportTest {
     public void testImportXlsFrom() throws IOException, SQLException {
         final AreaBatchImport areaBatchImport = new PsqlAreaBatchImport();
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        URL url=loader.getResource("areas_county.xls");
+        URL url=loader.getResource("areas.xls");
         areaBatchImport.importXlsFrom(url.openStream());
-        //System.out.println(loader.getResource("areas_county.xls").getFile());
+        //System.out.println(loader.getResource("areas.xls").getFile());
     }
 }

@@ -103,7 +103,7 @@ public class PsqlSetup {
             }
         });
         final AreaBatchImport areaBatchImport = new PsqlAreaBatchImport();
-        URL url=loader.getResource("areas_county.xls");
+        URL url=loader.getResource("areas.xls");
         areaBatchImport.importXlsFrom(url.openStream());
     }
 }
