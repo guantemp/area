@@ -4,14 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="06d15327-0203-4184-bc12-711a323ebadd" name="Changes" comment="202302131358">
+    <list default="true" id="06d15327-0203-4184-bc12-711a323ebadd" name="Changes" comment="202302131735">
+      <change afterPath="$PROJECT_DIR$/src/main/resources/log4j2.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/PsqlSetup.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/PsqlSetup.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/AreasServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/AreasServlet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/UploadServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/UploadServlet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/areas_county.xls" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/areas.xls" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/hoprxi/application/AreaBatchImportTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/hoprxi/application/AreaBatchImportTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,7 +43,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "E:/workspace/area/target/classes/tempdir",
+    "last_opened_file_path": "E:/workspace/area/src/main/resources",
     "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.0",
     "project.structure.side.proportion": "0.0",
@@ -56,17 +52,17 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="E:\workspace\area\src\main\resources" />
       <recent name="E:\workspace\area\target\classes\tempdir" />
       <recent name="E:\workspace\area\src\test\java" />
       <recent name="E:\workspace\area\src\main\java\com\hoprxi" />
-      <recent name="E:\workspace\area\src\main\resources" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="E:\workspace\area\target\classes" />
       <recent name="E:\workspace\area\src\main\java" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.App">
+  <component name="RunManager" selected="TestNG..AreaQueryTest">
     <configuration name="App" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="com.hoprxi.App" />
       <module name="area" />
@@ -158,7 +154,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1676266686412</updated>
-      <workItem from="1676266693292" duration="13046000" />
+      <workItem from="1676266693292" duration="16642000" />
     </task>
     <task id="LOCAL-00001" summary="202302131358">
       <created>1676267975047</created>
@@ -167,7 +163,14 @@
       <option name="project" value="LOCAL" />
       <updated>1676267975047</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="202302131735">
+      <created>1676280967216</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1676280967216</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -186,6 +189,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="202302131358" />
-    <option name="LAST_COMMIT_MESSAGE" value="202302131358" />
+    <MESSAGE value="202302131735" />
+    <option name="LAST_COMMIT_MESSAGE" value="202302131735" />
   </component>
 </project>
