@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="06d15327-0203-4184-bc12-711a323ebadd" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/App.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/Bootstrap.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/Main.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/application/AreaBatchImport.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/application/AreaQuery.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/application/AreaView.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/Area.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/AreaRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/City.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/Country.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/County.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/Name.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/OutOfChinaException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/Province.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/Town.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/coordinate/BD09.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/coordinate/Boundary.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/coordinate/Calculation.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/coordinate/GCJ02.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/coordinate/WGS84.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/package-info.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/PsqlSetup.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/PsqlUtil.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/persistence/ArangoDBProvinceRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/persistence/PsqlAreaBatchImport.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/persistence/PsqlAreaRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/persistence/package-info.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/query/PsqlAreaQuery.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/AreaWebSocket.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/AreasServlet.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/IpSeekerServlet.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/UploadServlet.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/filter/CrossDomainFilter.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/ip/IPEntry.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/ip/IPSeeker.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/ip/IPUtils.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/web.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/area.conf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/areas_county.xls" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/cache.conf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/qqwry.dat" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/com/hoprxi/application/AreaBatchImportTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/com/hoprxi/application/AreaQueryTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/com/hoprxi/domain/model/AreaRepositoryTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/com/hoprxi/infrastructure/PsqlSetupTest.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="mavenHome" value="D:/Program Files (x86)/apache-maven-3.6.3" />
+        <option name="userSettingsFile" value="D:\Program Files (x86)\apache-maven-3.6.3\conf\settings.xml" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="MavenRunner">
+    <option name="skipTests" value="true" />
+  </component>
+  <component name="ProjectId" id="2LfeggfxhAMJvTsR5b9wnQobCbz" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "last_opened_file_path": "E:/workspace/area/src/test/java",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
+    "settings.editor.selected.configurable": "MavenSettings"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="E:\workspace\area\src\test\java" />
+      <recent name="E:\workspace\area\src\main\java\com\hoprxi" />
+      <recent name="E:\workspace\area\src\main\resources" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="E:\workspace\area\src\main\java" />
+    </key>
+  </component>
+  <component name="RunManager" selected="TestNG.AreaQueryTest">
+    <configuration name="AreaQueryTest" type="TestNG">
+      <module name="area" />
+      <shortenClasspath name="NONE" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <option name="ALTERNATIVE_JRE_PATH" value="D:\Program Files\Java\jdk1.8.0_202\jre" />
+      <option name="SUITE_NAME" value="" />
+      <option name="PACKAGE_NAME" value="com.hoprxi.application" />
+      <option name="MAIN_CLASS_NAME" value="com.hoprxi.application.AreaQueryTest" />
+      <option name="GROUP_NAME" value="" />
+      <option name="TEST_OBJECT" value="CLASS" />
+      <option name="PARAMETERS" value="" />
+      <option name="OUTPUT_DIRECTORY" value="" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="moduleWithDependencies" />
+      </option>
+      <option name="PROPERTIES_FILE" value="" />
+      <properties />
+      <listeners />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="PsqlSetupTest" type="TestNG">
+      <module name="area" />
+      <shortenClasspath name="NONE" />
+      <useClassPathOnly />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <option name="ALTERNATIVE_JRE_PATH" value="D:\Program Files\Java\jdk1.8.0_202\jre" />
+      <option name="SUITE_NAME" value="" />
+      <option name="PACKAGE_NAME" value="com.hoprxi.infrastructure" />
+      <option name="MAIN_CLASS_NAME" value="com.hoprxi.infrastructure.PsqlSetupTest" />
+      <option name="GROUP_NAME" value="" />
+      <option name="TEST_OBJECT" value="CLASS" />
+      <option name="PARAMETERS" value="" />
+      <option name="OUTPUT_DIRECTORY" value="" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="moduleWithDependencies" />
+      </option>
+      <option name="PROPERTIES_FILE" value="" />
+      <properties />
+      <listeners />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name=".AreaQueryTest" type="TestNG">
+      <module name="area" />
+      <shortenClasspath name="NONE" />
+      <useClassPathOnly />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <option name="ALTERNATIVE_JRE_PATH" value="D:\Program Files\Java\jdk1.8.0_202\jre" />
+      <option name="SUITE_NAME" value="" />
+      <option name="PACKAGE_NAME" value="com.hoprxi.application" />
+      <option name="MAIN_CLASS_NAME" value="com.hoprxi.application.AreaQueryTest" />
+      <option name="GROUP_NAME" value="" />
+      <option name="TEST_OBJECT" value="CLASS" />
+      <option name="PARAMETERS" value="" />
+      <option name="OUTPUT_DIRECTORY" value="" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="moduleWithDependencies" />
+      </option>
+      <option name="PROPERTIES_FILE" value="" />
+      <properties />
+      <listeners />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="TestNG.PsqlSetupTest" />
+      <item itemvalue="TestNG..AreaQueryTest" />
+      <item itemvalue="TestNG.AreaQueryTest" />
+    </list>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="06d15327-0203-4184-bc12-711a323ebadd" name="Changes" comment="" />
+      <created>1676266686412</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1676266686412</updated>
+      <workItem from="1676266693292" duration="1182000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>
