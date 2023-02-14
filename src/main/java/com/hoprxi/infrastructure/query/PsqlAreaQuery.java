@@ -21,6 +21,7 @@ import com.hoprxi.application.AreaView;
 import com.hoprxi.domain.model.Name;
 import com.hoprxi.domain.model.coordinate.Boundary;
 import com.hoprxi.domain.model.coordinate.WGS84;
+import com.hoprxi.infrastructure.PsqlAreaUtil;
 import com.hoprxi.infrastructure.PsqlUtil;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
@@ -106,35 +107,11 @@ public class PsqlAreaQuery implements AreaQuery {
         String code = rs.getString("code");
         AreaView.ParentArea parentArea = new AreaView.ParentArea(rs.getString("parent_code"), rs.getString("parent_name"));
         Name name = new Name(rs.getString("name"), rs.getString("mnemonic"), (char) rs.getInt("initials"), rs.getString("abbreviation"), rs.getString("alternativeAbbreviation"));
-        Boundary boundary = new Boundary(toWgs84(rs.getString("center")), toWgs84(rs.getString("min")), toWgs84(rs.getString("max")));
+        Boundary boundary = new Boundary(PsqlAreaUtil.toWgs84(rs.getString("center")), PsqlAreaUtil.toWgs84(rs.getString("min")), PsqlAreaUtil.toWgs84(rs.getString("max")));
         String zipcode = rs.getString("zipcode");
         String telephoneCode = rs.getString("telephone_code");
         areaView = new AreaView(code, parentArea, name, boundary, zipcode, telephoneCode, AreaView.Level.valueOf(rs.getString("type")));
         return areaView;
-    }
-
-    private WGS84 toWgs84(String json) throws IOException {
-        if (json == null)
-            return null;
-        double longitude = 0.0, latitude = 0.0;
-        JsonFactory jasonFactory = new JsonFactory();
-        JsonParser parser = jasonFactory.createParser(json.getBytes(StandardCharsets.UTF_8));
-        while (!parser.isClosed()) {
-            JsonToken jsonToken = parser.nextToken();
-            if (JsonToken.FIELD_NAME == jsonToken) {
-                String fieldName = parser.getCurrentName();
-                parser.nextToken();
-                switch (fieldName) {
-                    case "longitude":
-                        longitude = parser.getDoubleValue();
-                        break;
-                    case "latitude":
-                        latitude = parser.getDoubleValue();
-                        break;
-                }
-            }
-        }
-        return new WGS84(longitude, latitude);
     }
 
     @Override

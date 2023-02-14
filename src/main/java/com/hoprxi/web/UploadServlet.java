@@ -20,6 +20,8 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebInitParam;
@@ -29,10 +31,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.StringJoiner;
+import java.util.UUID;
 
 /***
  * @author <a href="www.hoprxi.com/authors/guan xiangHuan">guan xiangHuang</a>
@@ -42,6 +47,9 @@ import java.util.StringJoiner;
 @WebServlet(urlPatterns = {"/v1/upload"}, name = "upload", asyncSupported = false, initParams = {
         @WebInitParam(name = "databaseName", value = "catalog")})
 public class UploadServlet extends HttpServlet {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(UploadServlet.class);
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -87,11 +95,19 @@ public class UploadServlet extends HttpServlet {
                         //	System.out.println(name+"="+va);
                         ///		request.setAttribute(name, value);
                     } else {
-                        System.out.println(loader.getResource("conf").getPath());
-                        final StringJoiner path = new StringJoiner(File.separator, loader.getResource("upload").getPath() + File.separator, "")
+                        System.out.println(item.getName().split(".").length);
+                        LOGGER.info(UploadServlet.class.getResource("/").getFile());
+                        String filename = item.getName();
+                        if (filename.lastIndexOf(".") == -1) {
+                            filename = "";
+                        }
+                        filename = filename.substring(filename.lastIndexOf("."));
+                        final StringJoiner path = new StringJoiner("/", UploadServlet.class.getResource("/").toExternalForm(), "")
                                 .add(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
-                                .add(item.getName());
-                        File uploadedFile = new File(path.toString());
+                                .add(UUID.randomUUID() + filename);
+                        LOGGER.info(path.toString());
+                        System.out.println(new URL(path.toString()).toExternalForm());
+                        File uploadedFile = new File(new URI(path.toString()));
                         File fileParent = uploadedFile.getParentFile();
                         if (!fileParent.exists()) {
                             fileParent.mkdirs();// 创建多个子目录区分类

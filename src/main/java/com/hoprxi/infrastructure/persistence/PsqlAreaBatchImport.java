@@ -1,18 +1,16 @@
 package com.hoprxi.infrastructure.persistence;
 
-import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.hoprxi.application.AreaBatchImport;
 import com.hoprxi.domain.model.Name;
 import com.hoprxi.domain.model.coordinate.Boundary;
 import com.hoprxi.domain.model.coordinate.WGS84;
+import com.hoprxi.infrastructure.PsqlAreaUtil;
 import com.hoprxi.infrastructure.PsqlUtil;
 import org.apache.poi.ss.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -84,14 +82,14 @@ public class PsqlAreaBatchImport implements AreaBatchImport {
                     name = cell.getStringCellValue();
                     break;
                 case 3:
-                    cellJoiner.add("'" + toJson(new Name(name, cell.getStringCellValue())) + "'");
+                    cellJoiner.add("'" + PsqlAreaUtil.toJson(new Name(name, cell.getStringCellValue())) + "'");
                     break;
                 case 4:
                     longitude = cell.getNumericCellValue();
                     break;
                 case 5:
                     latitude = cell.getNumericCellValue();
-                    cellJoiner.add("'" + toJson(new Boundary(new WGS84(longitude, latitude))) + "'");
+                    cellJoiner.add("'" + PsqlAreaUtil.toJson(new Boundary(new WGS84(longitude, latitude))) + "'");
                     break;
                 case 6:
                     int level = (int) cell.getNumericCellValue();
@@ -116,57 +114,6 @@ public class PsqlAreaBatchImport implements AreaBatchImport {
             }
         }
         return cellJoiner;
-    }
-
-    private String toJson(Name name) {
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-        try (JsonGenerator generator = jasonFactory.createGenerator(output, JsonEncoding.UTF8)) {
-            generator.writeStartObject();
-            generator.writeStringField("name", name.name());
-            generator.writeStringField("mnemonic", name.mnemonic());
-            generator.writeNumberField("initials", name.initials());
-            generator.writeStringField("abbreviation", name.abbreviation());
-            if (name.alternativeAbbreviation() != null && !name.alternativeAbbreviation().isEmpty())
-                generator.writeStringField("alternativeAbbreviation", name.alternativeAbbreviation());
-            generator.writeEndObject();
-            generator.flush();
-        } catch (IOException e) {
-            LOGGER.error("Not write name as json", e);
-        }
-        return output.toString();
-    }
-
-    private String toJson(Boundary boundary) {
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-        try (JsonGenerator generator = jasonFactory.createGenerator(output, JsonEncoding.UTF8)) {
-            generator.writeStartArray();
-            generator.writeStartObject();
-            generator.writeNumberField("longitude", boundary.getCentre().longitude());
-            generator.writeNumberField("latitude", boundary.getCentre().latitude());
-            generator.writeEndObject();
-            if (boundary.getMin() != null) {
-                generator.writeStartObject();
-                generator.writeNumberField("longitude", boundary.getMin().longitude());
-                generator.writeNumberField("latitude", boundary.getMin().latitude());
-                generator.writeEndObject();
-            }
-            if (boundary.getMax() != null) {
-                generator.writeStartObject();
-                generator.writeNumberField("longitude", boundary.getMax().longitude());
-                generator.writeNumberField("latitude", boundary.getMax().latitude());
-                generator.writeEndObject();
-            }
-            generator.writeEndArray();
-            generator.flush();
-        } catch (IOException e) {
-            LOGGER.error("Not write name as json", e);
-        }
-        return output.toString();
-    }
-
-    private String splicingSql(Row row) {
-        final StringBuilder prefix_sql = new StringBuilder("insert into area (code,parent_code,name,zipcode,telephone_code,boundary,\"type\") values");
-        return null;
     }
 
     private String getCellValueByCell(Cell cell) {

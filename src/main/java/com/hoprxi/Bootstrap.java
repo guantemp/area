@@ -23,7 +23,7 @@ public final class Bootstrap {
         ServletContainer container = ServletContainer.Factory.newInstance();
         DeploymentInfo deploymentInfo = Servlets.deployment()
                 .setClassLoader(Bootstrap.class.getClassLoader())
-                .setContextPath("area/")
+                .setContextPath("area")
                 .setDeploymentName("area.war")
                 .addServlets(
                         Servlets.servlet("AreasServlet", AreasServlet.class)
@@ -41,7 +41,7 @@ public final class Bootstrap {
                                 */
         DeploymentManager manager = container.addDeployment(deploymentInfo);
         manager.deploy();
-        PathHandler path = Handlers.path(Handlers.redirect("area/"))
+        PathHandler path = Handlers.path(Handlers.redirect("area"))
                 .addPrefixPath(deploymentInfo.getContextPath(), manager.start());
 
         Undertow server = Undertow.builder()

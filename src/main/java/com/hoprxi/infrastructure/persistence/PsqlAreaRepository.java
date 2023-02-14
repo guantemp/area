@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.*;
 import com.hoprxi.domain.model.*;
 import com.hoprxi.domain.model.coordinate.Boundary;
 import com.hoprxi.domain.model.coordinate.WGS84;
+import com.hoprxi.infrastructure.PsqlAreaUtil;
 import com.hoprxi.infrastructure.PsqlUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,25 +69,25 @@ public class PsqlAreaRepository implements AreaRepository {
             String code = rs.getString("code");
             String parentCode = rs.getString("parent_code");
             Name name = new Name(rs.getString("name"), rs.getString("mnemonic"), (char) rs.getInt("initials"), rs.getString("abbreviation"), rs.getString("alternativeAbbreviation"));
-            Boundary boundary = new Boundary(toWgs84(rs.getString("center")), toWgs84(rs.getString("min")), toWgs84(rs.getString("max")));
-            String postcode = rs.getString("zipcode");
+            Boundary boundary = new Boundary(PsqlAreaUtil.toWgs84(rs.getString("center")), PsqlAreaUtil.toWgs84(rs.getString("min")), PsqlAreaUtil.toWgs84(rs.getString("max")));
+            String zipcode = rs.getString("zipcode");
             String telephoneCode = rs.getString("telephone_code");
             String type = rs.getString("type");
             switch (type) {
                 case "PROVINCE":
-                    area = new Province(code, parentCode, name, boundary, postcode, telephoneCode);
+                    area = new Province(code, parentCode, name, boundary, zipcode, telephoneCode);
                     break;
                 case "COUNTRY":
-                    area = new Country(code, parentCode, name, boundary, postcode, telephoneCode);
+                    area = new Country(code, parentCode, name, boundary, zipcode, telephoneCode);
                     break;
                 case "CITY":
-                    area = new City(code, parentCode, name, boundary, postcode, telephoneCode);
+                    area = new City(code, parentCode, name, boundary, zipcode, telephoneCode);
                     break;
-                case "CONTY":
-                    area = new County(code, parentCode, name, boundary, postcode, telephoneCode);
+                case "COUNTY":
+                    area = new County(code, parentCode, name, boundary, zipcode, telephoneCode);
                     break;
                 case "TOWN":
-                    area = new Town(code, parentCode, name, boundary, postcode, telephoneCode);
+                    area = new Town(code, parentCode, name, boundary, zipcode, telephoneCode);
                     break;
             }
         }
@@ -101,10 +102,10 @@ public class PsqlAreaRepository implements AreaRepository {
             PreparedStatement ps = connection.prepareStatement(insertRoot);
             ps.setString(1, area.code());
             ps.setString(2, area.parentCode());
-            ps.setString(3, toJson(area.name()));
+            ps.setString(3, PsqlAreaUtil.toJson(area.name()));
             ps.setString(4, area.zipcode());
             ps.setString(5, area.telephoneCode());
-            ps.setString(6, toJson(area.boundary()));
+            ps.setString(6, PsqlAreaUtil.toJson(area.boundary()));
             //如果值area.getClass().getSimpleName()不是enum类型，要在插入语句中加入 CAST（？ AS enum_type)
             //如果是java enum类型，使用 enum.name（）填充即可
             ps.setString(7, area.getClass().getSimpleName().toUpperCase());
@@ -120,81 +121,12 @@ public class PsqlAreaRepository implements AreaRepository {
     @Override
     public void delete(String code) {
         try (Connection connection = PsqlUtil.getConnection()) {
-            final String removeSql = "delete fromarea where code=?";
+            final String removeSql = "delete from area where code=?";
             PreparedStatement preparedStatement = connection.prepareStatement(removeSql);
             preparedStatement.setString(1, code);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             LOGGER.error("Can't delete brand(code={})", code, e);
         }
-    }
-
-    private String toJson(Name name) {
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-        try (JsonGenerator generator = jasonFactory.createGenerator(output, JsonEncoding.UTF8)) {
-            generator.writeStartObject();
-            generator.writeStringField("name", name.name());
-            generator.writeStringField("mnemonic", name.mnemonic());
-            generator.writeNumberField("initials", name.initials());
-            generator.writeStringField("abbreviation", name.abbreviation());
-            if (name.alternativeAbbreviation() != null && !name.alternativeAbbreviation().isEmpty())
-                generator.writeStringField("alternativeAbbreviation", name.alternativeAbbreviation());
-            generator.writeEndObject();
-            generator.flush();
-        } catch (IOException e) {
-            LOGGER.error("Not write name as json", e);
-        }
-        return output.toString();
-    }
-
-    private String toJson(Boundary boundary) {
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-        try (JsonGenerator generator = jasonFactory.createGenerator(output, JsonEncoding.UTF8)) {
-            generator.writeStartArray();
-            generator.writeStartObject();
-            generator.writeNumberField("longitude", boundary.getCentre().longitude());
-            generator.writeNumberField("latitude", boundary.getCentre().latitude());
-            generator.writeEndObject();
-            if (boundary.getMin() != null) {
-                generator.writeStartObject();
-                generator.writeNumberField("longitude", boundary.getMin().longitude());
-                generator.writeNumberField("latitude", boundary.getMin().latitude());
-                generator.writeEndObject();
-            }
-            if (boundary.getMax() != null) {
-                generator.writeStartObject();
-                generator.writeNumberField("longitude", boundary.getMax().longitude());
-                generator.writeNumberField("latitude", boundary.getMax().latitude());
-                generator.writeEndObject();
-            }
-            generator.writeEndArray();
-            generator.flush();
-        } catch (IOException e) {
-            LOGGER.error("Not write name as json", e);
-        }
-        return output.toString();
-    }
-
-    private WGS84 toWgs84(String json) throws IOException {
-        if (json == null)
-            return null;
-        double longitude = 0.0, latitude = 0.0;
-        JsonParser parser = jasonFactory.createParser(json.getBytes(StandardCharsets.UTF_8));
-        while (!parser.isClosed()) {
-            JsonToken jsonToken = parser.nextToken();
-            if (JsonToken.FIELD_NAME == jsonToken) {
-                String fieldName = parser.getCurrentName();
-                parser.nextToken();
-                switch (fieldName) {
-                    case "longitude":
-                        longitude = parser.getDoubleValue();
-                        break;
-                    case "latitude":
-                        latitude = parser.getDoubleValue();
-                        break;
-                }
-            }
-        }
-        return new WGS84(longitude, latitude);
     }
 }

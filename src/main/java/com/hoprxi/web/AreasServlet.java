@@ -20,7 +20,10 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.hoprxi.application.AreaQuery;
 import com.hoprxi.application.AreaView;
-import com.hoprxi.domain.model.Area;
+import com.hoprxi.domain.model.*;
+import com.hoprxi.domain.model.coordinate.Boundary;
+import com.hoprxi.domain.model.coordinate.WGS84;
+import com.hoprxi.infrastructure.persistence.PsqlAreaRepository;
 import com.hoprxi.infrastructure.query.PsqlAreaQuery;
 
 import javax.servlet.annotation.WebInitParam;
@@ -30,15 +33,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.stream.Collectors;
 
 /***
  * @author <a href="www.hoprxi.com/authors/guan xianghuang">guan xiangHuan</a>
  * @since JDK8.0
- * @version 0.0.1 builder 2023-02-11
+ * @version 0.0.2 builder 2023-02-11
  *          <p>
  *          restful http<br/>
  *          areas return all country <br/>
@@ -47,23 +48,23 @@ import java.util.stream.Collectors;
  *          <br/>
  *          <ul>
  *          parameter:
- *          <li>search=regularExpression(name,mnemonic) and filter=country,province,city,county,town</li>
- *          <li>field=name,pinyin,abbreviation, initials,alternativeAbbreviation, boundary, zipcode,telephoneCode</li>
+ *          <li>search=regularExpression(name,mnemonic) and filters=country,province,city,county,town</li>
+ *          <li>fields=name,pinyin,abbreviation, initials,alternativeAbbreviation, boundary, zipcode,telephoneCode</li>
  *          </ul>
  *          </p>
  */
 @WebServlet(urlPatterns = {"/v1/areas/*"}, name = "areas", asyncSupported = false, initParams = {
         @WebInitParam(name = "database", value = "arangodb")})
 public class AreasServlet extends HttpServlet {
-    private static final String[] FIELDS = {"name", "zipcode", "telephoneCode"};
     private static final long serialVersionUID = 1L;
+    private static final String[] FIELDS = {"name", "zipcode", "telephoneCode"};
 
     static {
         Arrays.sort(FIELDS, String.CASE_INSENSITIVE_ORDER);
     }
 
-    private final JsonFactory jasonFactory = JsonFactory.builder().build();
-    private AreaQuery query = new PsqlAreaQuery();
+    private final JsonFactory jsonFactory = JsonFactory.builder().build();
+    private final AreaQuery query = new PsqlAreaQuery();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -80,22 +81,27 @@ public class AreasServlet extends HttpServlet {
             }
         }
          */
-        JsonGenerator generator = jasonFactory.createGenerator(response.getOutputStream(), JsonEncoding.UTF8);
+        JsonGenerator generator = jsonFactory.createGenerator(response.getOutputStream(), JsonEncoding.UTF8);
         generator.useDefaultPrettyPrinter();
         String pathInfo = request.getPathInfo();
         if (pathInfo == null) {
             String search = request.getParameter("search");
             if (search != null) {
                 AreaView[] views = query.queryByName(search);
-                String filter = request.getParameter("filter");
-                if (filter != null) {
-                    String upperCaeFilter = filter.toUpperCase();
-                    views = Arrays.stream(views).filter(view -> AreaView.Level.valueOf(upperCaeFilter) == view.level()).collect(Collectors.toList()).toArray(new AreaView[0]);
+                String filters = request.getParameter("filters");
+                if (filters != null) {
+                    views = Arrays.stream(views).filter(view -> {
+                        for (String filter : filters.split(",")) {
+                            if (AreaView.Level.valueOf(filter.toUpperCase()) == view.level())
+                                return true;
+                        }
+                        return false;
+                    }).collect(Collectors.toList()).toArray(new AreaView[0]);
                 }
-                writeAreas(generator, views);
+                writeAreaViews(generator, views);
             } else {
                 AreaView[] views = query.queryCountry();
-                writeAreas(generator, views);
+                writeAreaViews(generator, views);
             }
         } else {
             String[] paths = pathInfo.split("/");
@@ -108,7 +114,7 @@ public class AreasServlet extends HttpServlet {
                 }
             } else if (paths.length > 2 && paths[2].equals("juri")) {
                 AreaView[] views = query.queryByJurisdiction(paths[1]);
-                writeAreas(generator, views);
+                writeAreaViews(generator, views);
             } else {
                 writeNotFind(response, generator, paths[1]);
             }
@@ -117,7 +123,7 @@ public class AreasServlet extends HttpServlet {
         generator.close();
     }
 
-    private void writeAreas(JsonGenerator generator, AreaView[] views) throws IOException {
+    private void writeAreaViews(JsonGenerator generator, AreaView[] views) throws IOException {
         generator.writeStartObject();
         generator.writeArrayFieldStart("areas");
         for (AreaView view : views)
@@ -130,7 +136,7 @@ public class AreasServlet extends HttpServlet {
         resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         generator.writeStartObject();
         generator.writeNumberField("code", 1001);
-        generator.writeStringField("message", "Not query area(id=" + id + ")");
+        generator.writeStringField("message", "Not query area(code=" + id + ")");
         generator.writeEndObject();
     }
 
@@ -142,6 +148,7 @@ public class AreasServlet extends HttpServlet {
         generator.writeStringField("name", view.name().name());
         generator.writeStringField("mnemonic", view.name().mnemonic());
         generator.writeStringField("initials", String.valueOf(view.name().initials()));
+        //if (Arrays.binarySearch(fields, "abbreviation") >= 0)
         generator.writeStringField("abbreviation", view.name().abbreviation());
         if (view.name().alternativeAbbreviation() != null && !view.name().alternativeAbbreviation().isEmpty())
             generator.writeStringField("alternativeAbbreviation", view.name().alternativeAbbreviation());
@@ -185,19 +192,18 @@ public class AreasServlet extends HttpServlet {
         response.setHeader("location", "/v1/areas/" + area.code());
     }
 
-    /**
-     * @param request
-     * @return
-     */
+/*
     private String[] fileds(HttpServletRequest request) {
         String field = request.getParameter("field");
         if (field == null) return FIELDS;
         else {
             String[] temp = field.split(",");
+            //排序用于二分查找
             Arrays.sort(temp, String.CASE_INSENSITIVE_ORDER);
             return temp;
         }
     }
+ */
 
     /**
      * @param is
@@ -206,78 +212,16 @@ public class AreasServlet extends HttpServlet {
      * @throws IOException
      */
     private Area parserJson(InputStream is) throws JsonParseException, IOException {
-        JsonFactory jfactory = new JsonFactory();
-        JsonParser jParser = jfactory.createParser(is);
-        int id = 0, parentId = 0;
-        //Name name = "";
-        String abbreviation = "";
-        String postcode = "";
-        String pinyin = "";
-        String initials = "";
-        String mergerAbbreviation = "";
-        //Name mergerName = "";
-        String remark = "";
-        String cityCode = "";
-        //Grade grade = null;
-        double latitude = 0, longitude = 0;
-        byte sort = (byte) 0;
-        char firstChar = 0;
-        while (jParser.nextToken() != JsonToken.END_OBJECT) {
+        JsonParser parser = jsonFactory.createParser(is);
+        String code = "", parentCode = "", name = "", abbreviation = "";
+        String zipcode = null, alternativeAbbreviation = null, telephoneCode = null;
+        Boundary boundary = null;
+        AreaView.Level level = AreaView.Level.COUNTRY;
+        /*
+         while (jParser.nextToken() != JsonToken.END_OBJECT) {
             String fieldname = jParser.getCurrentName();
-            if ("id".equals(fieldname)) {
-                jParser.nextToken();
-                id = jParser.getIntValue();
-            }
-            if ("parentId".equals(fieldname)) {
-                jParser.nextToken();
-                parentId = jParser.getIntValue();
-            }
-            if ("name".equals(fieldname)) {
-                jParser.nextToken();
-                // name = jParser.getText();
-            }
-            if ("mergerName".equals(fieldname)) {
-                jParser.nextToken();
-                //mergerName = jParser.getText();
-            }
-            if ("abbreviation".equals(fieldname)) {
-                jParser.nextToken();
-                abbreviation = jParser.getText();
-            }
-            if ("pinyin".equals(fieldname)) {
-                jParser.nextToken();
-                pinyin = jParser.getText();
-            }
-            if ("initials".equals(fieldname)) {
-                jParser.nextToken();
-                initials = jParser.getText();
-            }
-            if ("firstChar".equals(fieldname)) {
-                jParser.nextToken();
-                firstChar = jParser.getText().charAt(0);
-            }
-            if ("mergerAbbreviation".equals(fieldname)) {
-                jParser.nextToken();
-                mergerAbbreviation = jParser.getText();
-            }
-            if ("zipcode".equals(fieldname)) {
-                jParser.nextToken();
-                postcode = jParser.getText();
-            }
-            if ("cityCode".equals(fieldname)) {
-                jParser.nextToken();
-                cityCode = jParser.getText();
-            }
-            if ("grade".equals(fieldname)) {
-                jParser.nextToken();
-                //grade = Grade.valueOf(jParser.getText());
-            }
-            if ("sort".equals(fieldname)) {
-                jParser.nextToken();
-                sort = jParser.getByteValue();
-            }
-            if ("coordinate".equals(fieldname)) {
-                while (jParser.nextToken() != JsonToken.END_OBJECT) {
+            if ("boundy".equals(fieldname)) {
+                while (jParser.nextToken() != JsonToken.END_OBJECT) {//JsonToken.END_ARRAY
                     if ("latitude".equals(fieldname)) {
                         jParser.nextToken();
                         latitude = jParser.getDoubleValue();
@@ -288,105 +232,111 @@ public class AreasServlet extends HttpServlet {
                     }
                 }
             }
-            if ("remark".equals(fieldname)) {
-                jParser.nextToken();
-                remark = jParser.getText();
+           }
+         */
+        while (!parser.isClosed()) {
+            JsonToken jsonToken = parser.nextToken();
+            if (JsonToken.FIELD_NAME.equals(jsonToken)) {
+                String fieldName = parser.getCurrentName();
+                parser.nextToken();
+                switch (fieldName) {
+                    case "code":
+                        code = parser.getValueAsString();
+                        break;
+                    case "parentCode":
+                        parentCode = parser.getValueAsString();
+                        break;
+                    case "name":
+                        name = parser.getValueAsString();
+                        break;
+                    case "abbreviation":
+                        abbreviation = parser.getValueAsString();
+                        break;
+                    case "alternativeAbbreviation":
+                        alternativeAbbreviation = parser.getValueAsString();
+                        break;
+                    case "zipcode":
+                        zipcode = parser.getValueAsString();
+                        break;
+                    case "telephoneCode":
+                        telephoneCode = parser.getValueAsString();
+                        break;
+                    case "boundy":
+                        //boundary = deserialize(parser);
+                        break;
+                    case "level":
+                        level = parser.readValueAs(AreaView.Level.class);
+                        break;
+                }
             }
         }
-        return null;
-        //return new Area(id, parentId, name, mergerName, abbreviation, mergerAbbreviation, pinyin, initials, firstChar,
-        //       grade, cityCode, zipcode, new WGS84(latitude, longitude), sort, remark);
-    }
-
-    /**
-     * @param request
-     * @return
-     */
-    private String sortBy(HttpServletRequest request) {
-        String sort = request.getParameter("sort");
-        if (null != sort) return sort.split(",")[0];
-        return null;
-    }
-
-    /**
-     * @param j
-     * @param area
-     * @param fields
-     * @throws JsonGenerationException
-     * @throws IOException
-     */
-    private void writeArea(JsonGenerator j, Area area, String[] fields) throws JsonGenerationException, IOException {
-        j.writeStartObject();
-        /*
-        j.writeNumberField("id", area.id());
-        j.writeNumberField("parentId", area.parentId());
-        j.writeStringField("name", area.name());
-        if (Arrays.binarySearch(fields, "mergerName") > 0)
-            j.writeStringField("mergerName", area.mergerName());
-        if (Arrays.binarySearch(fields, "abbreviation") >= 0)
-            j.writeStringField("abbreviation", area.abbreviation());
-        if (Arrays.binarySearch(fields, "mergerAbbreviation") >= 0)
-            j.writeStringField("mergerAbbreviation", area.mergerAbbreviation());
-        if (Arrays.binarySearch(fields, "pinyin") >= 0)
-            j.writeStringField("pinyin", area.pinyin());
-        if (Arrays.binarySearch(fields, "initials") >= 0)
-            j.writeStringField("initials", area.initials());
-        if (Arrays.binarySearch(fields, "firstChar") >= 0)
-            j.writeStringField("firstChar", String.valueOf(area.firstChar()));
-        j.writeStringField("grade", area.grade().name());
-        if (Arrays.binarySearch(fields, "coordinate") >= 0) {
-            j.writeObjectFieldStart("coordinate");
-            j.writeNumberField("latitude", area.wgs84().latitude());
-            j.writeNumberField("longitude", area.wgs84().longitude());
-            j.writeEndObject();
+        Name areaName = new Name(name, abbreviation, alternativeAbbreviation);
+        Area area = null;
+        switch (level) {
+            case PROVINCE:
+                area = new Province(code, parentCode, areaName, boundary, zipcode, telephoneCode);
+                break;
+            case COUNTRY:
+                area = new Country(code, parentCode, areaName, boundary, zipcode, telephoneCode);
+                break;
+            case CITY:
+                area = new City(code, parentCode, areaName, boundary, zipcode, telephoneCode);
+                break;
+            case COUNTY:
+                area = new County(code, parentCode, areaName, boundary, zipcode, telephoneCode);
+                break;
+            case TOWN:
+                area = new Town(code, parentCode, areaName, boundary, zipcode, telephoneCode);
+                break;
         }
-        if (Arrays.binarySearch(fields, "zipcode") >= 0)
-            j.writeStringField("zipcode", area.zipcode());
-        if (Arrays.binarySearch(fields, "cityCode") >= 0)
-            j.writeStringField("cityCode", area.cityCode());
-        if (Arrays.binarySearch(fields, "sort") >= 0)
-            j.writeNumberField("sort", area.sort());
-        if (Arrays.binarySearch(fields, "remark") >= 0)
-            j.writeStringField("remark", area.remark());
-        j.writeEndObject();
-
-         */
+        return area;
     }
 
-    /**
-     * @param os
-     * @param area
-     * @throws JsonGenerationException
-     * @throws IOException
-     */
-    private void writeArea(OutputStream os, Area area, String[] fields) throws JsonGenerationException, IOException {
-        JsonFactory jasonFactory = new JsonFactory();
-        JsonGenerator j = jasonFactory.createGenerator(os, JsonEncoding.UTF8);
-        j.setPrettyPrinter(new DefaultPrettyPrinter());
-        writeArea(j, area, fields);
-        j.flush();
-        j.close();
+    private Boundary deserialize(JsonParser parser) throws IOException {
+        WGS84[] wgs84s = new WGS84[3];
+        double longitude = 0.0, latitude = 0.0;
+        int i = 0;
+        while (parser.nextToken() != JsonToken.END_ARRAY) {
+            if (JsonToken.FIELD_NAME == parser.nextToken()) {
+                String fieldName = parser.getCurrentName();
+                parser.nextToken();
+                switch (fieldName) {
+                    case "longitude":
+                        longitude = parser.getValueAsDouble(0.0);
+                        break;
+                    case "latitude":
+                        latitude = parser.getValueAsDouble(0.0);
+                        break;
+                }
+            }
+            long zero = Double.doubleToLongBits(0.0);
+            if (Double.doubleToLongBits(longitude) != zero && Double.doubleToLongBits(latitude) != zero) {
+                wgs84s[i] = new WGS84(longitude, latitude);
+                i++;
+            }
+        }
+        return new Boundary(wgs84s[0]);
     }
 
-    /**
-     * @param os
-     * @param areas
-     * @throws JsonGenerationException
-     * @throws IOException
-     */
-    private void writeAreas(OutputStream os, Collection<Area> areas, String[] fields) throws JsonGenerationException, IOException {
-        // for(String field:fields)
-        // System.out.println(field);
-        JsonFactory jasonFactory = new JsonFactory();
-        JsonGenerator j = jasonFactory.createGenerator(os, JsonEncoding.UTF8);
-        j.setPrettyPrinter(new DefaultPrettyPrinter());
-        j.writeStartObject();
-        j.writeArrayFieldStart("area");
-        for (Area area : areas)
-            writeArea(j, area, fields);
-        j.writeEndArray();
-        j.writeEndObject();
-        j.flush();
-        j.close();
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        String pathInfo = req.getPathInfo();
+        if (pathInfo != null) {
+            String[] paths = pathInfo.split("/");
+            if (paths.length == 2) {
+                AreaRepository repository = new PsqlAreaRepository();
+                repository.delete(paths[1]);
+            }
+        }
+        resp.setContentType("application/json; charset=UTF-8");
+        JsonGenerator generator = jsonFactory.createGenerator(resp.getOutputStream(), JsonEncoding.UTF8)
+                .setPrettyPrinter(new DefaultPrettyPrinter());
+        generator.writeStartObject();
+        generator.writeStringField("status", "success");
+        generator.writeNumberField("code", 20103);
+        generator.writeStringField("message", "area delete success");
+        generator.writeEndObject();
+        generator.flush();
+        generator.close();
     }
 }

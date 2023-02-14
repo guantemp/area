@@ -168,16 +168,20 @@
                         <manifest>
                             <!--  主程序  -->
                             <mainClass>com.hoprxi.Bootstrap</mainClass>
-                            <!--把第三方jar放到打包后jar文件中的manifest的classpath中，即maven-dependency中的依赖-->
+                            <!--把第三方jar放到打包后jar文件中的manifest的classpath中，看maven-dependency-plugin配置-->
                             <addClasspath>true</addClasspath>
                             <!--第三方jar将打包到lib目录下，classpath的前缀是lib/-->
                             <classpathPrefix>lib/</classpathPrefix>
                         </manifest>
-                        <!--(配置文件外置目录) -->
+                        <!--配置manifest属性,这里文件外置classpath目录 -->
                         <manifestEntries>
                             <Class-Path>conf/</Class-Path>
                         </manifestEntries>
                     </archive>
+                    <!-- 过滤不包含在jar的文件 -->
+                    <excludes>
+                        <exclude></exclude>
+                    </excludes>
                 </configuration>
             </plugin>
             <plugin>
