@@ -75,7 +75,7 @@ public class AreaQueryTest {
     public void testQueryByName() {
         AreaView[] views = query.queryByName("乐山");
         Assert.assertEquals(views.length, 1);
-        views = query.queryByName("^lss$");
+        views = query.queryByName("^ls");
         Assert.assertEquals(views.length, 1);
         views = query.queryByName("^小市");
         Assert.assertEquals(views.length, 1);

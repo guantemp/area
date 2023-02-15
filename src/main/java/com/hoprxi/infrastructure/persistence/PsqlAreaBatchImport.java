@@ -27,7 +27,6 @@ import java.util.StringJoiner;
  */
 public class PsqlAreaBatchImport implements AreaBatchImport {
     private static final Logger LOGGER = LoggerFactory.getLogger(PsqlAreaBatchImport.class);
-    private final JsonFactory jasonFactory = JsonFactory.builder().build();
 
     @Override
     public void importXlsFrom(InputStream is) throws IOException, SQLException {

@@ -43,16 +43,15 @@ public class IpSeekerServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-
+            throws IOException {
         IPSeeker seeker = IPSeeker.getInstance();
-
         IPEntry entry = new IPEntry();
         entry.beginIp = request.getRemoteAddr();
         entry.area = seeker.getArea(entry.beginIp);
         entry.country = seeker.getCountry(entry.beginIp);
 
         ObjectMapper mapper = new ObjectMapper();
+        response.setContentType("application/json;charset=UTF-8");
         PrintWriter writer = response.getWriter();
         writer.print(mapper.writeValueAsString(entry));
         writer.flush();

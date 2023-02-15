@@ -26,11 +26,6 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Objects;
 
 /***
  * @author <a href="www.hoprxi.com/authors/guan xiangHuan">guan xiangHuang</a>
@@ -47,11 +42,11 @@ public final class PsqlAreaUtil  {
         try (JsonGenerator generator = jasonFactory.createGenerator(output, JsonEncoding.UTF8)) {
             generator.writeStartObject();
             generator.writeStringField("name", name.name());
-            generator.writeStringField("mnemonic", name.mnemonic());
             generator.writeNumberField("initials", name.initials());
             generator.writeStringField("abbreviation", name.abbreviation());
-            if (name.alternativeAbbreviation() != null && !name.alternativeAbbreviation().isEmpty())
-                generator.writeStringField("alternativeAbbreviation", name.alternativeAbbreviation());
+            generator.writeStringField("mnemonic", name.mnemonic());
+            if (name.alias() != null && !name.alias().isEmpty())
+                generator.writeStringField("alias", name.alias());
             generator.writeEndObject();
             generator.flush();
         } catch (IOException e) {

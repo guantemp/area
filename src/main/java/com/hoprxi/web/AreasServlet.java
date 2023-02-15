@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
  *          <ul>
  *          parameter:
  *          <li>search=regularExpression(name,mnemonic) and filters=country,province,city,county,town</li>
- *          <li>fields=name,pinyin,abbreviation, initials,alternativeAbbreviation, boundary, zipcode,telephoneCode</li>
+ *          <li>fields=name,pinyin,abbreviation, initials,alias, boundary, zipcode,telephoneCode</li>
  *          </ul>
  *          </p>
  */
@@ -146,12 +146,12 @@ public class AreasServlet extends HttpServlet {
 
         generator.writeObjectFieldStart("name");
         generator.writeStringField("name", view.name().name());
-        generator.writeStringField("mnemonic", view.name().mnemonic());
         generator.writeStringField("initials", String.valueOf(view.name().initials()));
         //if (Arrays.binarySearch(fields, "abbreviation") >= 0)
         generator.writeStringField("abbreviation", view.name().abbreviation());
-        if (view.name().alternativeAbbreviation() != null && !view.name().alternativeAbbreviation().isEmpty())
-            generator.writeStringField("alternativeAbbreviation", view.name().alternativeAbbreviation());
+        generator.writeStringField("mnemonic", view.name().mnemonic());
+        if (view.name().alias() != null && !view.name().alias().isEmpty())
+            generator.writeStringField("alias", view.name().alias());
         generator.writeEndObject();
 
         generator.writeObjectFieldStart("parent");
@@ -214,7 +214,7 @@ public class AreasServlet extends HttpServlet {
     private Area parserJson(InputStream is) throws JsonParseException, IOException {
         JsonParser parser = jsonFactory.createParser(is);
         String code = "", parentCode = "", name = "", abbreviation = "";
-        String zipcode = null, alternativeAbbreviation = null, telephoneCode = null;
+        String zipcode = null, alias = null, telephoneCode = null;
         Boundary boundary = null;
         AreaView.Level level = AreaView.Level.COUNTRY;
         /*
@@ -252,8 +252,8 @@ public class AreasServlet extends HttpServlet {
                     case "abbreviation":
                         abbreviation = parser.getValueAsString();
                         break;
-                    case "alternativeAbbreviation":
-                        alternativeAbbreviation = parser.getValueAsString();
+                    case "alias":
+                        alias = parser.getValueAsString();
                         break;
                     case "zipcode":
                         zipcode = parser.getValueAsString();
@@ -270,7 +270,7 @@ public class AreasServlet extends HttpServlet {
                 }
             }
         }
-        Name areaName = new Name(name, abbreviation, alternativeAbbreviation);
+        Name areaName = new Name(name, abbreviation, alias);
         Area area = null;
         switch (level) {
             case PROVINCE:

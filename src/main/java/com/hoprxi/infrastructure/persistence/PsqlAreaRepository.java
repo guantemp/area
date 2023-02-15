@@ -16,18 +16,15 @@
 
 package com.hoprxi.infrastructure.persistence;
 
-import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.JsonFactory;
 import com.hoprxi.domain.model.*;
 import com.hoprxi.domain.model.coordinate.Boundary;
-import com.hoprxi.domain.model.coordinate.WGS84;
 import com.hoprxi.infrastructure.PsqlAreaUtil;
 import com.hoprxi.infrastructure.PsqlUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -41,7 +38,6 @@ import java.util.Objects;
  */
 public class PsqlAreaRepository implements AreaRepository {
     private static final Logger LOGGER = LoggerFactory.getLogger(PsqlAreaRepository.class);
-    private final JsonFactory jasonFactory = JsonFactory.builder().build();
 
     /**
      * @param code
@@ -51,7 +47,7 @@ public class PsqlAreaRepository implements AreaRepository {
     public Area find(String code) {
         code = Objects.requireNonNull(code, "code required").trim();
         try (Connection connection = PsqlUtil.getConnection()) {
-            final String findSql = "select code,parent_code,name::jsonb->>'name' name,name::jsonb->>'mnemonic' mnemonic,name::jsonb->>'initials' initials,name::jsonb->>'abbreviation' abbreviation,name::jsonb->>'alternativeAbbreviation' alternativeAbbreviation," +
+            final String findSql = "select code,parent_code,name::jsonb->>'name' name,name::jsonb->>'initials' initials,name::jsonb->>'abbreviation' abbreviation,name::jsonb->>'mnemonic' mnemonic,name::jsonb->>'alias' alias," +
                     "zipcode,telephone_code,boundary::jsonb -> 0 center, boundary::jsonb -> 1 min,boundary::jsonb -> 2 max,\"type\" from area where code=? limit 1";
             PreparedStatement preparedStatement = connection.prepareStatement(findSql);
             preparedStatement.setString(1, code);
@@ -68,7 +64,7 @@ public class PsqlAreaRepository implements AreaRepository {
         if (rs.next()) {
             String code = rs.getString("code");
             String parentCode = rs.getString("parent_code");
-            Name name = new Name(rs.getString("name"), rs.getString("mnemonic"), (char) rs.getInt("initials"), rs.getString("abbreviation"), rs.getString("alternativeAbbreviation"));
+            Name name = new Name(rs.getString("name"), (char) rs.getInt("initials"), rs.getString("abbreviation"), rs.getString("mnemonic"), rs.getString("alias"));
             Boundary boundary = new Boundary(PsqlAreaUtil.toWgs84(rs.getString("center")), PsqlAreaUtil.toWgs84(rs.getString("min")), PsqlAreaUtil.toWgs84(rs.getString("max")));
             String zipcode = rs.getString("zipcode");
             String telephoneCode = rs.getString("telephone_code");
