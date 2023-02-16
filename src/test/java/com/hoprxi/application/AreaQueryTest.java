@@ -73,14 +73,15 @@ public class AreaQueryTest {
 
     @Test
     public void testQueryByName() {
-        AreaView[] views = query.queryByName("乐山");
+        AreaView[] views = query.queryByName("^乐山");
+        for (AreaView view : views)
+            System.out.println(view);
         Assert.assertEquals(views.length, 1);
         views = query.queryByName("^ls");
         Assert.assertEquals(views.length, 1);
         views = query.queryByName("^小市");
         Assert.assertEquals(views.length, 1);
-        for (AreaView view : views)
-            System.out.println(view);
+
     }
 
     @Test(invocationCount = 8, threadPoolSize = 4)

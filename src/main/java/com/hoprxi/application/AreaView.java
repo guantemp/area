@@ -94,12 +94,13 @@ public class AreaView {
     @Override
     public String toString() {
         return new StringJoiner(", ", AreaView.class.getSimpleName() + "[", "]")
-                .add("parentAreaView=" + parentArea)
+                .add("parentArea=" + parentArea)
                 .add("code='" + code + "'")
                 .add("boundary=" + boundary)
                 .add("name=" + name)
                 .add("zipcode='" + zipcode + "'")
                 .add("telephoneCode='" + telephoneCode + "'")
+                .add("level=" + level)
                 .toString();
     }
 

@@ -53,11 +53,11 @@ public class Name {
     @Override
     public String toString() {
         return new StringJoiner(", ", Name.class.getSimpleName() + "[", "]")
-                .add("initials=" + initials)
-                .add("name='" + name + "'")
-                .add("pinyin='" + mnemonic + "'")
                 .add("abbreviation='" + abbreviation + "'")
                 .add("alias='" + alias + "'")
+                .add("initials=" + initials)
+                .add("name='" + name + "'")
+                .add("mnemonic='" + mnemonic + "'")
                 .toString();
     }
 
