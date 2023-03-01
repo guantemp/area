@@ -42,7 +42,6 @@ public class PsqlSetup {
     private static final String CREATE_USER = "create user {0} with login createdb password ''{1}'';";
     private static final String CREATE_DATABASE = "create database {0} with owner=area;";
     private static final String CREATE_TABLE_AREA_SQL = "create type area_type as enum ('CITY','COUNTRY','COUNTY','PROVINCE','TOWN');\n" +
-            "\n" +
             "create table if not exists area\n" +
             "(\n" +
             "    code           varchar(16) not null,\n" +
@@ -59,7 +58,7 @@ public class PsqlSetup {
             "    on area (parent_code);\n" +
             "\n" +
             "create index if not exists name_index\n" +
-            "    on area using gin (name);";
+            "    on area using gin (name) with (fastupdate ='on', gin_pending_list_limit ='4096');";
 
     private static final Config config;
 
@@ -103,7 +102,7 @@ public class PsqlSetup {
             }
         });
         final AreaBatchImport areaBatchImport = new PsqlAreaBatchImport();
-        URL url=loader.getResource("areas.xls");
+        URL url = loader.getResource("areas.xls");
         areaBatchImport.importXlsFrom(url.openStream());
     }
 }

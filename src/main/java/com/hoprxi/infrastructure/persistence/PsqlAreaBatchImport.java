@@ -1,6 +1,5 @@
 package com.hoprxi.infrastructure.persistence;
 
-import com.fasterxml.jackson.core.JsonFactory;
 import com.hoprxi.application.AreaBatchImport;
 import com.hoprxi.domain.model.Name;
 import com.hoprxi.domain.model.coordinate.Boundary;
@@ -36,7 +35,7 @@ public class PsqlAreaBatchImport implements AreaBatchImport {
             connection.setAutoCommit(false);
             Statement statement = connection.createStatement();
             StringJoiner sql = new StringJoiner(",", "insert into area (code,parent_code,name,boundary,\"type\") values", "");
-            for (int i = 1, j = sheet.getLastRowNum(); i < j; i++) {
+            for (int i = 1, j = sheet.getLastRowNum() + 1; i < j; i++) {
                 Row row = sheet.getRow(i);
                 StringJoiner values = extracted(row);
                 sql.add(values.toString());
@@ -74,8 +73,9 @@ public class PsqlAreaBatchImport implements AreaBatchImport {
             switch (k % divisor) {
                 case 0:
                 case 2:
-                    int code = (int) cell.getNumericCellValue();
-                    cellJoiner.add(String.valueOf(code));
+                    cell.setCellType(CellType.STRING);
+                    String code = cell.getStringCellValue();
+                    cellJoiner.add(code);
                     break;
                 case 1:
                     name = cell.getStringCellValue();

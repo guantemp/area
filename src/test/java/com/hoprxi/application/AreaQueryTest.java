@@ -105,7 +105,7 @@ public class AreaQueryTest {
     @Test
     public void testQueryCountry() {
         AreaView[] views = query.queryCountry();
-        Assert.assertEquals(views.length, 1);
+        Assert.assertEquals(views.length, 3);
     }
     /*
     @AfterClass

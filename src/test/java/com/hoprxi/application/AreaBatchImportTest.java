@@ -18,7 +18,7 @@ public class AreaBatchImportTest {
     public void testImportXlsFrom() throws IOException, SQLException {
         final AreaBatchImport areaBatchImport = new PsqlAreaBatchImport();
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        URL url=loader.getResource("areas.xls");
+        URL url = loader.getResource("areas.xls");
         areaBatchImport.importXlsFrom(url.openStream());
         //System.out.println(loader.getResource("areas.xls").getFile());
     }
