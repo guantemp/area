@@ -16,6 +16,7 @@
 
 package com.hoprxi.domain.model.coordinate;
 
+import java.util.Objects;
 import java.util.StringJoiner;
 
 /***
@@ -29,13 +30,13 @@ public class Boundary {
     private final WGS84 centre;
 
     public Boundary(WGS84 centre) {
-        this.centre = centre;
+        this.centre = Objects.requireNonNull(centre, "centre is required");
     }
 
     public Boundary(WGS84 centre, WGS84 min, WGS84 max) {
+        this.centre = Objects.requireNonNull(centre, "centre is required");
         this.min = min;
         this.max = max;
-        this.centre = centre;
     }
 
     public WGS84 getMin() {
