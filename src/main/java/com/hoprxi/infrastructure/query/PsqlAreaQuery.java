@@ -54,10 +54,15 @@ public class PsqlAreaQuery implements AreaQuery {
                     "union\n" +
                     "select a1.code,a1.parent_code,a2.name::jsonb->>'name' parent_name,a1.name::jsonb->>'name' name,a1.name::jsonb->>'initials' initials,a1.name::jsonb->>'abbreviation' abbreviation,a1.name::jsonb->>'mnemonic' mnemonic,a1.name::jsonb->>'alias' alias,a1.zipcode,a1.telephone_code,a1.boundary::jsonb -> 0 center, a1.boundary::jsonb -> 1 min,a1.boundary::jsonb -> 2 max,a1.\"type\" from area a1\n" +
                     "inner join area a2 on a2.code = a1.parent_code\n" +
-                    "where a1.name::jsonb ->> 'mnemonic' ~ ?\n";
+                    "where a1.name::jsonb ->> 'mnemonic' ~ ?\n" +
+                    "union\n" +
+                    "select a1.code,a1.parent_code,a2.name::jsonb->>'name' parent_name,a1.name::jsonb->>'name' name,a1.name::jsonb->>'initials' initials,a1.name::jsonb->>'abbreviation' abbreviation,a1.name::jsonb->>'mnemonic' mnemonic,a1.name::jsonb->>'alias' alias,a1.zipcode,a1.telephone_code,a1.boundary::jsonb -> 0 center, a1.boundary::jsonb -> 1 min,a1.boundary::jsonb -> 2 max,a1.\"type\" from area a1\n" +
+                    "inner join area a2 on a2.code = a1.parent_code\n" +
+                    "where a1.name::jsonb ->> 'name' ~ ?\n";
             PreparedStatement ps = connection.prepareStatement(queryByNameSql);
             ps.setString(1, regularExpression);
             ps.setString(2, regularExpression);
+            ps.setString(3, regularExpression);
             ResultSet rs = ps.executeQuery();
             return transform(rs);
         } catch (SQLException | IOException e) {

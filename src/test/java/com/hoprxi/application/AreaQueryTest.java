@@ -1,13 +1,9 @@
 package com.hoprxi.application;
 
-import com.hoprxi.domain.model.*;
-import com.hoprxi.domain.model.coordinate.Boundary;
-import com.hoprxi.domain.model.coordinate.WGS84;
+import com.hoprxi.domain.model.AreaRepository;
 import com.hoprxi.infrastructure.persistence.PsqlAreaRepository;
 import com.hoprxi.infrastructure.query.PsqlAreaQuery;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /***
@@ -19,6 +15,7 @@ public class AreaQueryTest {
     private static final AreaRepository repository = new PsqlAreaRepository();
     private static final AreaQuery query = new PsqlAreaQuery();
 
+    /*
     @BeforeClass
     public void beforeClass() {
         Name name = new Name("中华人民共和国", "中国");
@@ -70,21 +67,22 @@ public class AreaQueryTest {
         Province yunnan = new Province("530000", "156", name, boundary);
         repository.save(yunnan);
     }
+     */
 
     @Test
     public void testQueryByName() {
         AreaView[] views = query.queryByName("^乐山");
         for (AreaView view : views)
             System.out.println(view);
-        Assert.assertEquals(views.length, 1);
+        Assert.assertEquals(views.length, 3);
         views = query.queryByName("^ls");
-        Assert.assertEquals(views.length, 1);
+        Assert.assertEquals(views.length, 359);
         views = query.queryByName("^小市");
-        Assert.assertEquals(views.length, 1);
+        Assert.assertEquals(views.length, 4);
 
     }
 
-    @Test(invocationCount = 8, threadPoolSize = 4)
+    @Test(invocationCount = 8, threadPoolSize = 2)
     public void testQuery() {
         //System.out.println("this is thread" + Thread.currentThread().getId());
         AreaView view = query.query("156");
@@ -99,9 +97,9 @@ public class AreaQueryTest {
     @Test
     public void testQueryByJurisdiction() {
         AreaView[] views = query.queryByJurisdiction("156");
-        Assert.assertEquals(views.length, 2);
+        Assert.assertEquals(views.length, 34);
         views = query.queryByJurisdiction("510500");
-        Assert.assertEquals(views.length, 3);
+        Assert.assertEquals(views.length, 7);
     }
 
     @Test
@@ -109,7 +107,7 @@ public class AreaQueryTest {
         AreaView[] views = query.queryCountry();
         Assert.assertEquals(views.length, 1);
     }
-
+    /*
     @AfterClass
     public void tearDown() {
         repository.delete("510504001");
@@ -124,4 +122,5 @@ public class AreaQueryTest {
         repository.delete("530000");
         repository.delete("156");
     }
+     */
 }

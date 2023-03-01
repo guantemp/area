@@ -4,15 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="06d15327-0203-4184-bc12-711a323ebadd" name="Changes" comment="202302151845">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/SetupServlet.java" afterDir="false" />
+    <list default="true" id="06d15327-0203-4184-bc12-711a323ebadd" name="Changes" comment="202302161655">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/App.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/application/AreaView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/application/AreaView.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/Name.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/Name.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/query/PsqlAreaQuery.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/query/PsqlAreaQuery.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/areas.xls" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/areas.xls" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/com/hoprxi/application/AreaQueryTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/hoprxi/application/AreaQueryTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -81,7 +75,7 @@
       <recent name="com.hoprxi.infrastructure.persistence" />
     </key>
   </component>
-  <component name="RunManager" selected="TestNG.AreaBatchImportTest">
+  <component name="RunManager" selected="TestNG.AreaQueryTest">
     <configuration name="Main" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="com.hoprxi.Main" />
       <module name="area" />
@@ -222,7 +216,9 @@
       <workItem from="1676266693292" duration="17517000" />
       <workItem from="1676299279829" duration="22462000" />
       <workItem from="1676453642058" duration="4454000" />
-      <workItem from="1676535601216" duration="2135000" />
+      <workItem from="1676535601216" duration="2177000" />
+      <workItem from="1677556005403" duration="2098000" />
+      <workItem from="1677643797205" duration="692000" />
     </task>
     <task id="LOCAL-00001" summary="202302131358">
       <created>1676267975047</created>
@@ -259,7 +255,14 @@
       <option name="project" value="LOCAL" />
       <updated>1676457926499</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="202302161655">
+      <created>1676537762905</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1676537762905</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -282,6 +285,7 @@
     <MESSAGE value="202302132003" />
     <MESSAGE value="202302141750" />
     <MESSAGE value="202302151845" />
-    <option name="LAST_COMMIT_MESSAGE" value="202302151845" />
+    <MESSAGE value="202302161655" />
+    <option name="LAST_COMMIT_MESSAGE" value="202302161655" />
   </component>
 </project>
