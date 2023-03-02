@@ -18,11 +18,16 @@ package com.hoprxi.web;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.ProgressListener;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.FileCleanerCleanup;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.io.FileCleaningTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebInitParam;
 import javax.servlet.annotation.WebServlet;
@@ -44,11 +49,21 @@ import java.util.UUID;
  * @since JDK8.0
  * @version 0.0.1 2019-12-29
  */
-@WebServlet(urlPatterns = {"/v1/upload"}, name = "upload", asyncSupported = false, initParams = {
-        @WebInitParam(name = "databaseName", value = "catalog")})
+@WebServlet(urlPatterns = {"/v1/upload"}, name = "upload", initParams = {@WebInitParam(name = "UPLOAD_DIRECTORY", value = "upload"),
+        @WebInitParam(name = "MEMORY_THRESHOLD", value = "4194304"), @WebInitParam(name = "MAX_FILE_SIZE", value = "67108864")})
 public class UploadServlet extends HttpServlet {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(UploadServlet.class);
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        /*
+        Enumeration<String> names = config.getInitParameterNames();
+        while (names.hasMoreElements())
+            System.out.println(names.nextElement());
+        System.out.println(config.getInitParameter("MEMORY_THRESHOLD"));
+         */
+    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -73,21 +88,40 @@ public class UploadServlet extends HttpServlet {
         response.setHeader("Access-Control-Allow-Methods", "POST, GET");
         response.setHeader("Access-Control-Allow-Headers", "x-requested-with,content-type");
         if (ServletFileUpload.isMultipartContent(request)) {//是否文件表单
-            // Create a factory for disk-based file items
+            ServletContext servletContext = getServletContext();
+            FileCleaningTracker fileCleaningTracker
+                    = FileCleanerCleanup.getFileCleaningTracker(servletContext);
             DiskFileItemFactory factory = new DiskFileItemFactory();
             factory.setDefaultCharset("UTF-8");
-            factory.setFileCleaningTracker(null);
+            factory.setFileCleaningTracker(fileCleaningTracker);
             // Configure a repository (to ensure a secure temp location is used)
-
-            //System.out.println(loader.getResource("tempdir").getPath());
-            //factory.setRepository(new File(loader.getResource("tempdir").getPath()));
-            //factory.setSizeThreshold(1024 * 1024);
-            // Create a new file upload handler
+            File tempDir = (File) servletContext.getAttribute("javax.servlet.context.tempdir");
+            System.out.println("tempDir:" + tempDir.toString());
+            //超过4*1024*1kb(4MB)后写入临时文件
+            factory.setSizeThreshold(4 * 1024 * 1024);
+            factory.setRepository(tempDir);
             ServletFileUpload upload = new ServletFileUpload(factory);
-            // Set overall request size constraint
-            // upload.setSizeMax(100 * 1024 * 1024);
+            upload.setProgressListener(new ProgressListener() {
+                private long megaBytes = -1;
+
+                public void update(long pBytesRead, long pContentLength, int pItems) {
+                    long mBytes = pBytesRead / 1000000;
+                    if (megaBytes == mBytes) {
+                        return;
+                    }
+                    megaBytes = mBytes;
+                    System.out.println("We are currently reading item " + pItems);
+                    if (pContentLength == -1) {
+                        System.out.println("So far, " + pBytesRead + " bytes have been read.");
+                    } else {
+                        System.out.println("So far, " + pBytesRead + " of " + pContentLength
+                                + " bytes have been read.");
+                    }
+                }
+            });
             try {
                 ClassLoader loader = Thread.currentThread().getContextClassLoader();
+                System.out.println(loader.getResource(""));
                 List<FileItem> items = upload.parseRequest(request);
                 for (FileItem item : items) {
                     if (item.isFormField()) {//判断是否是文件流
@@ -95,7 +129,11 @@ public class UploadServlet extends HttpServlet {
                         //	System.out.println(name+"="+va);
                         ///		request.setAttribute(name, value);
                     } else {
-                        System.out.println(item.getName().split(".").length);
+                        System.out.println(item.getName().substring(0, item.getName().lastIndexOf(".")));
+                        String filepath = UploadServlet.class.getResource("/").toExternalForm();
+                        filepath = filepath.substring(0, filepath.lastIndexOf("/"));
+                        System.out.println(filepath.substring(0, filepath.lastIndexOf("/")));
+
                         LOGGER.info(UploadServlet.class.getResource("/").getFile());
                         String filename = item.getName();
                         if (filename.lastIndexOf(".") == -1) {
@@ -113,8 +151,9 @@ public class UploadServlet extends HttpServlet {
                             fileParent.mkdirs();// 创建多个子目录区分类
                         }
                         uploadedFile.deleteOnExit();
-                        uploadedFile.createNewFile();
+                        //uploadedFile.createNewFile();从临时文件拷贝过来的不能新建，报文件已存在异常，小于4MB的直接在内存里面的可以使用不报异常
                         item.write(uploadedFile);
+                        item.delete();
                     }
                 }
             } catch (FileUploadException e) {
