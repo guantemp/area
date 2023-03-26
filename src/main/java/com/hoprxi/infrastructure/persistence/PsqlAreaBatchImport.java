@@ -12,10 +12,13 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.RoundingMode;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.StringJoiner;
 
@@ -73,8 +76,8 @@ public class PsqlAreaBatchImport implements AreaBatchImport {
             switch (k % divisor) {
                 case 0:
                 case 2:
-                    cell.setCellType(CellType.STRING);
-                    String code = cell.getStringCellValue();
+                    //cell.setCellType(CellType.STRING);
+                    String code = readCellValue(cell);
                     cellJoiner.add(code);
                     break;
                 case 1:
@@ -115,66 +118,67 @@ public class PsqlAreaBatchImport implements AreaBatchImport {
         return cellJoiner;
     }
 
-    private String getCellValueByCell(Cell cell) {
+    private String readCellValue(Cell cell) {
         if (cell == null || cell.toString().trim().isEmpty()) {
-            return "";
+            return null;
         }
-        String cellValue = "";
-        CellType cellType = cell.getCellType();
-        switch (cellType) {
-            case NUMERIC:// 把枚举常量前的冗余类信息去掉编译即可通过
-                short format = cell.getCellStyle().getDataFormat();
+        String returnValue = null;
+        switch (cell.getCellType()) {
+            case NUMERIC:   //数字
                 if (DateUtil.isCellDateFormatted(cell)) {//注意：DateUtil.isCellDateFormatted()方法对“2019年1月18日"这种格式的日期，判断会出现问题，需要另行处理
-                    SimpleDateFormat sdf = null;
+                    DateTimeFormatter dtf;
+                    SimpleDateFormat sdf;
+                    short format = cell.getCellStyle().getDataFormat();
                     if (format == 20 || format == 32) {
                         sdf = new SimpleDateFormat("HH:mm");
                     } else if (format == 14 || format == 31 || format == 57 || format == 58) {
                         // 处理自定义日期格式：m月d日(通过判断单元格的格式id解决，id的值是58)
                         sdf = new SimpleDateFormat("yyyy-MM-dd");
                         double value = cell.getNumericCellValue();
-                        Date date = org.apache.poi.ss.usermodel.DateUtil.getJavaDate(value);
-                        cellValue = sdf.format(date);
+                        Date date = DateUtil.getJavaDate(value);
+                        returnValue = sdf.format(date);
                     } else {// 日期
                         sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     }
                     try {
-                        cellValue = sdf.format(cell.getDateCellValue());// 日期
+                        returnValue = sdf.format(cell.getDateCellValue());// 日期
                     } catch (Exception e) {
                         try {
                             throw new Exception("exception on get date data !".concat(e.toString()));
                         } catch (Exception e1) {
                             e1.printStackTrace();
                         }
-                    } finally {
                     }
                 } else {
-                    cellValue = String.valueOf(cell.getNumericCellValue());
-                    //BigDecimal bd = new BigDecimal(cell.getNumericCellValue());
-                    //cellValue = bd.toPlainString();// 数值 这种用BigDecimal包装再获取plainString，可以防止获取到科学计数值
+                    NumberFormat nf = NumberFormat.getNumberInstance();
+                    nf.setMaximumFractionDigits(3);
+                    nf.setRoundingMode(RoundingMode.HALF_EVEN);
+                    nf.setGroupingUsed(false);
+                    returnValue = nf.format(cell.getNumericCellValue());
+                    /*
+                    BigDecimal bd = new BigDecimal(cell.getNumericCellValue());
+                    bd.setScale(3, RoundingMode.HALF_UP);
+                    returnValue = bd.toPlainString();
+                     */
                 }
                 break;
-            case STRING: // 字符串
-                cellValue = cell.getStringCellValue();
+            case STRING:    //字符串
+                returnValue = cell.getStringCellValue().trim();
                 break;
-            case BOOLEAN: // Boolean
-                cellValue = cell.getBooleanCellValue() + "";
+            case BOOLEAN:   //布尔
+                Boolean booleanValue = cell.getBooleanCellValue();
+                returnValue = booleanValue.toString();
                 break;
-            case FORMULA: // 公式
-            {
-//            cellValue = cell.getCellFormula();//读取单元格中的公式
-                cellValue = String.valueOf(cell.getNumericCellValue());//读取单元格中的数值
-            }
-            break;
-            case BLANK: // 空值
-                cellValue = "";
+            case BLANK:     // 空值
                 break;
-            case ERROR: // 故障
-                cellValue = "ERROR VALUE";
+            case FORMULA:   // 公式
+                returnValue = cell.getCellFormula();
+                break;
+            case ERROR:     // 故障
                 break;
             default:
-                cellValue = "UNKNOW VALUE";
                 break;
         }
-        return cellValue;
+        return returnValue;
     }
 }
