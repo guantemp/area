@@ -153,7 +153,7 @@ public class PsqlAreaBatchImport implements AreaBatchImport {
                     NumberFormat nf = NumberFormat.getNumberInstance();
                     nf.setMaximumFractionDigits(3);
                     nf.setRoundingMode(RoundingMode.HALF_EVEN);
-                    nf.setGroupingUsed(false);
+                    nf.setGroupingUsed(false);//去除,分割符
                     returnValue = nf.format(cell.getNumericCellValue());
                     /*
                     BigDecimal bd = new BigDecimal(cell.getNumericCellValue());
