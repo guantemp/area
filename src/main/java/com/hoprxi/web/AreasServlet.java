@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
  *          <br/>
  *          <ul>
  *          parameter:
- *          <li>search=regularExpression(name,mnemonic) and filters=country,province,city,county,town</li>
+ *          <li>query=regularExpression(name,mnemonic) and filters=country,province,city,county,town</li>
  *          <li>fields=name,pinyin,abbreviation, initials,alias, boundary, zipcode,telephoneCode</li>
  *          </ul>
  *          </p>
@@ -85,9 +85,10 @@ public class AreasServlet extends HttpServlet {
         generator.useDefaultPrettyPrinter();
         String pathInfo = request.getPathInfo();
         if (pathInfo == null) {
-            String search = request.getParameter("search");
-            if (search != null) {
-                AreaView[] views = query.queryByName(search);
+            String query = request.getParameter("query");
+            AreaView[] views;
+            if (query != null) {
+                views = this.query.queryByName(query);
                 String filters = request.getParameter("filters");
                 if (filters != null) {
                     views = Arrays.stream(views).filter(view -> {
@@ -98,11 +99,10 @@ public class AreasServlet extends HttpServlet {
                         return false;
                     }).collect(Collectors.toList()).toArray(new AreaView[0]);
                 }
-                writeAreaViews(generator, views);
             } else {
-                AreaView[] views = query.queryCountry();
-                writeAreaViews(generator, views);
+                views = this.query.queryCountry();
             }
+            writeAreaViews(generator, views);
         } else {
             String[] paths = pathInfo.split("/");
             if (paths.length == 2) {
@@ -157,6 +157,7 @@ public class AreasServlet extends HttpServlet {
         generator.writeObjectFieldStart("parent");
         generator.writeStringField("code", view.parentAreaView().code());
         generator.writeStringField("name", view.parentAreaView().name());
+        generator.writeStringField("abbreviation", view.parentAreaView().abbreviation());
         generator.writeEndObject();
 
         generator.writeArrayFieldStart("boundary");

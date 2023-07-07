@@ -4,11 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="06d15327-0203-4184-bc12-711a323ebadd" name="Changes" comment="202303031150">
+    <list default="true" id="06d15327-0203-4184-bc12-711a323ebadd" name="Changes" comment="202303262028">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/persistence/PsqlAreaBatchImport.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/persistence/PsqlAreaBatchImport.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/AreaWebSocket.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/application/AreaView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/application/AreaView.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/query/PsqlAreaQuery.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/query/PsqlAreaQuery.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/AreasServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/AreasServlet.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/areas.xls" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/areas.xls" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -77,7 +78,7 @@
       <recent name="com.hoprxi.infrastructure.persistence" />
     </key>
   </component>
-  <component name="RunManager" selected="TestNG.AreaBatchImportTest">
+  <component name="RunManager" selected="Application.Main">
     <configuration name="Main" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="com.hoprxi.Main" />
       <module name="area" />
@@ -233,6 +234,14 @@
       <workItem from="1678677904866" duration="424000" />
       <workItem from="1679372799801" duration="215000" />
       <workItem from="1679652362538" duration="706000" />
+      <workItem from="1679833494358" duration="272000" />
+      <workItem from="1679973178900" duration="73000" />
+      <workItem from="1679973283821" duration="825000" />
+      <workItem from="1680070111832" duration="1596000" />
+      <workItem from="1680072525161" duration="2473000" />
+      <workItem from="1680086755846" duration="1848000" />
+      <workItem from="1681437727431" duration="59000" />
+      <workItem from="1688721613502" duration="336000" />
     </task>
     <task id="LOCAL-00001" summary="202302131358">
       <created>1676267975047</created>
@@ -311,7 +320,21 @@
       <option name="project" value="LOCAL" />
       <updated>1677815430665</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="202303252027">
+      <created>1679833687211</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1679833687211</updated>
+    </task>
+    <task id="LOCAL-00013" summary="202303262028">
+      <created>1679833741865</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1679833741865</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -340,6 +363,8 @@
     <MESSAGE value="202303011649" />
     <MESSAGE value="202303021651" />
     <MESSAGE value="202303031150" />
-    <option name="LAST_COMMIT_MESSAGE" value="202303031150" />
+    <MESSAGE value="202303252027" />
+    <MESSAGE value="202303262028" />
+    <option name="LAST_COMMIT_MESSAGE" value="202303262028" />
   </component>
 </project>
