@@ -20,8 +20,9 @@ import com.hoprxi.application.AreaBatchImport;
 import com.hoprxi.infrastructure.persistence.PsqlAreaBatchImport;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import salt.hoprxi.crypto.application.PasswordService;
-import salt.hoprxi.utils.ResourceWherePath;
+import salt.hoprxi.crypto.PasswordService;
+import salt.hoprxi.crypto.util.StoreKeyLoad;
+import salt.hoprxi.utils.ResourceWhere;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -64,10 +65,12 @@ public class PsqlSetup {
 
     static {
         config = ConfigFactory.load("area");
+        StoreKeyLoad.loadSecretKey("keystore.jks", "Qwe123465",
+                new String[]{"120.77.47.145:6543:P$Qwe123465Pg", "120.77.47.145:5432:P$Qwe123465Pg"});
     }
 
-    public static void setup(String user, String password, String databaseName) throws SQLException, IOException, URISyntaxException {
-        String recommendUserPassword = PasswordService.generateVeryStrongPassword();
+    public static void setup() throws SQLException, IOException, URISyntaxException {
+        String recommendUserPassword = PasswordService.nextStrongPasswd();
         System.out.println(recommendUserPassword);
        /*
         List<? extends Config> writes = config.getConfigList("write");
@@ -91,7 +94,7 @@ public class PsqlSetup {
         */
         Pattern pattern = Pattern.compile(".*user.*");
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        System.out.println(ResourceWherePath.toUrl("area.conf"));
+        System.out.println(ResourceWhere.toUrl("area.conf"));
         Stream<String> lines = Files.lines(Paths.get(loader.getResource("area.conf").toURI()));
         lines.forEach(line -> {
             //System.out.println(line);

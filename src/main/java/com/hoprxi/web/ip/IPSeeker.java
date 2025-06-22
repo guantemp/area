@@ -19,7 +19,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import salt.hoprxi.utils.ResourceWherePath;
+import salt.hoprxi.utils.ResourceWhere;
 
 import java.io.*;
 import java.net.URISyntaxException;
@@ -97,7 +97,7 @@ public class IPSeeker {
         b4 = new byte[4];
         b3 = new byte[3];
         try {
-            File file = new File(ResourceWherePath.toUrl(ResourceWherePath.toUniversalFilePath(IP_FILE)).toURI());
+            File file = new File(ResourceWhere.toUrl(ResourceWhere.toUniversalFilePath(IP_FILE)).toURI());
             ipFile = new RandomAccessFile(file, "r");
         } catch (URISyntaxException e) {
             logger.error("IPSeeker() -" + IP_FILE + " not convert to URI"); //$NON-NLS-1$

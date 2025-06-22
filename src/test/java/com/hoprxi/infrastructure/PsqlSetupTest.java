@@ -15,6 +15,6 @@ public class PsqlSetupTest {
 
     @Test
     public void testSetup() throws SQLException, IOException, URISyntaxException {
-        PsqlSetup.setup("postgres", "Qwe123465", "area");
+        PsqlSetup.setup();
     }
 }

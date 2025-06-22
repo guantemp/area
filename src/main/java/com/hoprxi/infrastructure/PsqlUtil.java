@@ -45,8 +45,9 @@ public class PsqlUtil {
             Config write = writes.get(0);
             HikariConfig hikariConfig = new HikariConfig();
             hikariConfig.setDataSourceClassName(write.getString("hikari.dataSourceClassName"));
-            hikariConfig.setUsername(write.getString("user"));
-            hikariConfig.setPassword(write.getString("password"));
+            String entry = write.getString("host") + ":" + write.getString("port");
+            hikariConfig.setUsername(DecryptUtil.decrypt(entry, write.getString("user")));
+            hikariConfig.setPassword(DecryptUtil.decrypt(entry, write.getString("password")));
             hikariConfig.addDataSourceProperty("serverName", write.getString("host"));
             hikariConfig.addDataSourceProperty("portNumber", write.getInt("port"));
             hikariConfig.addDataSourceProperty("databaseName", databaseName);

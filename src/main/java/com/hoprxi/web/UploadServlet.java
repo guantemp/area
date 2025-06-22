@@ -155,8 +155,10 @@ public class UploadServlet extends HttpServlet {
                             relativePath.add(fileName);
                             path.add(fileName);
                         }
-                        //System.out.println(path);
+                        System.out.println(path);
+                        System.out.println(relativePath);
                         LOGGER.info(path.toString());
+
                         File uploadedFile = new File(new URI(path.toString()));
                         File fileParent = uploadedFile.getParentFile();
                         if (!fileParent.exists()) {
