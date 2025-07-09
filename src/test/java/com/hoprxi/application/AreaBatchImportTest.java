@@ -2,6 +2,7 @@ package com.hoprxi.application;
 
 import com.hoprxi.infrastructure.persistence.PsqlAreaBatchImport;
 import org.testng.annotations.Test;
+import salt.hoprxi.crypto.util.StoreKeyLoad;
 
 import java.io.IOException;
 import java.net.URL;
@@ -13,7 +14,10 @@ import java.sql.SQLException;
  * @version 0.0.1 builder 2023-02-12
  */
 public class AreaBatchImportTest {
-
+    static {
+        StoreKeyLoad.loadSecretKey("keystore.jks", "Qwe123465",
+                new String[]{"129.28.29.105:6543:P$Qwe123465Pg", "129.28.29.105:5432:P$Qwe123465Pg"});
+    }
     @Test
     public void testImportXlsFrom() throws IOException, SQLException {
         final AreaBatchImport areaBatchImport = new PsqlAreaBatchImport();

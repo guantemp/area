@@ -3,8 +3,10 @@ package com.hoprxi.application;
 import com.hoprxi.domain.model.AreaRepository;
 import com.hoprxi.infrastructure.persistence.PsqlAreaRepository;
 import com.hoprxi.infrastructure.query.PsqlAreaQuery;
+import com.typesafe.config.ConfigFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import salt.hoprxi.crypto.util.StoreKeyLoad;
 
 /***
  * @author <a href="www.hoprxi.com/authors/guan xiangHuan">guan xiangHuang</a>
@@ -12,6 +14,10 @@ import org.testng.annotations.Test;
  * @version 0.0.1 builder 2023-02-12
  */
 public class AreaQueryTest {
+    static {
+        StoreKeyLoad.loadSecretKey("keystore.jks", "Qwe123465",
+                new String[]{"129.28.29.105:6543:P$Qwe123465Pg", "129.28.29.105:5432:P$Qwe123465Pg"});
+    }
     private static final AreaRepository repository = new PsqlAreaRepository();
     private static final AreaQuery query = new PsqlAreaQuery();
 

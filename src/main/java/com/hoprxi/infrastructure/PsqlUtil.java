@@ -51,7 +51,7 @@ public class PsqlUtil {
             hikariConfig.addDataSourceProperty("serverName", write.getString("host"));
             hikariConfig.addDataSourceProperty("portNumber", write.getInt("port"));
             hikariConfig.addDataSourceProperty("databaseName", databaseName);
-            hikariConfig.addDataSourceProperty("logWriter", new PrintWriter(System.out));
+            //hikariConfig.addDataSourceProperty("logWriter", new PrintWriter(System.out));
             //System.out.println(write.hasPath("hikari.maximumPoolSize") ? write.getInt("hikari.maximumPoolSize") : Runtime.getRuntime().availableProcessors());
             hikariConfig.setMaximumPoolSize(write.hasPath("hikari.maximumPoolSize") ? write.getInt("hikari.maximumPoolSize") : Runtime.getRuntime().availableProcessors() * 2);
 

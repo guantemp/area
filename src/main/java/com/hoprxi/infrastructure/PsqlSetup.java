@@ -61,14 +61,6 @@ public class PsqlSetup {
             "create index if not exists name_index\n" +
             "    on area using gin (name) with (fastupdate ='on', gin_pending_list_limit ='4096');";
 
-    private static final Config config;
-
-    static {
-        config = ConfigFactory.load("area");
-        StoreKeyLoad.loadSecretKey("keystore.jks", "Qwe123465",
-                new String[]{"120.77.47.145:6543:P$Qwe123465Pg", "120.77.47.145:5432:P$Qwe123465Pg"});
-    }
-
     public static void setup() throws SQLException, IOException, URISyntaxException {
         String recommendUserPassword = PasswordService.nextStrongPasswd();
         System.out.println(recommendUserPassword);
@@ -104,8 +96,8 @@ public class PsqlSetup {
                 //line.r
             }
         });
-        final AreaBatchImport areaBatchImport = new PsqlAreaBatchImport();
-        URL url = loader.getResource("areas.xls");
-        areaBatchImport.importXlsFrom(url.openStream());
+        //final AreaBatchImport areaBatchImport = new PsqlAreaBatchImport();
+        //URL url = loader.getResource("areas.xls");
+        //areaBatchImport.importXlsFrom(url.openStream());
     }
 }

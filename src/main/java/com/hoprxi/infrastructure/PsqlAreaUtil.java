@@ -58,11 +58,12 @@ public final class PsqlAreaUtil  {
     public static String toJson(Boundary boundary) {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         try (JsonGenerator generator = jasonFactory.createGenerator(output, JsonEncoding.UTF8)) {
-            generator.writeStartArray();
+            //generator.writeStartArray();
             generator.writeStartObject();
             generator.writeNumberField("longitude", boundary.getCentre().longitude());
             generator.writeNumberField("latitude", boundary.getCentre().latitude());
             generator.writeEndObject();
+            /*
             if (boundary.getMin() != null) {
                 generator.writeStartObject();
                 generator.writeNumberField("longitude", boundary.getMin().longitude());
@@ -76,6 +77,7 @@ public final class PsqlAreaUtil  {
                 generator.writeEndObject();
             }
             generator.writeEndArray();
+             */
             generator.flush();
         } catch (IOException e) {
             LOGGER.error("Not write name as json", e);
