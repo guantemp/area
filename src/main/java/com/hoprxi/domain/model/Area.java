@@ -16,7 +16,7 @@
 
 package com.hoprxi.domain.model;
 
-import com.hoprxi.domain.model.coordinate.Boundary;
+import com.hoprxi.domain.model.coordinate.WGS84;
 
 import java.util.Objects;
 import java.util.StringJoiner;
@@ -29,20 +29,20 @@ import java.util.StringJoiner;
 public abstract class Area {
     protected String code;
     protected String parentCode;
-    private final Boundary boundary;
+    private final WGS84 location;
     private final Name name;
     private final String zipcode;
     private final String telephoneCode;
 
-    public Area(String code, String parentCode, Name name, Boundary boundary) {
-        this(code, parentCode, name, boundary, "", "");
+    public Area(String code, String parentCode, Name name, WGS84 location) {
+        this(code, parentCode, name, location, "", "");
     }
 
-    public Area(String code, String parentCode, Name name, Boundary boundary, String zipcode, String telephoneCode) {
+    public Area(String code, String parentCode, Name name, WGS84 location, String zipcode, String telephoneCode) {
         setCode(code);
         setParentCode(parentCode);
         this.name = Objects.requireNonNull(name, "name required");
-        this.boundary = boundary;
+        this.location = location;
         this.zipcode = zipcode;
         this.telephoneCode = telephoneCode;
     }
@@ -59,8 +59,8 @@ public abstract class Area {
         return parentCode;
     }
 
-    public Boundary boundary() {
-        return boundary;
+    public WGS84 location() {
+        return location;
     }
 
     public Name name() {
@@ -93,9 +93,13 @@ public abstract class Area {
     @Override
     public String toString() {
         return new StringJoiner(", ", Area.class.getSimpleName() + "[", "]")
-                .add("code='" + code + "'").add("parentCode='" + parentCode + "'")
-                .add("boundary=" + boundary).add("name=" + name).add("zipcode='" + zipcode + "'")
-                .add("telephoneCode=" + telephoneCode).toString();
+                .add("code='" + code + "'")
+                .add("parentCode='" + parentCode + "'")
+                .add("location=" + location)
+                .add("name=" + name)
+                .add("zipcode='" + zipcode + "'")
+                .add("telephoneCode='" + telephoneCode + "'")
+                .toString();
     }
 }
 

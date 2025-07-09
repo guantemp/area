@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
  *          <ul>
  *          parameter:
  *          <li>query=regularExpression(name,mnemonic) and filters=country,province,city,county,town</li>
- *          <li>fields=name,pinyin,abbreviation, initials,alias, boundary, zipcode,telephoneCode</li>
+ *          <li>fields=name,pinyin,abbreviation, initials,alias, wgs84, zipcode,telephoneCode</li>
  *          </ul>
  *          </p>
  */
@@ -160,24 +160,12 @@ public class AreasServlet extends HttpServlet {
         generator.writeStringField("abbreviation", view.parentAreaView().abbreviation());
         generator.writeEndObject();
 
-        generator.writeArrayFieldStart("boundary");
-        generator.writeStartObject();
-        generator.writeNumberField("longitude", view.boundary().getCentre().longitude());
-        generator.writeNumberField("latitude", view.boundary().getCentre().latitude());
+
+        generator.writeObjectFieldStart("location");
+        generator.writeNumberField("longitude", view.location().longitude());
+        generator.writeNumberField("latitude", view.location().latitude());
         generator.writeEndObject();
-        if (view.boundary().getMin() != null) {
-            generator.writeStartObject();
-            generator.writeNumberField("longitude", view.boundary().getMin().longitude());
-            generator.writeNumberField("latitude", view.boundary().getMin().latitude());
-            generator.writeEndObject();
-        }
-        if (view.boundary().getMax() != null) {
-            generator.writeStartObject();
-            generator.writeNumberField("longitude", view.boundary().getMax().longitude());
-            generator.writeNumberField("latitude", view.boundary().getMax().latitude());
-            generator.writeEndObject();
-        }
-        generator.writeEndArray();
+
 
         generator.writeStringField("zipcode", view.zipcode());
         generator.writeStringField("telephoneCode", view.telephoneCode());
@@ -216,7 +204,7 @@ public class AreasServlet extends HttpServlet {
         JsonParser parser = jsonFactory.createParser(is);
         String code = "", parentCode = "", name = "", abbreviation = "";
         String zipcode = null, alias = null, telephoneCode = null;
-        Boundary boundary = null;
+        WGS84 wgs84 = null;
         AreaView.Level level = AreaView.Level.COUNTRY;
         /*
          while (jParser.nextToken() != JsonToken.END_OBJECT) {
@@ -263,7 +251,7 @@ public class AreasServlet extends HttpServlet {
                         telephoneCode = parser.getValueAsString();
                         break;
                     case "boundy":
-                        //boundary = deserialize(parser);
+                        //wgs84 = deserialize(parser);
                         break;
                     case "level":
                         level = parser.readValueAs(AreaView.Level.class);
@@ -275,19 +263,19 @@ public class AreasServlet extends HttpServlet {
         Area area = null;
         switch (level) {
             case PROVINCE:
-                area = new Province(code, parentCode, areaName, boundary, zipcode, telephoneCode);
+                area = new Province(code, parentCode, areaName, wgs84, zipcode, telephoneCode);
                 break;
             case COUNTRY:
-                area = new Country(code, parentCode, areaName, boundary, zipcode, telephoneCode);
+                area = new Country(code, parentCode, areaName, wgs84, zipcode, telephoneCode);
                 break;
             case CITY:
-                area = new City(code, parentCode, areaName, boundary, zipcode, telephoneCode);
+                area = new City(code, parentCode, areaName, wgs84, zipcode, telephoneCode);
                 break;
             case COUNTY:
-                area = new County(code, parentCode, areaName, boundary, zipcode, telephoneCode);
+                area = new County(code, parentCode, areaName, wgs84, zipcode, telephoneCode);
                 break;
             case TOWN:
-                area = new Town(code, parentCode, areaName, boundary, zipcode, telephoneCode);
+                area = new Town(code, parentCode, areaName, wgs84, zipcode, telephoneCode);
                 break;
         }
         return area;

@@ -17,6 +17,7 @@
 package com.hoprxi.domain.model;
 
 import com.hoprxi.domain.model.coordinate.Boundary;
+import com.hoprxi.domain.model.coordinate.WGS84;
 
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -31,12 +32,12 @@ public class Town extends Area {
     private static final Pattern TOWN_PATTERN = Pattern.compile("^\\d{9,9}$");
     private static final Pattern TOWN_PARENT_PATTERN = Pattern.compile("^\\d{6,6}$");
 
-    public Town(String code, String parentCode, Name name, Boundary boundary) {
-        super(code, parentCode, name, boundary);
+    public Town(String code, String parentCode, Name name, WGS84 wgs84) {
+        super(code, parentCode, name, wgs84);
     }
 
-    public Town(String code, String parentCode, Name name, Boundary boundary, String postcode, String telephoneCode) {
-        super(code, parentCode, name, boundary, postcode, telephoneCode);
+    public Town(String code, String parentCode, Name name, WGS84 wgs84, String postcode, String telephoneCode) {
+        super(code, parentCode, name, wgs84, postcode, telephoneCode);
     }
 
     @Override

@@ -16,7 +16,7 @@
 
 package com.hoprxi.domain.model;
 
-import com.hoprxi.domain.model.coordinate.Boundary;
+import com.hoprxi.domain.model.coordinate.WGS84;
 
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -29,13 +29,14 @@ import java.util.regex.Pattern;
  */
 public class Country extends Area {
     private static final Pattern COUNTRY_PATTERN = Pattern.compile("^\\d{3,3}$");
+    public static Country CHINA = new Country("156", "156", new Name("中华人民共和国", 'c', "中国", "zhrmghg", "china"), new WGS84(116.405289, 39.904987));
 
-    public Country(String code, String parentCode, Name name, Boundary boundary) {
-        super(code, parentCode, name, boundary);
+    public Country(String code, String parentCode, Name name, WGS84 wgs84) {
+        super(code, parentCode, name, wgs84);
     }
 
-    public Country(String code, String parentCode, Name name, Boundary boundary, String postcode, String telephoneCode) {
-        super(code, parentCode, name, boundary, postcode, telephoneCode);
+    public Country(String code, String parentCode, Name name, WGS84 wgs84, String postcode, String telephoneCode) {
+        super(code, parentCode, name, wgs84, postcode, telephoneCode);
     }
 
     @Override

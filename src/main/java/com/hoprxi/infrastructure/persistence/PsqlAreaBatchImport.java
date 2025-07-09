@@ -2,8 +2,6 @@ package com.hoprxi.infrastructure.persistence;
 
 import com.hoprxi.application.AreaBatchImport;
 import com.hoprxi.domain.model.Name;
-import com.hoprxi.domain.model.coordinate.Boundary;
-import com.hoprxi.domain.model.coordinate.WGS84;
 import com.hoprxi.infrastructure.PsqlAreaUtil;
 import com.hoprxi.infrastructure.PsqlUtil;
 import org.apache.poi.ss.usermodel.*;
@@ -28,7 +26,6 @@ import java.util.StringJoiner;
  * @version 0.0.1 builder 2023-02-12
  */
 public class PsqlAreaBatchImport implements AreaBatchImport {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PsqlAreaBatchImport.class);
 
     @Override
     public void importXlsFrom(InputStream is) throws IOException, SQLException {
@@ -37,14 +34,14 @@ public class PsqlAreaBatchImport implements AreaBatchImport {
         try (Connection connection = PsqlUtil.getConnection()) {
             connection.setAutoCommit(false);
             Statement statement = connection.createStatement();
-            StringJoiner sql = new StringJoiner(",", "insert into area (code,parent_code,name,boundary,\"type\") values", "");
+            StringJoiner sql = new StringJoiner(",", "insert into area (code,parent_code,\"name\",\"location\",\"type\") values ", "");
             for (int i = 1, j = sheet.getLastRowNum() + 1; i < j; i++) {
                 Row row = sheet.getRow(i);
                 StringJoiner values = extracted(row);
                 sql.add(values.toString());
                 if (i % 513 == 0) {
                     statement.addBatch(sql.toString());
-                    sql = new StringJoiner(",", "insert into area (code,parent_code,name,boundary,\"type\") values", "");
+                    sql = new StringJoiner(",", "insert into area (code,parent_code,\"name\",\"location\",\"type\") values ", "");
                 }
                 if (i == j - 1) {
                     statement.addBatch(sql.toString());
@@ -91,7 +88,7 @@ public class PsqlAreaBatchImport implements AreaBatchImport {
                     break;
                 case 5:
                     latitude = cell.getNumericCellValue();
-                    cellJoiner.add("'" + PsqlAreaUtil.toJson(new Boundary(new WGS84(longitude, latitude))) + "'");
+                    cellJoiner.add("'{\"longitude\":" + longitude + ",\"latitude\":" + latitude + "}'");
                     break;
                 case 6:
                     int level = (int) cell.getNumericCellValue();

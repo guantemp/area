@@ -64,23 +64,37 @@ public final class PsqlAreaUtil  {
             generator.writeNumberField("latitude", boundary.getCentre().latitude());
             generator.writeEndObject();
             /*
-            if (boundary.getMin() != null) {
+            if (wgs84.getMin() != null) {
                 generator.writeStartObject();
-                generator.writeNumberField("longitude", boundary.getMin().longitude());
-                generator.writeNumberField("latitude", boundary.getMin().latitude());
+                generator.writeNumberField("longitude", wgs84.getMin().longitude());
+                generator.writeNumberField("latitude", wgs84.getMin().latitude());
                 generator.writeEndObject();
             }
-            if (boundary.getMax() != null) {
+            if (wgs84.getMax() != null) {
                 generator.writeStartObject();
-                generator.writeNumberField("longitude", boundary.getMax().longitude());
-                generator.writeNumberField("latitude", boundary.getMax().latitude());
+                generator.writeNumberField("longitude", wgs84.getMax().longitude());
+                generator.writeNumberField("latitude", wgs84.getMax().latitude());
                 generator.writeEndObject();
             }
             generator.writeEndArray();
              */
             generator.flush();
         } catch (IOException e) {
-            LOGGER.error("Not write name as json", e);
+            LOGGER.error("Not write boundary as json", e);
+        }
+        return output.toString();
+    }
+
+    public static String toJson(WGS84 wgs84) {
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        try (JsonGenerator generator = jasonFactory.createGenerator(output, JsonEncoding.UTF8)) {
+            generator.writeStartObject();
+            generator.writeNumberField("longitude", wgs84.longitude());
+            generator.writeNumberField("latitude", wgs84.latitude());
+            generator.writeEndObject();
+            generator.flush();
+        } catch (IOException e) {
+            LOGGER.error("Not write WGS84 as json", e);
         }
         return output.toString();
     }

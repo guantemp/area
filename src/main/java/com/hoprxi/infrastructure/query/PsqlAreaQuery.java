@@ -20,6 +20,7 @@ import com.hoprxi.application.AreaQuery;
 import com.hoprxi.application.AreaView;
 import com.hoprxi.domain.model.Name;
 import com.hoprxi.domain.model.coordinate.Boundary;
+import com.hoprxi.domain.model.coordinate.WGS84;
 import com.hoprxi.infrastructure.PsqlAreaUtil;
 import com.hoprxi.infrastructure.PsqlUtil;
 import org.slf4j.Logger;
@@ -48,15 +49,15 @@ public class PsqlAreaQuery implements AreaQuery {
     @Override
     public AreaView[] queryByName(String regularExpression) {
         try (Connection connection = PsqlUtil.getConnection()) {
-            final String queryByNameSql = "select a1.code,a1.parent_code,a2.name::jsonb->>'name' parent_name,a2.name::jsonb->>'abbreviation' parent_abbreviation,a1.name::jsonb->>'name' name,a1.name::jsonb->>'initials' initials,a1.name::jsonb->>'abbreviation' abbreviation,a1.name::jsonb->>'mnemonic' mnemonic,a1.name::jsonb->>'alias' alias,a1.zipcode,a1.telephone_code,a1.boundary::jsonb -> 0 center, a1.boundary::jsonb -> 1 min,a1.boundary::jsonb -> 2 max,a1.\"type\" from area a1\n" +
+            final String queryByNameSql = "select a1.code,a1.parent_code,a2.name::jsonb->>'name' parent_name,a2.name::jsonb->>'abbreviation' parent_abbreviation,a1.name::jsonb->>'name' name,a1.name::jsonb->>'initials' initials,a1.name::jsonb->>'abbreviation' abbreviation,a1.name::jsonb->>'mnemonic' mnemonic,a1.name::jsonb->>'alias' alias,a1.zipcode,a1.telephone_code,a1.location::jsonb->>'longitude' longitude,a1.location::jsonb->>'latitude' latitude,a1.\"type\" from area a1\n" +
                     "inner join area a2 on a2.code = a1.parent_code\n" +
                     "where a1.name::jsonb ->> 'abbreviation' ~ ?\n" +
                     "union\n" +
-                    "select a1.code,a1.parent_code,a2.name::jsonb->>'name' parent_name,a2.name::jsonb->>'abbreviation' parent_abbreviation,a1.name::jsonb->>'name' name,a1.name::jsonb->>'initials' initials,a1.name::jsonb->>'abbreviation' abbreviation,a1.name::jsonb->>'mnemonic' mnemonic,a1.name::jsonb->>'alias' alias,a1.zipcode,a1.telephone_code,a1.boundary::jsonb -> 0 center, a1.boundary::jsonb -> 1 min,a1.boundary::jsonb -> 2 max,a1.\"type\" from area a1\n" +
+                    "select a1.code,a1.parent_code,a2.name::jsonb->>'name' parent_name,a2.name::jsonb->>'abbreviation' parent_abbreviation,a1.name::jsonb->>'name' name,a1.name::jsonb->>'initials' initials,a1.name::jsonb->>'abbreviation' abbreviation,a1.name::jsonb->>'mnemonic' mnemonic,a1.name::jsonb->>'alias' alias,a1.zipcode,a1.telephone_code,a1.location::jsonb->>'longitude' longitude,a1.location::jsonb->>'latitude' latitude,a1.\"type\" from area a1\n" +
                     "inner join area a2 on a2.code = a1.parent_code\n" +
                     "where a1.name::jsonb ->> 'mnemonic' ~ ?\n" +
                     "union\n" +
-                    "select a1.code,a1.parent_code,a2.name::jsonb->>'name' parent_name,a2.name::jsonb->>'abbreviation' parent_abbreviation,a1.name::jsonb->>'name' name,a1.name::jsonb->>'initials' initials,a1.name::jsonb->>'abbreviation' abbreviation,a1.name::jsonb->>'mnemonic' mnemonic,a1.name::jsonb->>'alias' alias,a1.zipcode,a1.telephone_code,a1.boundary::jsonb -> 0 center, a1.boundary::jsonb -> 1 min,a1.boundary::jsonb -> 2 max,a1.\"type\" from area a1\n" +
+                    "select a1.code,a1.parent_code,a2.name::jsonb->>'name' parent_name,a2.name::jsonb->>'abbreviation' parent_abbreviation,a1.name::jsonb->>'name' name,a1.name::jsonb->>'initials' initials,a1.name::jsonb->>'abbreviation' abbreviation,a1.name::jsonb->>'mnemonic' mnemonic,a1.name::jsonb->>'alias' alias,a1.zipcode,a1.telephone_code,a1.location::jsonb->>'longitude' longitude,a1.location::jsonb->>'latitude' latitude,a1.\"type\" from area a1\n" +
                     "inner join area a2 on a2.code = a1.parent_code\n" +
                     "where a1.name::jsonb ->> 'name' ~ ?\n";
             PreparedStatement ps = connection.prepareStatement(queryByNameSql);
@@ -86,7 +87,7 @@ public class PsqlAreaQuery implements AreaQuery {
         if (area != null)
             return area;
         try (Connection connection = PsqlUtil.getConnection()) {
-            final String findSql = "select a1.code,a1.parent_code,a2.name::jsonb->>'name' parent_name,a2.name::jsonb->>'abbreviation' parent_abbreviation,a1.name::jsonb->>'name' name,a1.name::jsonb->>'initials' initials,a1.name::jsonb->>'abbreviation' abbreviation,a1.name::jsonb->>'mnemonic' mnemonic,a1.name::jsonb->>'alias' alias,a1.zipcode,a1.telephone_code,a1.boundary::jsonb -> 0 center, a1.boundary::jsonb -> 1 min,a1.boundary::jsonb -> 2 max,a1.\"type\" from area a1\n" +
+            final String findSql = "select a1.code,a1.parent_code,a2.name::jsonb->>'name' parent_name,a2.name::jsonb->>'abbreviation' parent_abbreviation,a1.name::jsonb->>'name' name,a1.name::jsonb->>'initials' initials,a1.name::jsonb->>'abbreviation' abbreviation,a1.name::jsonb->>'mnemonic' mnemonic,a1.name::jsonb->>'alias' alias,a1.zipcode,a1.telephone_code,a1.location::jsonb->>'longitude' longitude,a1.location::jsonb->>'latitude' latitude,a1.\"type\" from area a1\n" +
                     " inner join area a2 on a2.code = a1.parent_code where a1.code=? limit 1";
             PreparedStatement preparedStatement = connection.prepareStatement(findSql);
             preparedStatement.setString(1, code);
@@ -107,17 +108,17 @@ public class PsqlAreaQuery implements AreaQuery {
         String code = rs.getString("code");
         AreaView.ParentArea parentArea = new AreaView.ParentArea(rs.getString("parent_code"), rs.getString("parent_name"), rs.getString("parent_abbreviation"));
         Name name = new Name(rs.getString("name"), (char) rs.getInt("initials"), rs.getString("abbreviation"), rs.getString("mnemonic"), rs.getString("alias"));
-        Boundary boundary = new Boundary(PsqlAreaUtil.toWgs84(rs.getString("center")), PsqlAreaUtil.toWgs84(rs.getString("min")), PsqlAreaUtil.toWgs84(rs.getString("max")));
+        WGS84 wgs84 = new WGS84(rs.getDouble("longitude"),rs.getDouble("latitude"));
         String zipcode = rs.getString("zipcode");
         String telephoneCode = rs.getString("telephone_code");
-        areaView = new AreaView(code, parentArea, name, boundary, zipcode, telephoneCode, AreaView.Level.valueOf(rs.getString("type")));
+        areaView = new AreaView(code, parentArea, name, wgs84, zipcode, telephoneCode, AreaView.Level.valueOf(rs.getString("type")));
         return areaView;
     }
 
     @Override
     public AreaView[] queryByJurisdiction(String code) {
         try (Connection connection = PsqlUtil.getConnection()) {
-            final String queryByNameSql = "select a1.code,a1.parent_code,a2.name::jsonb->>'name' parent_name,a2.name::jsonb->>'abbreviation' parent_abbreviation,a1.name::jsonb->>'name' name,a1.name::jsonb->>'initials' initials,a1.name::jsonb->>'abbreviation' abbreviation,a1.name::jsonb->>'mnemonic' mnemonic,a1.name::jsonb->>'alias' alias,a1.zipcode,a1.telephone_code,a1.boundary::jsonb -> 0 center, a1.boundary::jsonb -> 1 min,a1.boundary::jsonb -> 2 max,a1.\"type\" from area a1\n" +
+            final String queryByNameSql = "select a1.code,a1.parent_code,a2.name::jsonb->>'name' parent_name,a2.name::jsonb->>'abbreviation' parent_abbreviation,a1.name::jsonb->>'name' name,a1.name::jsonb->>'initials' initials,a1.name::jsonb->>'abbreviation' abbreviation,a1.name::jsonb->>'mnemonic' mnemonic,a1.name::jsonb->>'alias' alias,a1.zipcode,a1.telephone_code,a1.location::jsonb->>'longitude' longitude,a1.location::jsonb->>'latitude' latitude,a1.\"type\" from area a1\n" +
                     "inner join area a2 on a2.code = a1.parent_code\n" +
                     "where a1.code != a1.parent_code and a1.parent_code = ?";
             PreparedStatement ps = connection.prepareStatement(queryByNameSql);
@@ -133,7 +134,7 @@ public class PsqlAreaQuery implements AreaQuery {
     @Override
     public AreaView[] queryCountry() {
         try (Connection connection = PsqlUtil.getConnection()) {
-            final String queryByNameSql = "select a1.code,a1.parent_code,a2.name::jsonb->>'name' parent_name,a2.name::jsonb->>'abbreviation' parent_abbreviation,a1.name::jsonb->>'name' name,a1.name::jsonb->>'initials' initials,a1.name::jsonb->>'abbreviation' abbreviation,a1.name::jsonb->>'mnemonic' mnemonic,a1.name::jsonb->>'alias' alias,a1.zipcode,a1.telephone_code,a1.boundary::jsonb -> 0 center, a1.boundary::jsonb -> 1 min,a1.boundary::jsonb -> 2 max,a1.\"type\" from area a1\n" +
+            final String queryByNameSql = "select a1.code,a1.parent_code,a2.name::jsonb->>'name' parent_name,a2.name::jsonb->>'abbreviation' parent_abbreviation,a1.name::jsonb->>'name' name,a1.name::jsonb->>'initials' initials,a1.name::jsonb->>'abbreviation' abbreviation,a1.name::jsonb->>'mnemonic' mnemonic,a1.name::jsonb->>'alias' alias,a1.zipcode,a1.telephone_code,a1.location::jsonb->>'longitude' longitude,a1.location::jsonb->>'latitude' latitude,a1.\"type\" from area a1\n" +
                     "inner join area a2 on a2.code = a1.parent_code\n" +
                     "where a1.code = a1.parent_code";
             PreparedStatement ps = connection.prepareStatement(queryByNameSql);

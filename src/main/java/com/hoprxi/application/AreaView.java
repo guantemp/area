@@ -17,7 +17,7 @@
 package com.hoprxi.application;
 
 import com.hoprxi.domain.model.Name;
-import com.hoprxi.domain.model.coordinate.Boundary;
+import com.hoprxi.domain.model.coordinate.WGS84;
 
 import java.util.Objects;
 import java.util.StringJoiner;
@@ -30,7 +30,7 @@ import java.util.StringJoiner;
 public class AreaView {
     private final ParentArea parentArea;
     private final String code;
-    private Boundary boundary;
+    private WGS84 location;
     private final Name name;
     private String zipcode;
     private String telephoneCode;
@@ -42,10 +42,10 @@ public class AreaView {
         this.name = name;
     }
 
-    public AreaView(String code, ParentArea parentArea, Name name, Boundary boundary, String zipcode, String telephoneCode, Level level) {
+    public AreaView(String code, ParentArea parentArea, Name name, WGS84 location, String zipcode, String telephoneCode, Level level) {
         this.parentArea = parentArea;
         this.code = code;
-        this.boundary = boundary;
+        this.location = location;
         this.name = name;
         this.zipcode = zipcode;
         this.telephoneCode = telephoneCode;
@@ -60,10 +60,6 @@ public class AreaView {
         return code;
     }
 
-    public Boundary boundary() {
-        return boundary;
-    }
-
     public Name name() {
         return name;
     }
@@ -76,32 +72,23 @@ public class AreaView {
         return telephoneCode;
     }
 
+    public WGS84 location() {
+        return location;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof AreaView)) return false;
 
-        AreaView areaView = (AreaView) o;
+        AreaView view = (AreaView) o;
 
-        return Objects.equals(code, areaView.code);
+        return Objects.equals(code, view.code);
     }
 
     @Override
     public int hashCode() {
         return code != null ? code.hashCode() : 0;
-    }
-
-    @Override
-    public String toString() {
-        return new StringJoiner(", ", AreaView.class.getSimpleName() + "[", "]")
-                .add("parentArea=" + parentArea)
-                .add("code='" + code + "'")
-                .add("boundary=" + boundary)
-                .add("name=" + name)
-                .add("zipcode='" + zipcode + "'")
-                .add("telephoneCode='" + telephoneCode + "'")
-                .add("level=" + level)
-                .toString();
     }
 
     public Level level() {
@@ -110,6 +97,19 @@ public class AreaView {
 
     public enum Level {
         CITY, COUNTRY, COUNTY, TOWN, PROVINCE
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", AreaView.class.getSimpleName() + "[", "]")
+                .add("parentArea=" + parentArea)
+                .add("code='" + code + "'")
+                .add("location=" + location)
+                .add("name=" + name)
+                .add("zipcode='" + zipcode + "'")
+                .add("telephoneCode='" + telephoneCode + "'")
+                .add("level=" + level)
+                .toString();
     }
 
     public static class ParentArea {

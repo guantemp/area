@@ -24,7 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @version 0.0.2 builder 2023-02-08
  */
 
-public class BD09 {
+public final class BD09 {
     private final double latitude;
     private final double longitude;
 

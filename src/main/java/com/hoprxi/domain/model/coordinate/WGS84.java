@@ -27,7 +27,7 @@ import java.util.StringJoiner;
  * @version 0.0.2 builder 2023-02-08
  */
 
-public class WGS84 {
+public final class WGS84 {
     public static final double A = 6378245.0;
     public static final double EE = 0.00669342162296594323;
     public static final double PI = 3.1415926535897932384626;

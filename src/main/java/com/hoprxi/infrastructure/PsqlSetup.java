@@ -42,26 +42,17 @@ import java.util.stream.Stream;
 public class PsqlSetup {
     private static final String CREATE_USER = "create user {0} with login createdb password ''{1}'';";
     private static final String CREATE_DATABASE = "create database {0} with owner=area;";
-    private static final String CREATE_TABLE_AREA_SQL = "create type area_type as enum ('CITY','COUNTRY','COUNTY','PROVINCE','TOWN');\n" +
-            "create table if not exists area\n" +
-            "(\n" +
-            "    code           varchar(16) not null,\n" +
-            "    parent_code    varchar(16) not null,\n" +
-            "    name           jsonb       not null,\n" +
-            "    zipcode        varchar(8) default '',\n" +
-            "    telephone_code varchar(8) default '',\n" +
-            "    boundary       jsonb,\n" +
-            "    \"type\"         area_type  default 'TOWN',\n" +
-            "    primary key (code)\n" +
-            ");\n" +
-            "\n" +
-            "create index if not exists parent_code_index\n" +
-            "    on area (parent_code);\n" +
-            "\n" +
-            "create index if not exists name_index\n" +
-            "    on area using gin (name) with (fastupdate ='on', gin_pending_list_limit ='4096');";
-
-    public static void setup() throws SQLException, IOException, URISyntaxException {
+    private static final String CREATE_TABLE_AREA_SQL = "CREATE TABLE if not exists area (\n" +
+            "\tcode varchar(16) NOT NULL,\n" +
+            "\tparent_code varchar(16) NOT NULL,\n" +
+            "\tname jsonb NOT NULL,\n" +
+            "\tzipcode varchar(8) DEFAULT '',\n" +
+            "\ttelephone_code varchar(8) DEFAULT '',\n" +
+            "\tlocation jsonb NULL,\n" +
+            "\t\"type\" public.area_type DEFAULT 'TOWN'::area_type not NULL,\n" +
+            "\tCONSTRAINT area_pkey PRIMARY KEY (code)\n" +
+            ");";
+    public static void setup() throws IOException, URISyntaxException {
         String recommendUserPassword = PasswordService.nextStrongPasswd();
         System.out.println(recommendUserPassword);
        /*

@@ -16,9 +16,9 @@
 
 package com.hoprxi.infrastructure.persistence;
 
-import com.fasterxml.jackson.core.JsonFactory;
 import com.hoprxi.domain.model.*;
 import com.hoprxi.domain.model.coordinate.Boundary;
+import com.hoprxi.domain.model.coordinate.WGS84;
 import com.hoprxi.infrastructure.PsqlAreaUtil;
 import com.hoprxi.infrastructure.PsqlUtil;
 import org.slf4j.Logger;
@@ -48,7 +48,7 @@ public class PsqlAreaRepository implements AreaRepository {
         code = Objects.requireNonNull(code, "code required").trim();
         try (Connection connection = PsqlUtil.getConnection()) {
             final String findSql = "select code,parent_code,name::jsonb->>'name' name,name::jsonb->>'initials' initials,name::jsonb->>'abbreviation' abbreviation,name::jsonb->>'mnemonic' mnemonic,name::jsonb->>'alias' alias," +
-                    "zipcode,telephone_code,boundary::jsonb -> 0 center, boundary::jsonb -> 1 min,boundary::jsonb -> 2 max,\"type\" from area where code=? limit 1";
+                    "zipcode,telephone_code,location::jsonb->>'longitude' longitude,location::jsonb->>'latitude' latitude,\"type\" from area where code=? limit 1";
             PreparedStatement preparedStatement = connection.prepareStatement(findSql);
             preparedStatement.setString(1, code);
             ResultSet rs = preparedStatement.executeQuery();
@@ -65,25 +65,25 @@ public class PsqlAreaRepository implements AreaRepository {
             String code = rs.getString("code");
             String parentCode = rs.getString("parent_code");
             Name name = new Name(rs.getString("name"), (char) rs.getInt("initials"), rs.getString("abbreviation"), rs.getString("mnemonic"), rs.getString("alias"));
-            Boundary boundary = new Boundary(PsqlAreaUtil.toWgs84(rs.getString("center")), PsqlAreaUtil.toWgs84(rs.getString("min")), PsqlAreaUtil.toWgs84(rs.getString("max")));
+            WGS84 wgs84 = new WGS84(rs.getDouble("longitude"),rs.getDouble("latitude"));
             String zipcode = rs.getString("zipcode");
             String telephoneCode = rs.getString("telephone_code");
             String type = rs.getString("type");
             switch (type) {
                 case "PROVINCE":
-                    area = new Province(code, parentCode, name, boundary, zipcode, telephoneCode);
+                    area = new Province(code, parentCode, name, wgs84, zipcode, telephoneCode);
                     break;
                 case "COUNTRY":
-                    area = new Country(code, parentCode, name, boundary, zipcode, telephoneCode);
+                    area = new Country(code, parentCode, name, wgs84, zipcode, telephoneCode);
                     break;
                 case "CITY":
-                    area = new City(code, parentCode, name, boundary, zipcode, telephoneCode);
+                    area = new City(code, parentCode, name, wgs84, zipcode, telephoneCode);
                     break;
                 case "COUNTY":
-                    area = new County(code, parentCode, name, boundary, zipcode, telephoneCode);
+                    area = new County(code, parentCode, name, wgs84, zipcode, telephoneCode);
                     break;
                 case "TOWN":
-                    area = new Town(code, parentCode, name, boundary, zipcode, telephoneCode);
+                    area = new Town(code, parentCode, name, wgs84, zipcode, telephoneCode);
                     break;
             }
         }
@@ -93,7 +93,7 @@ public class PsqlAreaRepository implements AreaRepository {
 
     @Override
     public void save(Area area) {
-        final String insertRoot = "insert into area (code,parent_code,name,zipcode,telephone_code,boundary,\"type\") values (?,?,?::jsonb,?,?,?::jsonb,CAST(? AS area_type)) ";
+        final String insertRoot = "insert into area (code,parent_code,name,zipcode,telephone_code,location,\"type\") values (?,?,?::jsonb,?,?,?::jsonb,CAST(? AS area_type)) ";
         try (Connection connection = PsqlUtil.getConnection()) {
             PreparedStatement ps = connection.prepareStatement(insertRoot);
             ps.setString(1, area.code());
@@ -101,7 +101,7 @@ public class PsqlAreaRepository implements AreaRepository {
             ps.setString(3, PsqlAreaUtil.toJson(area.name()));
             ps.setString(4, area.zipcode());
             ps.setString(5, area.telephoneCode());
-            ps.setString(6, PsqlAreaUtil.toJson(area.boundary()));
+            ps.setString(6, PsqlAreaUtil.toJson(area.location()));
             //如果值area.getClass().getSimpleName()不是enum类型，要在插入语句中加入 CAST（？ AS enum_type)
             //如果是java enum类型，使用 enum.name（）填充即可
             ps.setString(7, area.getClass().getSimpleName().toUpperCase());
