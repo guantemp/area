@@ -33,12 +33,6 @@ public final class Bootstrap {
                         Servlets.servlet("ipSeeker", IpSeekerServlet.class)
                                 .addMapping("/v1/ip/*")
                 );
-                        /*
-                        Servlets.servlet("itemServlet", AreaWebSocket.class)
-                                .addInitParam("database", "arangodb")
-                                .addInitParam("databaseName", "catalog")
-                                .addMapping("/v1/items/*"));
-                                */
         DeploymentManager manager = container.addDeployment(deploymentInfo);
         manager.deploy();
         PathHandler path = Handlers.path(Handlers.redirect("area"))
