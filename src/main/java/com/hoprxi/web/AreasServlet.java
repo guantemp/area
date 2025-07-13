@@ -24,6 +24,7 @@ import com.hoprxi.domain.model.*;
 import com.hoprxi.domain.model.coordinate.Boundary;
 import com.hoprxi.domain.model.coordinate.WGS84;
 import com.hoprxi.infrastructure.persistence.PsqlAreaRepository;
+import com.hoprxi.infrastructure.query.ESAreaQuery;
 import com.hoprxi.infrastructure.query.PsqlAreaQuery;
 
 import javax.servlet.annotation.WebInitParam;
@@ -33,6 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -43,12 +45,12 @@ import java.util.stream.Collectors;
  *          <p>
  *          restful http<br/>
  *          areas return all country <br/>
- *          areas/code(string) return area where key=area.code,such as:areas/51000
- *          areas/code(string)/juri(jurisdiction) return jurisdiction area where area code,such as:areas/51000/juri
+ *          areas/code return area where key=area.code,such as:areas/51000
+ *          areas/code/juri(jurisdiction) return jurisdiction area where area code,such as:areas/51000/juri
  *          <br/>
  *          <ul>
  *          parameter:
- *          <li>query=regularExpression(name,mnemonic) and filters=country,province,city,county,town</li>
+ *          <li>query=name、abbreviation、mnemonic and filters=country,province,city,county,town</li>
  *          <li>fields=name,pinyin,abbreviation, initials,alias, wgs84, zipcode,telephoneCode</li>
  *          </ul>
  *          </p>
@@ -105,13 +107,18 @@ public class AreasServlet extends HttpServlet {
             writeAreaViews(generator, views);
         } else {
             String[] paths = pathInfo.split("/");
-            if (paths.length == 2) {
+            if (paths.length == 2) {//id query
+                ESAreaQuery esAreaQuery=new ESAreaQuery();
+                try(OutputStream os=esAreaQuery.query(Integer.valueOf(paths[1]))){
+
+                }
+                /*
                 AreaView view = query.query(paths[1]);
                 if (view != null) {
                     writeAreaView(generator, view);
                 } else {
                     writeNotFind(response, generator, paths[1]);
-                }
+                }*/
             } else if (paths.length > 2 && paths[2].equals("juri")) {
                 AreaView[] views = query.queryByJurisdiction(paths[1]);
                 writeAreaViews(generator, views);

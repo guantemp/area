@@ -100,25 +100,6 @@ public class ESAreaBatchImport implements AreaBatchImport {
                     break;
             }
         }
-        /*
-        switch (level) {
-            case 0:
-                cellJoiner.add("'COUNTRY'");
-                break;
-            case 1:
-                cellJoiner.add("'PROVINCE'");
-                break;
-            case 2:
-                cellJoiner.add("'CITY'");
-                break;
-            case 3:
-                cellJoiner.add("'COUNTY'");
-                break;
-            case 4:
-                cellJoiner.add("'TOWN'");
-                break;
-        }
-         */
         StringBuilder sb = new StringBuilder("{\"index\":{\"_index\":\"area\",\"_id\":");
         sb.append(code).append("}}\n");
         sb.append("{\"code\":").append(code).append(",\"parent_code\":").append(parentCode).append(",\"name\":{")
