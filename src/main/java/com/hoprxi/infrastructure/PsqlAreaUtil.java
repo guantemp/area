@@ -17,7 +17,7 @@
 package com.hoprxi.infrastructure;
 
 import com.fasterxml.jackson.core.*;
-import com.hoprxi.domain.model.*;
+import com.hoprxi.domain.model.Name;
 import com.hoprxi.domain.model.coordinate.Boundary;
 import com.hoprxi.domain.model.coordinate.WGS84;
 import org.slf4j.Logger;
@@ -32,7 +32,7 @@ import java.nio.charset.StandardCharsets;
  * @since JDK8.0
  * @version 0.0.1 builder 2023-02-09
  */
-public final class PsqlAreaUtil  {
+public final class PsqlAreaUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(PsqlAreaUtil.class);
     private static final JsonFactory jasonFactory = JsonFactory.builder().build();
 

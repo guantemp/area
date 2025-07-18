@@ -5,8 +5,6 @@ import com.hoprxi.domain.model.Name;
 import com.hoprxi.infrastructure.PsqlAreaUtil;
 import com.hoprxi.infrastructure.PsqlUtil;
 import org.apache.poi.ss.usermodel.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -67,7 +65,7 @@ public class PsqlAreaBatchImport implements AreaBatchImport {
         StringJoiner cellJoiner = new StringJoiner(",", "(", ")");
         int divisor = row.getPhysicalNumberOfCells();
         String name = null;
-        double longitude = 0.0, latitude = 0.0;
+        double longitude = 0.0, latitude;
         for (int k = row.getFirstCellNum(); k < row.getLastCellNum(); k++) {
             Cell cell = row.getCell(k);
             switch (k % divisor) {
@@ -143,7 +141,7 @@ public class PsqlAreaBatchImport implements AreaBatchImport {
                         try {
                             throw new Exception("exception on get date data !".concat(e.toString()));
                         } catch (Exception e1) {
-                            e1.printStackTrace();
+                            //e1.printStackTrace();
                         }
                     }
                 } else {
@@ -163,8 +161,8 @@ public class PsqlAreaBatchImport implements AreaBatchImport {
                 returnValue = cell.getStringCellValue().trim();
                 break;
             case BOOLEAN:   //布尔
-                Boolean booleanValue = cell.getBooleanCellValue();
-                returnValue = booleanValue.toString();
+                boolean booleanValue = cell.getBooleanCellValue();
+                returnValue = Boolean.toString(booleanValue);
                 break;
             case BLANK:     // 空值
                 break;

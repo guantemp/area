@@ -19,9 +19,7 @@ package com.hoprxi.infrastructure.query;
 import com.hoprxi.application.AreaQuery;
 import com.hoprxi.application.AreaView;
 import com.hoprxi.domain.model.Name;
-import com.hoprxi.domain.model.coordinate.Boundary;
 import com.hoprxi.domain.model.coordinate.WGS84;
-import com.hoprxi.infrastructure.PsqlAreaUtil;
 import com.hoprxi.infrastructure.PsqlUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,11 +102,11 @@ public class PsqlAreaQuery implements AreaQuery {
     }
 
     private AreaView rebuild(ResultSet rs) throws SQLException, IOException {
-        AreaView areaView = null;
+        AreaView areaView;
         String code = rs.getString("code");
         AreaView.ParentArea parentArea = new AreaView.ParentArea(rs.getString("parent_code"), rs.getString("parent_name"), rs.getString("parent_abbreviation"));
         Name name = new Name(rs.getString("name"), (char) rs.getInt("initials"), rs.getString("abbreviation"), rs.getString("mnemonic"), rs.getString("alias"));
-        WGS84 wgs84 = new WGS84(rs.getDouble("longitude"),rs.getDouble("latitude"));
+        WGS84 wgs84 = new WGS84(rs.getDouble("longitude"), rs.getDouble("latitude"));
         String zipcode = rs.getString("zipcode");
         String telephoneCode = rs.getString("telephone_code");
         areaView = new AreaView(code, parentArea, name, wgs84, zipcode, telephoneCode, AreaView.Level.valueOf(rs.getString("type")));

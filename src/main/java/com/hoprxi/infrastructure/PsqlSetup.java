@@ -16,20 +16,14 @@
 
 package com.hoprxi.infrastructure;
 
-import com.hoprxi.application.AreaBatchImport;
-import com.hoprxi.infrastructure.persistence.PsqlAreaBatchImport;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 import salt.hoprxi.crypto.PasswordService;
-import salt.hoprxi.crypto.util.StoreKeyLoad;
 import salt.hoprxi.utils.ResourceWhere;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.sql.SQLException;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -42,16 +36,18 @@ import java.util.stream.Stream;
 public class PsqlSetup {
     private static final String CREATE_USER = "create user {0} with login createdb password ''{1}'';";
     private static final String CREATE_DATABASE = "create database {0} with owner=area;";
-    private static final String CREATE_TABLE_AREA_SQL = "CREATE TABLE if not exists area (\n" +
-            "\tcode varchar(16) NOT NULL,\n" +
-            "\tparent_code varchar(16) NOT NULL,\n" +
-            "\tname jsonb NOT NULL,\n" +
-            "\tzipcode varchar(8) DEFAULT '',\n" +
-            "\ttelephone_code varchar(8) DEFAULT '',\n" +
-            "\tlocation jsonb NULL,\n" +
-            "\t\"type\" public.area_type DEFAULT 'TOWN'::area_type not NULL,\n" +
-            "\tCONSTRAINT area_pkey PRIMARY KEY (code)\n" +
-            ");";
+    private static final String CREATE_TABLE_AREA_SQL = """
+            CREATE TABLE if not exists area (
+            \tcode varchar(16) NOT NULL,
+            \tparent_code varchar(16) NOT NULL,
+            \tname jsonb NOT NULL,
+            \tzipcode varchar(8) DEFAULT '',
+            \ttelephone_code varchar(8) DEFAULT '',
+            \tlocation jsonb NULL,
+            \t"type" public.area_type DEFAULT 'TOWN'::area_type not NULL,
+            \tCONSTRAINT area_pkey PRIMARY KEY (code)
+            );""";
+
     public static void setup() throws IOException, URISyntaxException {
         String recommendUserPassword = PasswordService.nextStrongPasswd();
         System.out.println(recommendUserPassword);
@@ -78,15 +74,16 @@ public class PsqlSetup {
         Pattern pattern = Pattern.compile(".*user.*");
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         System.out.println(ResourceWhere.toUrl("area.conf"));
-        Stream<String> lines = Files.lines(Paths.get(loader.getResource("area.conf").toURI()));
-        lines.forEach(line -> {
-            //System.out.println(line);
-            Matcher matcher = pattern.matcher(line);
-            if (matcher.matches()) {
-                System.out.println("match:" + line);
-                //line.r
-            }
-        });
+        try (Stream<String> lines = Files.lines(Paths.get(Objects.requireNonNull(loader.getResource("area.conf")).toURI()))) {
+            lines.forEach(line -> {
+                //System.out.println(line);
+                Matcher matcher = pattern.matcher(line);
+                if (matcher.matches()) {
+                    System.out.println("match:" + line);
+                    //line.r
+                }
+            });
+        }
         //final AreaBatchImport areaBatchImport = new PsqlAreaBatchImport();
         //URL url = loader.getResource("areas.xls");
         //areaBatchImport.importXlsFrom(url.openStream());

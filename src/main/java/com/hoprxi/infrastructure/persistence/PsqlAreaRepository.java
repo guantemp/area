@@ -17,7 +17,6 @@
 package com.hoprxi.infrastructure.persistence;
 
 import com.hoprxi.domain.model.*;
-import com.hoprxi.domain.model.coordinate.Boundary;
 import com.hoprxi.domain.model.coordinate.WGS84;
 import com.hoprxi.infrastructure.PsqlAreaUtil;
 import com.hoprxi.infrastructure.PsqlUtil;
@@ -65,27 +64,18 @@ public class PsqlAreaRepository implements AreaRepository {
             String code = rs.getString("code");
             String parentCode = rs.getString("parent_code");
             Name name = new Name(rs.getString("name"), (char) rs.getInt("initials"), rs.getString("abbreviation"), rs.getString("mnemonic"), rs.getString("alias"));
-            WGS84 wgs84 = new WGS84(rs.getDouble("longitude"),rs.getDouble("latitude"));
+            WGS84 wgs84 = new WGS84(rs.getDouble("longitude"), rs.getDouble("latitude"));
             String zipcode = rs.getString("zipcode");
             String telephoneCode = rs.getString("telephone_code");
             String type = rs.getString("type");
-            switch (type) {
-                case "PROVINCE":
-                    area = new Province(code, parentCode, name, wgs84, zipcode, telephoneCode);
-                    break;
-                case "COUNTRY":
-                    area = new Country(code, parentCode, name, wgs84, zipcode, telephoneCode);
-                    break;
-                case "CITY":
-                    area = new City(code, parentCode, name, wgs84, zipcode, telephoneCode);
-                    break;
-                case "COUNTY":
-                    area = new County(code, parentCode, name, wgs84, zipcode, telephoneCode);
-                    break;
-                case "TOWN":
-                    area = new Town(code, parentCode, name, wgs84, zipcode, telephoneCode);
-                    break;
-            }
+            area = switch (type) {
+                case "PROVINCE" -> new Province(code, parentCode, name, wgs84, zipcode, telephoneCode);
+                case "COUNTRY" -> new Country(code, parentCode, name, wgs84, zipcode, telephoneCode);
+                case "CITY" -> new City(code, parentCode, name, wgs84, zipcode, telephoneCode);
+                case "COUNTY" -> new County(code, parentCode, name, wgs84, zipcode, telephoneCode);
+                case "TOWN" -> new Town(code, parentCode, name, wgs84, zipcode, telephoneCode);
+                default -> area;
+            };
         }
         return area;
     }

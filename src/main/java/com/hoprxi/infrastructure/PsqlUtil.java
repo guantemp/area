@@ -21,7 +21,6 @@ import com.typesafe.config.ConfigFactory;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
-import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
@@ -31,18 +30,14 @@ import java.util.List;
  * @since JDK8.0
  * @version 0.0.1 builder 2022-08-25
  */
-public class PsqlUtil {
-    private static final Config config;
+public final class PsqlUtil {
+    private static final Config config = ConfigFactory.load("area");
     private static HikariDataSource hikariDataSource;
-
-    static {
-        config = ConfigFactory.load("area");
-    }
 
     public static Connection getConnection(String databaseName) throws SQLException {
         if (hikariDataSource == null) {
             List<? extends Config> writes = config.getConfigList("write");
-            Config write = writes.get(0);
+            Config write = writes.getFirst();
             HikariConfig hikariConfig = new HikariConfig();
             hikariConfig.setDataSourceClassName(write.getString("hikari.dataSourceClassName"));
             String entry = write.getString("host") + ":" + write.getString("port");

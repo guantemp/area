@@ -18,6 +18,7 @@ public class PsqlAreaBatchImportTest {
         StoreKeyLoad.loadSecretKey("keystore.jks", "Qwe123465",
                 new String[]{"slave.tooo.top:6543:P$Qwe123465Pg", "129.28.29.105:5432:P$Qwe123465Pg"});
     }
+
     @Test
     public void testImportXlsFrom() throws IOException, SQLException {
         final AreaBatchImport areaBatchImport = new PsqlAreaBatchImport();

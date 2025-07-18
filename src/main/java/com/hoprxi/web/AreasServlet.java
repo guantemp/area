@@ -26,17 +26,16 @@ import com.hoprxi.domain.model.coordinate.WGS84;
 import com.hoprxi.infrastructure.persistence.PsqlAreaRepository;
 import com.hoprxi.infrastructure.query.ESAreaQuery;
 import com.hoprxi.infrastructure.query.PsqlAreaQuery;
+import jakarta.servlet.annotation.WebInitParam;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
-import javax.servlet.annotation.WebInitParam;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
-import java.util.stream.Collectors;
 
 /***
  * @author <a href="www.hoprxi.com/authors/guan xianghuang">guan xiangHuan</a>
@@ -55,18 +54,18 @@ import java.util.stream.Collectors;
  *          </ul>
  *          </p>
  */
-@WebServlet(urlPatterns = {"/v1/areas/*"}, name = "areas", asyncSupported = false, initParams = {
-        @WebInitParam(name = "database", value = "arangodb")})
+@WebServlet(urlPatterns = {"/v1/areas/*"}, name = "areas", initParams = {
+        @WebInitParam(name = "database", value = "elasticsearch")})
 public class AreasServlet extends HttpServlet {
-    private static final long serialVersionUID = 1L;
-    private static final String[] FIELDS = {"name", "zipcode", "telephoneCode"};
+    //private static final String[] FIELDS = {"name", "zipcode", "telephoneCode"};
 
-    static {
-        Arrays.sort(FIELDS, String.CASE_INSENSITIVE_ORDER);
-    }
+    //static {
+   //     Arrays.sort(FIELDS, String.CASE_INSENSITIVE_ORDER);
+   // }
 
     private final JsonFactory jsonFactory = JsonFactory.builder().build();
     private final AreaQuery query = new PsqlAreaQuery();
+    private final ESAreaQuery query1 = new ESAreaQuery();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -83,35 +82,35 @@ public class AreasServlet extends HttpServlet {
             }
         }
          */
-        JsonGenerator generator = jsonFactory.createGenerator(response.getOutputStream(), JsonEncoding.UTF8);
-        generator.useDefaultPrettyPrinter();
-        String pathInfo = request.getPathInfo();
-        if (pathInfo == null) {
-            String query = request.getParameter("query");
-            AreaView[] views;
-            if (query != null) {
-                views = this.query.queryByName(query);
-                String filters = request.getParameter("filters");
-                if (filters != null) {
-                    views = Arrays.stream(views).filter(view -> {
-                        for (String filter : filters.split(",")) {
-                            if (AreaView.Level.valueOf(filter.toUpperCase()) == view.level())
-                                return true;
-                        }
-                        return false;
-                    }).collect(Collectors.toList()).toArray(new AreaView[0]);
+        try (JsonGenerator generator = jsonFactory.createGenerator(response.getOutputStream(), JsonEncoding.UTF8)) {
+            generator.useDefaultPrettyPrinter();
+            String pathInfo = request.getPathInfo();
+            if (pathInfo == null) {
+                String query = request.getParameter("query");
+                AreaView[] views;
+                if (query != null) {
+                    views = this.query.queryByName(query);
+                    String filters = request.getParameter("filters");
+                    if (filters != null) {
+                        views = Arrays.stream(views).filter(view -> {
+                            for (String filter : filters.split(",")) {
+                                if (AreaView.Level.valueOf(filter.toUpperCase()) == view.level())
+                                    return true;
+                            }
+                            return false;
+                        }).toArray(AreaView[]::new);
+                    }
+                } else {
+                    views = this.query.queryCountry();
                 }
+                writeAreaViews(generator, views);
             } else {
-                views = this.query.queryCountry();
-            }
-            writeAreaViews(generator, views);
-        } else {
-            String[] paths = pathInfo.split("/");
-            if (paths.length == 2) {//id query
-                ESAreaQuery esAreaQuery=new ESAreaQuery();
-                try(OutputStream os=esAreaQuery.query(Integer.valueOf(paths[1]))){
+                String[] paths = pathInfo.split("/");
+                if (paths.length == 2) {//id query
+                    ESAreaQuery esAreaQuery = new ESAreaQuery();
+                    try (OutputStream os = esAreaQuery.query(Integer.parseInt(paths[1]))) {
 
-                }
+                    }
                 /*
                 AreaView view = query.query(paths[1]);
                 if (view != null) {
@@ -119,15 +118,14 @@ public class AreasServlet extends HttpServlet {
                 } else {
                     writeNotFind(response, generator, paths[1]);
                 }*/
-            } else if (paths.length > 2 && paths[2].equals("juri")) {
-                AreaView[] views = query.queryByJurisdiction(paths[1]);
-                writeAreaViews(generator, views);
-            } else {
-                writeNotFind(response, generator, paths[1]);
+                } else if (paths.length > 2 && paths[2].equals("juri")) {
+                    AreaView[] views = query.queryByJurisdiction(paths[1]);
+                    writeAreaViews(generator, views);
+                } else {
+                    writeNotFind(response, generator, paths[1]);
+                }
             }
         }
-        generator.flush();
-        generator.close();
     }
 
     private void writeAreaViews(JsonGenerator generator, AreaView[] views) throws IOException {
@@ -267,25 +265,13 @@ public class AreasServlet extends HttpServlet {
             }
         }
         Name areaName = new Name(name, abbreviation, alias);
-        Area area = null;
-        switch (level) {
-            case PROVINCE:
-                area = new Province(code, parentCode, areaName, wgs84, zipcode, telephoneCode);
-                break;
-            case COUNTRY:
-                area = new Country(code, parentCode, areaName, wgs84, zipcode, telephoneCode);
-                break;
-            case CITY:
-                area = new City(code, parentCode, areaName, wgs84, zipcode, telephoneCode);
-                break;
-            case COUNTY:
-                area = new County(code, parentCode, areaName, wgs84, zipcode, telephoneCode);
-                break;
-            case TOWN:
-                area = new Town(code, parentCode, areaName, wgs84, zipcode, telephoneCode);
-                break;
-        }
-        return area;
+        return switch (level) {
+            case PROVINCE -> new Province(code, parentCode, areaName, wgs84, zipcode, telephoneCode);
+            case COUNTRY -> new Country(code, parentCode, areaName, wgs84, zipcode, telephoneCode);
+            case CITY -> new City(code, parentCode, areaName, wgs84, zipcode, telephoneCode);
+            case COUNTY -> new County(code, parentCode, areaName, wgs84, zipcode, telephoneCode);
+            case TOWN -> new Town(code, parentCode, areaName, wgs84, zipcode, telephoneCode);
+        };
     }
 
     private Boundary deserialize(JsonParser parser) throws IOException {

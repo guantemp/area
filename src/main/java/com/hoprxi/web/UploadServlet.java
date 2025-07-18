@@ -19,27 +19,32 @@ package com.hoprxi.web;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.ProgressListener;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebInitParam;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import org.apache.commons.fileupload2.core.DiskFileItemFactory;
+import org.apache.commons.fileupload2.core.FileItem;
+import org.apache.commons.fileupload2.core.ProgressListener;
+import org.apache.commons.fileupload2.jakarta.servlet5.JakartaServletFileUpload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebInitParam;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.UUID;
 
@@ -67,7 +72,7 @@ public class UploadServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("text/html;charset=UTF-8");
         response.getWriter().println("<html>");
         response.getWriter().println("<head>");
@@ -89,23 +94,22 @@ public class UploadServlet extends HttpServlet {
         response.setContentType("application/json; charset=UTF-8");
         JsonGenerator generator = jasonFactory.createGenerator(response.getOutputStream(), JsonEncoding.UTF8).useDefaultPrettyPrinter();
         StringJoiner relativePath = new StringJoiner("/", request.getScheme() + "://" + request.getServerName(), "").add("/images");
-        if (!ServletFileUpload.isMultipartContent(request)) {//是否文件表单
+        if (!JakartaServletFileUpload.isMultipartContent(request)) {//是否文件表单
             generator.writeStartObject();
             generator.writeStringField("status", "fail");
             generator.writeStringField("message", "表单必须包含 enctype=multipart/form-data");
-            generator.writeEndObject();
         } else {
             // Create a factory for disk-based file items
-            DiskFileItemFactory factory = new DiskFileItemFactory();
-            factory.setDefaultCharset("UTF-8");
-            factory.setFileCleaningTracker(null);
+            DiskFileItemFactory factory = DiskFileItemFactory.builder().get();
+            //factory.setDefaultCharset("UTF-8");
+            //factory.setFileCleaningTracker(null);
             // Configure a repository (to ensure a secure temp location is used)
             ServletContext servletContext = this.getServletConfig().getServletContext();
             File repository = (File) servletContext.getAttribute("javax.servlet.context.tempdir");
             //超过4*1024*1kb(4MB)后写入临时文件
-            factory.setSizeThreshold(4 * 1024 * 1024);
-            factory.setRepository(repository);
-            ServletFileUpload upload = new ServletFileUpload(factory);
+            //factory.setSizeThreshold(4 * 1024 * 1024);
+            //factory.setRepository(repository);
+            JakartaServletFileUpload upload = new JakartaServletFileUpload(factory);
             upload.setProgressListener(new ProgressListener() {
                 private long megaBytes = -1;
 
@@ -131,10 +135,10 @@ public class UploadServlet extends HttpServlet {
                 List<FileItem> items = upload.parseRequest(request);
                 for (FileItem item : items) {
                     if (item.isFormField()) {//判断是否是文件流
-                        if ("randomFileName".equals(item.getFieldName()) && "on".equals(item.getString("UTF-8")))
+                        if ("randomFileName".equals(item.getFieldName()) && "on".equals(item.getString(StandardCharsets.UTF_8)))
                             random = true;
                     } else {
-                        String filepath = UploadServlet.class.getResource("/").toExternalForm();
+                        String filepath = Objects.requireNonNull(UploadServlet.class.getResource("/")).toExternalForm();
                         String[] sss = filepath.split("/");
                         StringJoiner joiner = new StringJoiner("/", "", "/");
                         for (int i = 0, j = sss.length - 1; i < j; i++) {
@@ -166,7 +170,7 @@ public class UploadServlet extends HttpServlet {
                         }
                         uploadedFile.deleteOnExit();
                         //uploadedFile.createNewFile();从临时文件拷贝过来的不能新建，报文件已存在异常，小于4MB的直接在内存里面的可以使用不报异常
-                        item.write(uploadedFile);//写入文件
+                        item.write(uploadedFile.toPath());//写入文件
                         item.delete();//删除临时文件
                         //InputStream uploadedStream = item.getInputStream();
                         // uploadedStream.close();
@@ -178,8 +182,8 @@ public class UploadServlet extends HttpServlet {
             generator.writeStartObject();
             generator.writeStringField("status", "success");
             generator.writeStringField("url", relativePath.toString());
-            generator.writeEndObject();
         }
+        generator.writeEndObject();
         generator.flush();
         generator.close();
     }

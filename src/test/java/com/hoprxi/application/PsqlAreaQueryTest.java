@@ -20,6 +20,7 @@ public class PsqlAreaQueryTest {
         StoreKeyLoad.loadSecretKey("keystore.jks", "Qwe123465",
                 new String[]{"slave.tooo.top:6543:P$Qwe123465Pg", "129.28.29.105:5432:P$Qwe123465Pg"});
     }
+
     private static final AreaRepository repository = new PsqlAreaRepository();
     private static final AreaQuery query = new PsqlAreaQuery();
 

@@ -15,9 +15,9 @@
  */
 package com.hoprxi.domain.model.coordinate;
 
-import com.hoprxi.domain.model.OutOfChinaException;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.hoprxi.domain.model.OutOfChinaException;
 
 import java.util.StringJoiner;
 
@@ -28,11 +28,11 @@ import java.util.StringJoiner;
  */
 
 public final class WGS84 {
-    public static final double A = 6378245.0;
-    public static final double EE = 0.00669342162296594323;
-    public static final double PI = 3.1415926535897932384626;
-    private double latitude;
-    private double longitude;
+    //public static final double A = 6378245.0;
+    //public static final double EE = 0.00669342162296594323;
+    //public static final double PI = 3.1415926535897932384626;
+    private final double latitude;
+    private final double longitude;
 
     /**
      * @param longitude
@@ -46,23 +46,15 @@ public final class WGS84 {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof WGS84)) return false;
+        if (!(o instanceof WGS84 wgs84)) return false;
 
-        WGS84 wgs84 = (WGS84) o;
-
-        if (Double.compare(wgs84.latitude, latitude) != 0) return false;
-        return Double.compare(wgs84.longitude, longitude) == 0;
+        return Double.compare(latitude, wgs84.latitude) == 0 && Double.compare(longitude, wgs84.longitude) == 0;
     }
 
     @Override
     public int hashCode() {
-        int result;
-        long temp;
-        temp = Double.doubleToLongBits(latitude);
-        result = (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(longitude);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        int result = Double.hashCode(latitude);
+        result = 31 * result + Double.hashCode(longitude);
         return result;
     }
 
@@ -80,10 +72,6 @@ public final class WGS84 {
         return gcj02.toBD09();
     }
 
-    /**
-     * @return
-     * @throws OutOfChinaException
-     */
     public GCJ02 toGCJ02() throws OutOfChinaException {
         if (Calculation.isOutOfChina(longitude, latitude))
             throw new OutOfChinaException("");

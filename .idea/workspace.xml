@@ -4,13 +4,33 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="06d15327-0203-4184-bc12-711a323ebadd" name="Changes" comment="202507111536">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/query/ESAreaQuery.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/com/hoprxi/infrastructure/query/ESAreaQueryTest.java" afterDir="false" />
+    <list default="true" id="06d15327-0203-4184-bc12-711a323ebadd" name="Changes" comment="202507181147">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/package-info.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/persistence/ESAreaBatchImport.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/persistence/ESAreaBatchImport.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/Bootstrap.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/Bootstrap.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/City.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/City.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/County.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/County.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/Province.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/Province.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/Town.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/Town.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/coordinate/WGS84.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/coordinate/WGS84.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/PsqlAreaUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/PsqlAreaUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/PsqlSetup.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/PsqlSetup.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/PsqlUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/PsqlUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/persistence/PsqlAreaBatchImport.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/persistence/PsqlAreaBatchImport.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/persistence/PsqlAreaRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/persistence/PsqlAreaRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/query/PsqlAreaQuery.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/query/PsqlAreaQuery.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/AreasServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/AreasServlet.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/IpSeekerServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/IpSeekerServlet.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/UploadServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/UploadServlet.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/filter/CrossDomainFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/filter/CrossDomainFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/area.conf" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/area.conf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/hoprxi/application/PsqlAreaBatchImportTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/hoprxi/application/PsqlAreaBatchImportTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/hoprxi/application/PsqlAreaQueryTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/hoprxi/application/PsqlAreaQueryTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/hoprxi/domain/model/AreaRepositoryTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/hoprxi/domain/model/AreaRepositoryTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/hoprxi/infrastructure/persistence/ESAreaBatchImportTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/hoprxi/infrastructure/persistence/ESAreaBatchImportTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/hoprxi/infrastructure/query/ESAreaQueryTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/hoprxi/infrastructure/query/ESAreaQueryTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,46 +48,78 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="JavaAutoRunManager">
-    <enabled-run-configurations>
-      <run-configuration type="TestNG" name="ESAreaQueryTest.testQuery" />
-    </enabled-run-configurations>
-  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;guantemp&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/guantemp/area.git&quot;,
+    &quot;accountId&quot;: &quot;2dfc1386-8aae-42ee-924b-844ef30adc22&quot;
+  }
+}</component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
   <component name="MavenImportPreferences">
     <option name="generalSettings">
       <MavenGeneralSettings>
-        <option name="mavenHome" value="D:/Program Files (x86)/apache-maven-3.9.4" />
-        <option name="userSettingsFile" value="D:\Program Files (x86)\apache-maven-3.9.4\conf\settings.xml" />
+        <option name="customMavenHome" value="D:\Program Files (x86)\apache-maven-3.9.11" />
+        <option name="localRepository" value="D:\mvn" />
+        <option name="mavenHomeTypeForPersistence" value="CUSTOM" />
+        <option name="userSettingsFile" value="D:\Program Files (x86)\apache-maven-3.9.11\conf\settings.xml" />
       </MavenGeneralSettings>
     </option>
   </component>
   <component name="MavenRunner">
     <option name="skipTests" value="true" />
   </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="安全分析" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 1
+}</component>
   <component name="ProjectId" id="2LfeggfxhAMJvTsR5b9wnQobCbz" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary&quot;: &quot;TestNG&quot;,
-    &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.TestNG&quot;: &quot;&quot;,
-    &quot;last_opened_file_path&quot;: &quot;E:/workspace/area/src/main/resources&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;MavenSettings&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Maven.core [clean].executor": "Run",
+    "Maven.core [compile].executor": "Run",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "TestNG.ESAreaQueryTest.executor": "Run",
+    "TestNG.PsqlSetupTest.executor": "Coverage",
+    "WebServerToolWindowFactoryState": "false",
+    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary": "TestNG",
+    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.TestNG": "",
+    "git-widget-placeholder": "master",
+    "ignore.virus.scanning.warn.message": "true",
+    "last_opened_file_path": "E:/workspace/area/src/main/resources",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "模块",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.25632185",
+    "settings.editor.selected.configurable": "reference.projectsettings.compiler.javacompiler",
+    "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "postgresql"
+    ]
   }
-}</component>
+}]]></component>
   <component name="ReactorSettings">
     <option name="notificationShown" value="true" />
   </component>
@@ -99,58 +151,37 @@
       <recent name="com.hoprxi.infrastructure.persistence" />
     </key>
   </component>
-  <component name="RunManager" selected="TestNG.ESAreaQueryTest.testQuery">
+  <component name="RunManager" selected="TestNG.ESAreaQueryTest">
     <configuration name="Main" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="com.hoprxi.Main" />
-      <module name="area" />
+      <module name="core" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="SwaggerCodegen">
-      <option name="activeConfigurationType" value="FILE" />
-      <option name="configurationPath" value="" />
-      <option name="customJreEnabled" value="false" />
+    <configuration default="true" type="SwaggerCodegen" show_console_on_std_err="false" show_console_on_std_out="false">
+      <option name="allowRunningInParallel" value="false" />
       <option name="customTemplatesPath" value="" />
-      <option name="enableDebugLogging" value="false" />
       <option name="generateToPath" value="" />
       <option name="generationParameters">
         <list />
       </option>
-      <option name="generatorPath" value="" />
+      <option name="generatorType" value="OPENAPI_GENERATOR_V7" />
       <option name="jdkPath" value="Default" />
       <option name="language" value="" />
+      <option name="projectPathOnTarget" />
+      <option name="selectedOptions">
+        <list />
+      </option>
       <option name="specificationPath" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="AreaQueryTest" type="TestNG">
-      <module name="area" />
+    <configuration name="AreaRepositoryTest" type="TestNG">
+      <module name="core" />
       <shortenClasspath name="NONE" />
       <useClassPathOnly />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
-      <option name="ALTERNATIVE_JRE_PATH" value="D:\Program Files\Java\jdk1.8.0_202\jre" />
-      <option name="SUITE_NAME" value="" />
-      <option name="PACKAGE_NAME" value="com.hoprxi.application" />
-      <option name="MAIN_CLASS_NAME" value="com.hoprxi.application.AreaQueryTest" />
-      <option name="GROUP_NAME" value="" />
-      <option name="TEST_OBJECT" value="CLASS" />
-      <option name="PARAMETERS" value="" />
-      <option name="OUTPUT_DIRECTORY" value="" />
-      <option name="TEST_SEARCH_SCOPE">
-        <value defaultName="moduleWithDependencies" />
-      </option>
-      <option name="PROPERTIES_FILE" value="" />
-      <properties />
-      <listeners />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="AreaRepositoryTest" type="TestNG">
-      <module name="area" />
-      <shortenClasspath name="NONE" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
-      <option name="ALTERNATIVE_JRE_PATH" value="D:\Program Files\Java\jdk1.8.0_202\jre" />
+      <option name="ALTERNATIVE_JRE_PATH" value="$PROJECT_DIR$/../../Program Files (x86)/jdk-21.0.2" />
       <option name="SUITE_NAME" value="" />
       <option name="PACKAGE_NAME" value="com.hoprxi.domain.model" />
       <option name="MAIN_CLASS_NAME" value="com.hoprxi.domain.model.AreaRepositoryTest" />
@@ -169,9 +200,11 @@
       </method>
     </configuration>
     <configuration name="ESAreaBatchImportTest" type="TestNG">
-      <module name="area" />
+      <module name="core" />
       <shortenClasspath name="NONE" />
       <useClassPathOnly />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <option name="ALTERNATIVE_JRE_PATH" value="$PROJECT_DIR$/../../Program Files (x86)/jdk-21.0.2" />
       <option name="SUITE_NAME" value="" />
       <option name="PACKAGE_NAME" value="com.hoprxi.infrastructure.persistence" />
       <option name="MAIN_CLASS_NAME" value="com.hoprxi.infrastructure.persistence.ESAreaBatchImportTest" />
@@ -190,8 +223,9 @@
       </method>
     </configuration>
     <configuration name="ESAreaQueryTest" type="TestNG">
-      <module name="area" />
+      <module name="core" />
       <shortenClasspath name="NONE" />
+      <useClassPathOnly />
       <option name="SUITE_NAME" value="" />
       <option name="PACKAGE_NAME" value="com.hoprxi.infrastructure.query" />
       <option name="MAIN_CLASS_NAME" value="com.hoprxi.infrastructure.query.ESAreaQueryTest" />
@@ -209,39 +243,12 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="ESAreaQueryTest.testQuery" type="TestNG" temporary="true" nameIsGenerated="true">
-      <module name="area" />
-      <shortenClasspath name="NONE" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.hoprxi.infrastructure.query.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="SUITE_NAME" value="" />
-      <option name="PACKAGE_NAME" value="com.hoprxi.infrastructure.query" />
-      <option name="MAIN_CLASS_NAME" value="com.hoprxi.infrastructure.query.ESAreaQueryTest" />
-      <option name="METHOD_NAME" value="testQuery" />
-      <option name="GROUP_NAME" value="" />
-      <option name="TEST_OBJECT" value="METHOD" />
-      <option name="PARAMETERS" value="" />
-      <option name="OUTPUT_DIRECTORY" value="" />
-      <option name="TEST_SEARCH_SCOPE">
-        <value defaultName="moduleWithDependencies" />
-      </option>
-      <option name="PROPERTIES_FILE" value="" />
-      <properties />
-      <listeners />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="PsqlAreaBatchImportTest" type="TestNG">
-      <module name="area" />
+      <module name="core" />
       <shortenClasspath name="NONE" />
       <useClassPathOnly />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
-      <option name="ALTERNATIVE_JRE_PATH" value="D:\Program Files\Java\jdk1.8.0_202\jre" />
+      <option name="ALTERNATIVE_JRE_PATH" value="$PROJECT_DIR$/../../Program Files (x86)/jdk-21.0.2" />
       <option name="SUITE_NAME" value="" />
       <option name="PACKAGE_NAME" value="com.hoprxi.application" />
       <option name="MAIN_CLASS_NAME" value="com.hoprxi.application.PsqlAreaBatchImportTest" />
@@ -260,11 +267,11 @@
       </method>
     </configuration>
     <configuration name="PsqlAreaQueryTest" type="TestNG">
-      <module name="area" />
+      <module name="core" />
       <shortenClasspath name="NONE" />
       <useClassPathOnly />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
-      <option name="ALTERNATIVE_JRE_PATH" value="D:\Program Files\Java\jdk1.8.0_202\jre" />
+      <option name="ALTERNATIVE_JRE_PATH" value="21" />
       <option name="SUITE_NAME" value="" />
       <option name="PACKAGE_NAME" value="com.hoprxi.application" />
       <option name="MAIN_CLASS_NAME" value="com.hoprxi.application.PsqlAreaQueryTest" />
@@ -283,11 +290,11 @@
       </method>
     </configuration>
     <configuration name="PsqlSetupTest" type="TestNG">
-      <module name="area" />
+      <module name="core" />
       <shortenClasspath name="NONE" />
       <useClassPathOnly />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
-      <option name="ALTERNATIVE_JRE_PATH" value="D:\Program Files\Java\jdk1.8.0_202\jre" />
+      <option name="ALTERNATIVE_JRE_PATH" value="$PROJECT_DIR$/../../Program Files (x86)/jdk-21.0.2" />
       <option name="SUITE_NAME" value="" />
       <option name="PACKAGE_NAME" value="com.hoprxi.infrastructure" />
       <option name="MAIN_CLASS_NAME" value="com.hoprxi.infrastructure.PsqlSetupTest" />
@@ -306,21 +313,22 @@
       </method>
     </configuration>
     <list>
-      <item itemvalue="Application.Main" />
       <item itemvalue="TestNG.ESAreaQueryTest" />
-      <item itemvalue="TestNG.AreaQueryTest" />
       <item itemvalue="TestNG.PsqlSetupTest" />
       <item itemvalue="TestNG.PsqlAreaQueryTest" />
       <item itemvalue="TestNG.PsqlAreaBatchImportTest" />
       <item itemvalue="TestNG.ESAreaBatchImportTest" />
       <item itemvalue="TestNG.AreaRepositoryTest" />
-      <item itemvalue="TestNG.ESAreaQueryTest.testQuery" />
+      <item itemvalue="应用程序.Main" />
     </list>
-    <recent_temporary>
-      <list>
-        <item itemvalue="TestNG.ESAreaQueryTest.testQuery" />
-      </list>
-    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-fbdcb00ec9e3-intellij.indexing.shared.core-IU-251.23774.435" />
+        <option value="bundled-js-predefined-d6986cc7102b-f27c65a3e318-JavaScript-IU-251.23774.435" />
+      </set>
+    </attachedChunks>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -374,6 +382,9 @@
       <workItem from="1752059942897" duration="3478000" />
       <workItem from="1752073357692" duration="21108000" />
       <workItem from="1752331675332" duration="10654000" />
+      <workItem from="1752744889724" duration="4836000" />
+      <workItem from="1752802675232" duration="16000" />
+      <workItem from="1752802973302" duration="9258000" />
     </task>
     <task id="LOCAL-00001" summary="202302131358">
       <created>1676267975047</created>
@@ -537,6 +548,11 @@
     <MESSAGE value="202507091233" />
     <MESSAGE value="202407092358" />
     <MESSAGE value="202507111536" />
-    <option name="LAST_COMMIT_MESSAGE" value="202507111536" />
+    <MESSAGE value="202507181121" />
+    <MESSAGE value="202507181147" />
+    <option name="LAST_COMMIT_MESSAGE" value="202507181147" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/area$ESAreaQueryTest.ic" NAME="ESAreaQueryTest 覆盖结果" MODIFIED="1752756536654" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />
   </component>
 </project>

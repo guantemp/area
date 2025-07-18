@@ -1,6 +1,5 @@
 package com.hoprxi.domain.model;
 
-import com.hoprxi.domain.model.coordinate.Boundary;
 import com.hoprxi.domain.model.coordinate.WGS84;
 import com.hoprxi.infrastructure.persistence.PsqlAreaRepository;
 import org.testng.Assert;
@@ -19,6 +18,7 @@ public class AreaRepositoryTest {
         StoreKeyLoad.loadSecretKey("keystore.jks", "Qwe123465",
                 new String[]{"slave.tooo.top:6543:P$Qwe123465Pg", "129.28.29.105:5432:P$Qwe123465Pg"});
     }
+
     private static final AreaRepository repository = new PsqlAreaRepository();
 
     @BeforeClass

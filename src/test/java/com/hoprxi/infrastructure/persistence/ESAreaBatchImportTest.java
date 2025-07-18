@@ -8,8 +8,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 
-import static org.testng.Assert.*;
-
 /***
  * @author <a href="www.hoprxi.com/authors/guan xiangHuan">guan xiangHuang</a>
  * @since JDK8.0

@@ -19,17 +19,17 @@ package com.hoprxi.web;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hoprxi.web.ip.IPEntry;
 import com.hoprxi.web.ip.IPSeeker;
+import jakarta.servlet.AsyncContext;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.AsyncContext;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serial;
 
 /***
  * @author <a href="www.hoprxi.com/authors/guan xianghuang">guan xiangHuan</a>
@@ -39,7 +39,8 @@ import java.io.PrintWriter;
 @WebServlet(value = "/v1/ipSeeker/*", name = "ipSeeker", asyncSupported = true)
 public class IpSeekerServlet extends HttpServlet {
     private static final Logger logger = LoggerFactory.getLogger(IpSeekerServlet.class);
-    private static final long serialVersionUID = 1L;
+    @Serial
+    private static final long serialVersionUID = -6926907132263746130L;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -60,8 +61,8 @@ public class IpSeekerServlet extends HttpServlet {
         // new Thread(new IPAsync(ctx)).start();
     }
 
-    private class IPAsync implements Runnable {
-        private AsyncContext ctx;
+    private static class IPAsync implements Runnable {
+        private final AsyncContext ctx;
 
         public IPAsync(AsyncContext ctx) {
             this.ctx = ctx;
@@ -84,7 +85,7 @@ public class IpSeekerServlet extends HttpServlet {
                 writer.close();
                 ctx.complete();
             } catch (IOException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
                 logger.error("error", e);
             }
         }

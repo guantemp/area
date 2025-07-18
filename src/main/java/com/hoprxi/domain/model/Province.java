@@ -16,7 +16,6 @@
 
 package com.hoprxi.domain.model;
 
-import com.hoprxi.domain.model.coordinate.Boundary;
 import com.hoprxi.domain.model.coordinate.WGS84;
 
 import java.util.Objects;
