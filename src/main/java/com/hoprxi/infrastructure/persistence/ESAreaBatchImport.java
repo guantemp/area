@@ -61,8 +61,9 @@ public class ESAreaBatchImport implements AreaBatchImport {
                     Request request = new Request("POST", "/_bulk?refresh=wait_for&pretty&filter_path=items.*.error");
                     request.setOptions(COMMON_OPTIONS);
                     request.setJsonEntity(batch.toString());
+                    System.out.println(batch);
                     Response response = client.performRequest(request);
-                    System.out.println(response.getEntity().getContentLength());
+                    //System.out.println(response.getEntity().getContentLength());
                 }
                 batch.setLength(0);
             }
@@ -73,18 +74,19 @@ public class ESAreaBatchImport implements AreaBatchImport {
         int divisor = row.getPhysicalNumberOfCells();
         String name = null, abbreviation = null;
         double longitude = 0.0, latitude = 0.0;
-        int code = -1, parentCode = -1, level = 0, sort = 0;
+        int code = -1, parentCode = -1, level = 0;
         for (int k = row.getFirstCellNum(); k < row.getLastCellNum(); k++) {
             Cell cell = row.getCell(k);
             switch (k % divisor) {
                 case 0:
-                    code = Double.valueOf(cell.getNumericCellValue()).intValue();
+                    //System.out.println(cell.getCellType());
+                    code = (int) cell.getNumericCellValue();
                     break;
                 case 1:
                     name = cell.getStringCellValue();
                     break;
                 case 2:
-                    parentCode = Double.valueOf(cell.getNumericCellValue()).intValue();
+                    parentCode = (int) cell.getNumericCellValue();
                     break;
                 case 3:
                     abbreviation = cell.getStringCellValue();
@@ -127,70 +129,5 @@ public class ESAreaBatchImport implements AreaBatchImport {
         }
         sb.append("\"}\n");
         return sb;
-    }
-
-
-    private String readCellValue(Cell cell) {
-        if (cell == null || cell.toString().trim().isEmpty()) {
-            return null;
-        }
-        String result = null;
-        switch (cell.getCellType()) {
-            case NUMERIC:   //数字
-                if (DateUtil.isCellDateFormatted(cell)) {//注意：DateUtil.isCellDateFormatted()方法对“2019年1月18日"这种格式的日期，判断会出现问题，需要另行处理
-                    DateTimeFormatter dtf;
-                    SimpleDateFormat sdf;
-                    short format = cell.getCellStyle().getDataFormat();
-                    if (format == 20 || format == 32) {
-                        sdf = new SimpleDateFormat("HH:mm");
-                    } else if (format == 14 || format == 31 || format == 57 || format == 58) {
-                        // 处理自定义日期格式：m月d日(通过判断单元格的格式id解决，id的值是58)
-                        sdf = new SimpleDateFormat("yyyy-MM-dd");
-                        double value = cell.getNumericCellValue();
-                        Date date = DateUtil.getJavaDate(value);
-                        result = sdf.format(date);
-                    } else {// 日期
-                        sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    }
-                    try {
-                        result = sdf.format(cell.getDateCellValue());// 日期
-                    } catch (Exception e) {
-                        try {
-                            throw new Exception("exception on get date data !".concat(e.toString()));
-                        } catch (Exception e1) {
-                            e1.printStackTrace();
-                        }
-                    }
-                } else {
-                    NumberFormat nf = NumberFormat.getNumberInstance();
-                    nf.setMaximumFractionDigits(3);
-                    nf.setRoundingMode(RoundingMode.HALF_EVEN);
-                    nf.setGroupingUsed(false);//去除,分割符
-                    result = nf.format(cell.getNumericCellValue());
-                    /*
-                    BigDecimal bd = new BigDecimal(cell.getNumericCellValue());
-                    bd.setScale(3, RoundingMode.HALF_UP);
-                    returnValue = bd.toPlainString();
-                     */
-                }
-                break;
-            case STRING:    //字符串
-                result = cell.getStringCellValue().trim();
-                break;
-            case BOOLEAN:   //布尔
-                boolean booleanValue = cell.getBooleanCellValue();
-                result = Boolean.toString(booleanValue);
-                break;
-            case BLANK:     // 空值
-                break;
-            case FORMULA:   // 公式
-                result = cell.getCellFormula();
-                break;
-            case ERROR:     // 故障
-                break;
-            default:
-                break;
-        }
-        return result;
     }
 }
