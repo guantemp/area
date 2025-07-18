@@ -31,7 +31,7 @@ public class ESAreaBatchImport implements AreaBatchImport {
 
     static {
         Config config = ConfigFactory.load("area");
-        Config read = config.getConfigList("read").get(0);
+        Config read = config.getConfigList("read").getFirst();
         String host = read.getString("host");
         int port = read.getInt("port");
         String entry = host + ":" + port;
@@ -178,8 +178,8 @@ public class ESAreaBatchImport implements AreaBatchImport {
                 result = cell.getStringCellValue().trim();
                 break;
             case BOOLEAN:   //布尔
-                Boolean booleanValue = cell.getBooleanCellValue();
-                result = booleanValue.toString();
+                boolean booleanValue = cell.getBooleanCellValue();
+                result = Boolean.toString(booleanValue);
                 break;
             case BLANK:     // 空值
                 break;

@@ -29,6 +29,7 @@ import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * <pre>
@@ -91,7 +92,7 @@ public class IPSeeker {
      * 私有构造函数
      */
     private IPSeeker() {
-        ipCache = new Hashtable<String, IPLocation>();
+        ipCache = new Hashtable<>();
         loc = new IPLocation();
         buf = new byte[100];
         b4 = new byte[4];
@@ -261,7 +262,7 @@ public class IPSeeker {
      * @return 包含IPEntry类型的List
      */
     public List<IPEntry> getIPEntries(String s) {
-        List<IPEntry> ret = new ArrayList<IPEntry>();
+        List<IPEntry> ret = new ArrayList<>();
         try {
             // 映射IP信息文件到内存中
             if (mbb == null) {
@@ -276,7 +277,7 @@ public class IPSeeker {
                 if (temp != -1) {
                     IPLocation loc = getIPLocation(temp);
                     // 判断是否这个地点里面包含了s子串，如果包含了，添加这个记录到List中，如果没有，继续
-                    if (loc.country.indexOf(s) != -1 || loc.area.indexOf(s) != -1) {
+                    if (loc.country.contains(s) || loc.area.contains(s)) {
                         IPEntry entry = new IPEntry();
                         entry.country = loc.country;
                         entry.area = loc.area;
@@ -304,7 +305,7 @@ public class IPSeeker {
      * @return 包含IPEntry类型的List
      */
     public List<IPEntry> getIPEntriesDebug(String s) {
-        List<IPEntry> ret = new ArrayList<IPEntry>();
+        List<IPEntry> ret = new ArrayList<>();
         long endOffset = ipEnd + 4;
         for (long offset = ipBegin + 4; offset <= endOffset; offset += IP_RECORD_LENGTH) {
             // 读取结束IP偏移
@@ -313,7 +314,7 @@ public class IPSeeker {
             if (temp != -1) {
                 IPLocation loc = getIPLocation(temp);
                 // 判断是否这个地点里面包含了s子串，如果包含了，添加这个记录到List中，如果没有，继续
-                if (loc.country.indexOf(s) != -1 || loc.area.indexOf(s) != -1) {
+                if (Objects.requireNonNull(loc).country.contains(s) || loc.area.contains(s)) {
                     IPEntry entry = new IPEntry();
                     entry.country = loc.country;
                     entry.area = loc.area;
@@ -423,7 +424,7 @@ public class IPSeeker {
     }
 
     public List<IPEntry> getList() {
-        List<IPEntry> ret = new ArrayList<IPEntry>();
+        List<IPEntry> ret = new ArrayList<>();
         long endOffset = ipEnd + 4;
         for (long offset = ipBegin + 4; offset <= endOffset; offset += IP_RECORD_LENGTH) {
             // 读取结束IP偏移
@@ -433,7 +434,7 @@ public class IPSeeker {
                 IPLocation loc = getIPLocation(temp);
                 // 判断是否这个地点里面包含了s子串，如果包含了，添加这个记录到List中，如果没有，继续
                 IPEntry entry = new IPEntry();
-                entry.country = loc.country;
+                entry.country = Objects.requireNonNull(loc).country;
                 entry.area = loc.area;
                 // 得到起始IP
                 readIP(offset - 4, b4);
@@ -716,7 +717,7 @@ public class IPSeeker {
     /**
      * 用来封装ip相关信息，目前只有两个字段，ip所在的国家和地区
      */
-    private class IPLocation {
+    private static class IPLocation {
         public String area;
         public String country;
 

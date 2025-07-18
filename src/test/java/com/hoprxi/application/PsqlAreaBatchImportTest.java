@@ -7,6 +7,7 @@ import salt.hoprxi.crypto.util.StoreKeyLoad;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
+import java.util.Objects;
 
 /***
  * @author <a href="www.hoprxi.com/authors/guan xiangHuan">guan xiangHuang</a>
@@ -24,7 +25,7 @@ public class PsqlAreaBatchImportTest {
         final AreaBatchImport areaBatchImport = new PsqlAreaBatchImport();
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         URL url = loader.getResource("areas.xls");
-        areaBatchImport.importXlsFrom(url.openStream());
+        areaBatchImport.importXlsFrom(Objects.requireNonNull(url).openStream());
         //System.out.println(loader.getResource("areas.xls").getFile());
     }
 }

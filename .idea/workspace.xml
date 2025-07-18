@@ -4,33 +4,22 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="06d15327-0203-4184-bc12-711a323ebadd" name="Changes" comment="202507181147">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="06d15327-0203-4184-bc12-711a323ebadd" name="Changes" comment="202507181654">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/Bootstrap.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/Bootstrap.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/City.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/City.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/County.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/County.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/Province.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/Province.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/Town.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/Town.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/coordinate/WGS84.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/coordinate/WGS84.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/PsqlAreaUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/PsqlAreaUtil.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/PsqlSetup.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/PsqlSetup.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/PsqlUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/PsqlUtil.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/persistence/PsqlAreaBatchImport.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/persistence/PsqlAreaBatchImport.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/application/AreaView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/application/AreaView.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/Area.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/Area.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/coordinate/Calculation.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/coordinate/Calculation.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/persistence/ESAreaBatchImport.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/persistence/ESAreaBatchImport.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/persistence/PsqlAreaRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/persistence/PsqlAreaRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/query/ESAreaQuery.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/query/ESAreaQuery.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/query/PsqlAreaQuery.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/query/PsqlAreaQuery.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/AreasServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/AreasServlet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/IpSeekerServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/IpSeekerServlet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/UploadServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/UploadServlet.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/filter/CrossDomainFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/filter/CrossDomainFilter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/area.conf" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/area.conf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/ip/IPSeeker.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/ip/IPSeeker.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/ip/IPUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/ip/IPUtils.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/com/hoprxi/application/PsqlAreaBatchImportTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/hoprxi/application/PsqlAreaBatchImportTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/hoprxi/application/PsqlAreaQueryTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/hoprxi/application/PsqlAreaQueryTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/hoprxi/domain/model/AreaRepositoryTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/hoprxi/domain/model/AreaRepositoryTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/com/hoprxi/infrastructure/persistence/ESAreaBatchImportTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/hoprxi/infrastructure/persistence/ESAreaBatchImportTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/hoprxi/infrastructure/query/ESAreaQueryTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/hoprxi/infrastructure/query/ESAreaQueryTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -89,12 +78,14 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "Maven.core [clean].executor": "Run",
     "Maven.core [compile].executor": "Run",
+    "Maven.core [install].executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "TestNG.AreaRepositoryTest.executor": "Run",
     "TestNG.ESAreaQueryTest.executor": "Run",
     "TestNG.PsqlSetupTest.executor": "Coverage",
     "WebServerToolWindowFactoryState": "false",
@@ -111,6 +102,7 @@
     "project.structure.last.edited": "模块",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.25632185",
+    "run.code.analysis.last.selected.profile": "pProject Default",
     "settings.editor.selected.configurable": "reference.projectsettings.compiler.javacompiler",
     "vue.rearranger.settings.migration": "true"
   },
@@ -151,7 +143,7 @@
       <recent name="com.hoprxi.infrastructure.persistence" />
     </key>
   </component>
-  <component name="RunManager" selected="TestNG.ESAreaQueryTest">
+  <component name="RunManager" selected="TestNG.AreaRepositoryTest">
     <configuration name="Main" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="com.hoprxi.Main" />
       <module name="core" />
@@ -384,7 +376,7 @@
       <workItem from="1752331675332" duration="10654000" />
       <workItem from="1752744889724" duration="4836000" />
       <workItem from="1752802675232" duration="16000" />
-      <workItem from="1752802973302" duration="9258000" />
+      <workItem from="1752802973302" duration="10192000" />
     </task>
     <task id="LOCAL-00001" summary="202302131358">
       <created>1676267975047</created>
@@ -512,7 +504,15 @@
       <option name="project" value="LOCAL" />
       <updated>1752219857307</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="202507181654">
+      <option name="closed" value="true" />
+      <created>1752828908034</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1752828908034</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -550,7 +550,8 @@
     <MESSAGE value="202507111536" />
     <MESSAGE value="202507181121" />
     <MESSAGE value="202507181147" />
-    <option name="LAST_COMMIT_MESSAGE" value="202507181147" />
+    <MESSAGE value="202507181654" />
+    <option name="LAST_COMMIT_MESSAGE" value="202507181654" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/area$ESAreaQueryTest.ic" NAME="ESAreaQueryTest 覆盖结果" MODIFIED="1752756536654" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />

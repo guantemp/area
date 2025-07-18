@@ -79,9 +79,7 @@ public class AreaView {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof AreaView)) return false;
-
-        AreaView view = (AreaView) o;
+        if (!(o instanceof AreaView view)) return false;
 
         return Objects.equals(code, view.code);
     }

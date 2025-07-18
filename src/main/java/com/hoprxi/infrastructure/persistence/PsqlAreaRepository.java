@@ -74,7 +74,7 @@ public class PsqlAreaRepository implements AreaRepository {
                 case "CITY" -> new City(code, parentCode, name, wgs84, zipcode, telephoneCode);
                 case "COUNTY" -> new County(code, parentCode, name, wgs84, zipcode, telephoneCode);
                 case "TOWN" -> new Town(code, parentCode, name, wgs84, zipcode, telephoneCode);
-                default -> area;
+                default -> null;
             };
         }
         return area;

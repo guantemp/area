@@ -78,9 +78,7 @@ public abstract class Area {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Area)) return false;
-
-        Area area = (Area) o;
+        if (!(o instanceof Area area)) return false;
 
         return Objects.equals(code, area.code);
     }

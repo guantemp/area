@@ -47,17 +47,19 @@ public class PsqlAreaQuery implements AreaQuery {
     @Override
     public AreaView[] queryByName(String regularExpression) {
         try (Connection connection = PsqlUtil.getConnection()) {
-            final String queryByNameSql = "select a1.code,a1.parent_code,a2.name::jsonb->>'name' parent_name,a2.name::jsonb->>'abbreviation' parent_abbreviation,a1.name::jsonb->>'name' name,a1.name::jsonb->>'initials' initials,a1.name::jsonb->>'abbreviation' abbreviation,a1.name::jsonb->>'mnemonic' mnemonic,a1.name::jsonb->>'alias' alias,a1.zipcode,a1.telephone_code,a1.location::jsonb->>'longitude' longitude,a1.location::jsonb->>'latitude' latitude,a1.\"type\" from area a1\n" +
-                    "inner join area a2 on a2.code = a1.parent_code\n" +
-                    "where a1.name::jsonb ->> 'abbreviation' ~ ?\n" +
-                    "union\n" +
-                    "select a1.code,a1.parent_code,a2.name::jsonb->>'name' parent_name,a2.name::jsonb->>'abbreviation' parent_abbreviation,a1.name::jsonb->>'name' name,a1.name::jsonb->>'initials' initials,a1.name::jsonb->>'abbreviation' abbreviation,a1.name::jsonb->>'mnemonic' mnemonic,a1.name::jsonb->>'alias' alias,a1.zipcode,a1.telephone_code,a1.location::jsonb->>'longitude' longitude,a1.location::jsonb->>'latitude' latitude,a1.\"type\" from area a1\n" +
-                    "inner join area a2 on a2.code = a1.parent_code\n" +
-                    "where a1.name::jsonb ->> 'mnemonic' ~ ?\n" +
-                    "union\n" +
-                    "select a1.code,a1.parent_code,a2.name::jsonb->>'name' parent_name,a2.name::jsonb->>'abbreviation' parent_abbreviation,a1.name::jsonb->>'name' name,a1.name::jsonb->>'initials' initials,a1.name::jsonb->>'abbreviation' abbreviation,a1.name::jsonb->>'mnemonic' mnemonic,a1.name::jsonb->>'alias' alias,a1.zipcode,a1.telephone_code,a1.location::jsonb->>'longitude' longitude,a1.location::jsonb->>'latitude' latitude,a1.\"type\" from area a1\n" +
-                    "inner join area a2 on a2.code = a1.parent_code\n" +
-                    "where a1.name::jsonb ->> 'name' ~ ?\n";
+            final String queryByNameSql = """
+                    select a1.code,a1.parent_code,a2.name::jsonb->>'name' parent_name,a2.name::jsonb->>'abbreviation' parent_abbreviation,a1.name::jsonb->>'name' name,a1.name::jsonb->>'initials' initials,a1.name::jsonb->>'abbreviation' abbreviation,a1.name::jsonb->>'mnemonic' mnemonic,a1.name::jsonb->>'alias' alias,a1.zipcode,a1.telephone_code,a1.location::jsonb->>'longitude' longitude,a1.location::jsonb->>'latitude' latitude,a1."type" from area a1
+                    inner join area a2 on a2.code = a1.parent_code
+                    where a1.name::jsonb ->> 'abbreviation' ~ ?
+                    union
+                    select a1.code,a1.parent_code,a2.name::jsonb->>'name' parent_name,a2.name::jsonb->>'abbreviation' parent_abbreviation,a1.name::jsonb->>'name' name,a1.name::jsonb->>'initials' initials,a1.name::jsonb->>'abbreviation' abbreviation,a1.name::jsonb->>'mnemonic' mnemonic,a1.name::jsonb->>'alias' alias,a1.zipcode,a1.telephone_code,a1.location::jsonb->>'longitude' longitude,a1.location::jsonb->>'latitude' latitude,a1."type" from area a1
+                    inner join area a2 on a2.code = a1.parent_code
+                    where a1.name::jsonb ->> 'mnemonic' ~ ?
+                    union
+                    select a1.code,a1.parent_code,a2.name::jsonb->>'name' parent_name,a2.name::jsonb->>'abbreviation' parent_abbreviation,a1.name::jsonb->>'name' name,a1.name::jsonb->>'initials' initials,a1.name::jsonb->>'abbreviation' abbreviation,a1.name::jsonb->>'mnemonic' mnemonic,a1.name::jsonb->>'alias' alias,a1.zipcode,a1.telephone_code,a1.location::jsonb->>'longitude' longitude,a1.location::jsonb->>'latitude' latitude,a1."type" from area a1
+                    inner join area a2 on a2.code = a1.parent_code
+                    where a1.name::jsonb ->> 'name' ~ ?
+                    """;
             PreparedStatement ps = connection.prepareStatement(queryByNameSql);
             ps.setString(1, regularExpression);
             ps.setString(2, regularExpression);
@@ -116,9 +118,10 @@ public class PsqlAreaQuery implements AreaQuery {
     @Override
     public AreaView[] queryByJurisdiction(String code) {
         try (Connection connection = PsqlUtil.getConnection()) {
-            final String queryByNameSql = "select a1.code,a1.parent_code,a2.name::jsonb->>'name' parent_name,a2.name::jsonb->>'abbreviation' parent_abbreviation,a1.name::jsonb->>'name' name,a1.name::jsonb->>'initials' initials,a1.name::jsonb->>'abbreviation' abbreviation,a1.name::jsonb->>'mnemonic' mnemonic,a1.name::jsonb->>'alias' alias,a1.zipcode,a1.telephone_code,a1.location::jsonb->>'longitude' longitude,a1.location::jsonb->>'latitude' latitude,a1.\"type\" from area a1\n" +
-                    "inner join area a2 on a2.code = a1.parent_code\n" +
-                    "where a1.code != a1.parent_code and a1.parent_code = ?";
+            final String queryByNameSql = """
+                    select a1.code,a1.parent_code,a2.name::jsonb->>'name' parent_name,a2.name::jsonb->>'abbreviation' parent_abbreviation,a1.name::jsonb->>'name' name,a1.name::jsonb->>'initials' initials,a1.name::jsonb->>'abbreviation' abbreviation,a1.name::jsonb->>'mnemonic' mnemonic,a1.name::jsonb->>'alias' alias,a1.zipcode,a1.telephone_code,a1.location::jsonb->>'longitude' longitude,a1.location::jsonb->>'latitude' latitude,a1."type" from area a1
+                    inner join area a2 on a2.code = a1.parent_code
+                    where a1.code != a1.parent_code and a1.parent_code = ?""";
             PreparedStatement ps = connection.prepareStatement(queryByNameSql);
             ps.setString(1, code);
             ResultSet rs = ps.executeQuery();
@@ -132,9 +135,10 @@ public class PsqlAreaQuery implements AreaQuery {
     @Override
     public AreaView[] queryCountry() {
         try (Connection connection = PsqlUtil.getConnection()) {
-            final String queryByNameSql = "select a1.code,a1.parent_code,a2.name::jsonb->>'name' parent_name,a2.name::jsonb->>'abbreviation' parent_abbreviation,a1.name::jsonb->>'name' name,a1.name::jsonb->>'initials' initials,a1.name::jsonb->>'abbreviation' abbreviation,a1.name::jsonb->>'mnemonic' mnemonic,a1.name::jsonb->>'alias' alias,a1.zipcode,a1.telephone_code,a1.location::jsonb->>'longitude' longitude,a1.location::jsonb->>'latitude' latitude,a1.\"type\" from area a1\n" +
-                    "inner join area a2 on a2.code = a1.parent_code\n" +
-                    "where a1.code = a1.parent_code";
+            final String queryByNameSql = """
+                    select a1.code,a1.parent_code,a2.name::jsonb->>'name' parent_name,a2.name::jsonb->>'abbreviation' parent_abbreviation,a1.name::jsonb->>'name' name,a1.name::jsonb->>'initials' initials,a1.name::jsonb->>'abbreviation' abbreviation,a1.name::jsonb->>'mnemonic' mnemonic,a1.name::jsonb->>'alias' alias,a1.zipcode,a1.telephone_code,a1.location::jsonb->>'longitude' longitude,a1.location::jsonb->>'latitude' latitude,a1."type" from area a1
+                    inner join area a2 on a2.code = a1.parent_code
+                    where a1.code = a1.parent_code""";
             PreparedStatement ps = connection.prepareStatement(queryByNameSql);
             ResultSet rs = ps.executeQuery();
             return transform(rs);

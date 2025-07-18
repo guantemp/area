@@ -30,7 +30,7 @@ public class ESAreaQuery {
 
     static {
         Config config = ConfigFactory.load("area");
-        Config read = config.getConfigList("read").get(0);
+        Config read = config.getConfigList("read").getFirst();
         String host = read.getString("host");
         int port = read.getInt("port");
         String entry = host + ":" + port;

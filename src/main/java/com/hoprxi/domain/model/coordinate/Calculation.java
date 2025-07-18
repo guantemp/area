@@ -42,10 +42,7 @@ public class Calculation {
         if (longitude < 72.004 || longitude > 137.8347) {
             return true;
         }
-        if (latitude < 0.8293 || latitude > 55.8271) {
-            return true;
-        }
-        return false;
+        return latitude < 0.8293 || latitude > 55.8271;
     }
 
     private static double transformLatitude(double x, double y) {

@@ -62,7 +62,7 @@ public class CrossDomainFilter implements Filter {
                 response.setHeader("Access-Control-Allow-Origin", allowOrigin);
             } else {
                 List<String> allowOriginList = Arrays.asList(allowOrigin.split(","));
-                if (allowOriginList != null && allowOriginList.size() > 0) {
+                if (!allowOriginList.isEmpty()) {
                     String currentOrigin = request.getHeader("Origin");
                     if (allowOriginList.contains(currentOrigin)) {
                         response.setHeader("Access-Control-Allow-Origin", currentOrigin);
