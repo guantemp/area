@@ -20,6 +20,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import salt.hoprxi.crypto.application.DatabaseSpecDecrypt;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -41,8 +42,8 @@ public final class PsqlUtil {
             HikariConfig hikariConfig = new HikariConfig();
             hikariConfig.setDataSourceClassName(write.getString("hikari.dataSourceClassName"));
             String entry = write.getString("host") + ":" + write.getString("port");
-            hikariConfig.setUsername(DecryptUtil.decrypt(entry, write.getString("user")));
-            hikariConfig.setPassword(DecryptUtil.decrypt(entry, write.getString("password")));
+            hikariConfig.setUsername(DatabaseSpecDecrypt.decrypt(entry, write.getString("user")));
+            hikariConfig.setPassword(DatabaseSpecDecrypt.decrypt(entry, write.getString("password")));
             hikariConfig.addDataSourceProperty("serverName", write.getString("host"));
             hikariConfig.addDataSourceProperty("portNumber", write.getInt("port"));
             hikariConfig.addDataSourceProperty("databaseName", databaseName);

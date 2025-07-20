@@ -1,24 +1,19 @@
 package com.hoprxi.infrastructure.persistence;
 
 import com.hoprxi.application.AreaBatchImport;
-import com.hoprxi.infrastructure.DecryptUtil;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
 import org.apache.poi.ss.usermodel.*;
 import org.elasticsearch.client.*;
+import salt.hoprxi.crypto.application.DatabaseSpecDecrypt;
 import salt.hoprxi.to.PinYin;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
-import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.Base64;
-import java.util.Date;
 
 /***
  * @author <a href="www.hoprxi.com/authors/guan xiangHuan">guan xiangHuang</a>
@@ -35,8 +30,8 @@ public class ESAreaBatchImport implements AreaBatchImport {
         String host = read.getString("host");
         int port = read.getInt("port");
         String entry = host + ":" + port;
-        String user = DecryptUtil.decrypt(entry, read.getString("user"));
-        String password = DecryptUtil.decrypt(entry, read.getString("password"));
+        String user = DatabaseSpecDecrypt.decrypt(entry, read.getString("user"));
+        String password = DatabaseSpecDecrypt.decrypt(entry, read.getString("password"));
 
         RequestOptions.Builder builder = RequestOptions.DEFAULT.toBuilder();
         builder.addHeader(HttpHeaders.AUTHORIZATION, "Basic " + Base64.getEncoder().encodeToString((user + ":" + password).getBytes(StandardCharsets.UTF_8))).addHeader(HttpHeaders.CONTENT_TYPE, "application/x-ndjson;charset=utf-8");

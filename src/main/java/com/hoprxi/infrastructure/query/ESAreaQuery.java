@@ -1,7 +1,6 @@
 package com.hoprxi.infrastructure.query;
 
 import com.fasterxml.jackson.core.*;
-import com.hoprxi.infrastructure.DecryptUtil;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.apache.http.HttpHeaders;
@@ -9,6 +8,7 @@ import org.apache.http.HttpHost;
 import org.elasticsearch.client.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import salt.hoprxi.crypto.application.DatabaseSpecDecrypt;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -34,8 +34,8 @@ public class ESAreaQuery {
         String host = read.getString("host");
         int port = read.getInt("port");
         String entry = host + ":" + port;
-        String user = DecryptUtil.decrypt(entry, read.getString("user"));
-        String password = DecryptUtil.decrypt(entry, read.getString("password"));
+        String user = DatabaseSpecDecrypt.decrypt(entry, read.getString("user"));
+        String password = DatabaseSpecDecrypt.decrypt(entry, read.getString("password"));
 
         RequestOptions.Builder builder = RequestOptions.DEFAULT.toBuilder();
         builder.addHeader(HttpHeaders.AUTHORIZATION, "Basic " + Base64.getEncoder().encodeToString((user + ":" + password).getBytes(StandardCharsets.UTF_8))).addHeader(HttpHeaders.CONTENT_TYPE, "application/json;charset=utf-8");
