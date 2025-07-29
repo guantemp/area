@@ -6,10 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="06d15327-0203-4184-bc12-711a323ebadd" name="Changes" comment="202507182154">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/DecryptUtil.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/PsqlUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/PsqlUtil.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/persistence/ESAreaBatchImport.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/persistence/ESAreaBatchImport.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/query/ESAreaQuery.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/query/ESAreaQuery.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/area.conf" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/area.conf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/hoprxi/domain/model/AreaRepositoryTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/hoprxi/domain/model/AreaRepositoryTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/hoprxi/infrastructure/PsqlSetupTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/hoprxi/infrastructure/PsqlSetupTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -36,7 +35,7 @@
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/guantemp/area.git&quot;,
-    &quot;accountId&quot;: &quot;2dfc1386-8aae-42ee-924b-844ef30adc22&quot;
+    &quot;accountId&quot;: &quot;81ef24c5-573b-402b-8b16-07d11166b4be&quot;
   }
 }</component>
   <component name="MarkdownSettingsMigration">
@@ -45,10 +44,11 @@
   <component name="MavenImportPreferences">
     <option name="generalSettings">
       <MavenGeneralSettings>
-        <option name="customMavenHome" value="D:\Program Files (x86)\apache-maven-3.9.11" />
+        <option name="customMavenHome" value="D:\Program Files (x86)\apache-maven-3.9.4" />
         <option name="localRepository" value="D:\mvn" />
         <option name="mavenHomeTypeForPersistence" value="CUSTOM" />
-        <option name="userSettingsFile" value="D:\Program Files (x86)\apache-maven-3.9.11\conf\settings.xml" />
+        <option name="useMavenConfig" value="false" />
+        <option name="userSettingsFile" value="D:\Program Files (x86)\apache-maven-3.9.4\conf\settings.xml" />
       </MavenGeneralSettings>
     </option>
   </component>
@@ -56,7 +56,7 @@
     <option name="skipTests" value="true" />
   </component>
   <component name="ProblemsViewState">
-    <option name="selectedTabId" value="安全分析" />
+    <option name="selectedTabId" value="DEPENDENCY_CHECKER_PROBLEMS_TAB" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 1
@@ -85,7 +85,7 @@
     &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.TestNG&quot;: &quot;&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/workspace/area/target/conf&quot;,
+    &quot;last_opened_file_path&quot;: &quot;E:/workspace/area&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -95,7 +95,7 @@
     &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
     &quot;project.structure.side.proportion&quot;: &quot;0.25632185&quot;,
     &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.projectsettings.compiler.javacompiler&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;MavenSettings&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
   &quot;keyToStringList&quot;: {
@@ -135,7 +135,7 @@
       <recent name="com.hoprxi.infrastructure.persistence" />
     </key>
   </component>
-  <component name="RunManager" selected="TestNG.ESAreaQueryTest">
+  <component name="RunManager" selected="TestNG.AreaRepositoryTest">
     <configuration name="Main" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="com.hoprxi.Main" />
       <module name="core" />
@@ -165,7 +165,7 @@
       <shortenClasspath name="NONE" />
       <useClassPathOnly />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
-      <option name="ALTERNATIVE_JRE_PATH" value="$PROJECT_DIR$/../../Program Files (x86)/jdk-21.0.2" />
+      <option name="ALTERNATIVE_JRE_PATH" value="D:/Program Files/jdk-21.0.2" />
       <option name="SUITE_NAME" value="" />
       <option name="PACKAGE_NAME" value="com.hoprxi.domain.model" />
       <option name="MAIN_CLASS_NAME" value="com.hoprxi.domain.model.AreaRepositoryTest" />
@@ -188,7 +188,7 @@
       <shortenClasspath name="NONE" />
       <useClassPathOnly />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
-      <option name="ALTERNATIVE_JRE_PATH" value="$PROJECT_DIR$/../../Program Files (x86)/jdk-21.0.2" />
+      <option name="ALTERNATIVE_JRE_PATH" value="D:/Program Files/jdk-21.0.2" />
       <option name="SUITE_NAME" value="" />
       <option name="PACKAGE_NAME" value="com.hoprxi.infrastructure.persistence" />
       <option name="MAIN_CLASS_NAME" value="com.hoprxi.infrastructure.persistence.ESAreaBatchImportTest" />
@@ -232,7 +232,7 @@
       <shortenClasspath name="NONE" />
       <useClassPathOnly />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
-      <option name="ALTERNATIVE_JRE_PATH" value="$PROJECT_DIR$/../../Program Files (x86)/jdk-21.0.2" />
+      <option name="ALTERNATIVE_JRE_PATH" value="D:/Program Files/jdk-21.0.2" />
       <option name="SUITE_NAME" value="" />
       <option name="PACKAGE_NAME" value="com.hoprxi.application" />
       <option name="MAIN_CLASS_NAME" value="com.hoprxi.application.PsqlAreaBatchImportTest" />
@@ -278,7 +278,7 @@
       <shortenClasspath name="NONE" />
       <useClassPathOnly />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
-      <option name="ALTERNATIVE_JRE_PATH" value="$PROJECT_DIR$/../../Program Files (x86)/jdk-21.0.2" />
+      <option name="ALTERNATIVE_JRE_PATH" value="D:/Program Files/jdk-21.0.2" />
       <option name="SUITE_NAME" value="" />
       <option name="PACKAGE_NAME" value="com.hoprxi.infrastructure" />
       <option name="MAIN_CLASS_NAME" value="com.hoprxi.infrastructure.PsqlSetupTest" />
@@ -373,6 +373,18 @@
       <workItem from="1752977907457" duration="2007000" />
       <workItem from="1752998951921" duration="2752000" />
       <workItem from="1753017364753" duration="1624000" />
+      <workItem from="1753099327823" duration="2773000" />
+      <workItem from="1753103255020" duration="259000" />
+      <workItem from="1753106645548" duration="799000" />
+      <workItem from="1753152081082" duration="613000" />
+      <workItem from="1753262498484" duration="2130000" />
+      <workItem from="1753270321564" duration="51000" />
+      <workItem from="1753414690207" duration="1319000" />
+      <workItem from="1753418298579" duration="258000" />
+      <workItem from="1753612461903" duration="1224000" />
+      <workItem from="1753618269877" duration="616000" />
+      <workItem from="1753620169754" duration="1364000" />
+      <workItem from="1753622999511" duration="47000" />
     </task>
     <task id="LOCAL-00001" summary="202302131358">
       <created>1676267975047</created>
