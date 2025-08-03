@@ -4,6 +4,7 @@ import org.testng.annotations.Test;
 import salt.hoprxi.crypto.util.StoreKeyLoad;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 
@@ -22,12 +23,25 @@ public class ESAreaQueryTest {
 
     @Test
     public void testQuery() throws UnsupportedEncodingException {
-        OutputStream os = query.query(156);
-        if (os instanceof ByteArrayOutputStream) {
-            String content = ((ByteArrayOutputStream) os).toString("UTF-8");
-            System.out.println("输出内容：\n" + content);
-        } else {
-            System.err.println("错误：输出流不是ByteArrayOutputStream类型");
+        try (OutputStream os = query.query(510000)) {
+            if (os instanceof ByteArrayOutputStream) {
+                String content = ((ByteArrayOutputStream) os).toString("UTF-8");
+                System.out.println("查询四川：\n" + content);
+            } else {
+                System.err.println("错误：输出流不是ByteArrayOutputStream类型");
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        try (OutputStream os = query.query(156)) {
+            if (os instanceof ByteArrayOutputStream) {
+                String content = ((ByteArrayOutputStream) os).toString("UTF-8");
+                System.out.println("查询中国：\n" + content);
+            } else {
+                System.err.println("错误：输出流不是ByteArrayOutputStream类型");
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
         //view = query.query("510504001");
         //Assert.assertNotNull(view);
@@ -38,5 +52,16 @@ public class ESAreaQueryTest {
 
     @Test
     public void testQueryCountry() {
+        try (OutputStream os = query.queryCountry()) {
+            if (os instanceof ByteArrayOutputStream) {
+                String content = ((ByteArrayOutputStream) os).toString("UTF-8");
+                System.out.println("国家：\n" + content);
+            } else {
+                System.err.println("错误：输出流不是ByteArrayOutputStream类型");
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 }

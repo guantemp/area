@@ -6,7 +6,10 @@ import com.typesafe.config.ConfigFactory;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
 import org.apache.poi.ss.usermodel.*;
-import org.elasticsearch.client.*;
+import org.elasticsearch.client.Request;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.Response;
+import org.elasticsearch.client.RestClient;
 import salt.hoprxi.crypto.application.DatabaseSpecDecrypt;
 import salt.hoprxi.to.PinYin;
 
@@ -22,7 +25,8 @@ import java.util.Base64;
  */
 public class ESAreaBatchImport implements AreaBatchImport {
     private static final RequestOptions COMMON_OPTIONS;
-    private static final RestClientBuilder BUILDER;
+    private static final RestClient CLIENT;
+    private static final ThreadLocal<Request> REQUEST_POOL;
 
     static {
         Config config = ConfigFactory.load("area");
@@ -39,9 +43,11 @@ public class ESAreaBatchImport implements AreaBatchImport {
         //new HttpAsyncResponseConsumerFactory
         //.HeapBufferedResponseConsumerFactory(30 * 1024 * 1024 * 1024));
         COMMON_OPTIONS = builder.build();
-        BUILDER = RestClient.builder(new HttpHost(host, port, "https"));
+        CLIENT = RestClient.builder(new HttpHost(host, port, "https")).build();
+        REQUEST_POOL = ThreadLocal.withInitial(
+                () -> new Request("POST", "/area/_bulk")
+        );
     }
-
 
     @Override
     public void importXlsFrom(InputStream is) throws IOException {
@@ -52,14 +58,13 @@ public class ESAreaBatchImport implements AreaBatchImport {
             Row row = sheet.getRow(i);
             batch.append(parseBulk(row));
             if (i % 4096 == 0 || i == j - 1) {
-                try (RestClient client = BUILDER.build()) {
-                    Request request = new Request("POST", "/_bulk?refresh=wait_for&pretty&filter_path=items.*.error");
-                    request.setOptions(COMMON_OPTIONS);
-                    request.setJsonEntity(batch.toString());
-                    System.out.println(batch);
-                    Response response = client.performRequest(request);
-                    //System.out.println(response.getEntity().getContentLength());
-                }
+                Request request = REQUEST_POOL.get();//?refresh=wait_for&pretty&filter_path=items.*.error
+                request.setOptions(COMMON_OPTIONS);
+                request.setJsonEntity(batch.toString());
+                //request.getParameters().clear();
+                System.out.println(batch);
+                Response response = CLIENT.performRequest(request);
+                //System.out.println(response.getEntity().getContentLength());
                 batch.setLength(0);
             }
         }
@@ -97,7 +102,7 @@ public class ESAreaBatchImport implements AreaBatchImport {
                     break;
             }
         }
-        StringBuilder sb = new StringBuilder("{\"index\":{\"_index\":\"area\",\"_id\":");
+        StringBuilder sb = new StringBuilder("{\"index\":{\"_id\":");
         sb.append(code).append("}}\n");
         sb.append("{\"code\":").append(code).append(",\"parent_code\":").append(parentCode).append(",\"name\":{")
                 .append("\"name\":\"").append(name).append("\",\"initials\":").append((int) PinYin.toShortPinYing(name).charAt(0))
