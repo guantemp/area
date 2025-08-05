@@ -7,6 +7,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 /***
  * @author <a href="www.hoprxi.com/authors/guan xiangHuan">guan xiangHuang</a>
@@ -35,7 +36,7 @@ public class ESAreaQueryTest {
         }
         try (OutputStream os = query.query(156)) {
             if (os instanceof ByteArrayOutputStream) {
-                String content = ((ByteArrayOutputStream) os).toString("UTF-8");
+                String content = ((ByteArrayOutputStream) os).toString(StandardCharsets.UTF_8);
                 System.out.println("查询中国：\n" + content);
             } else {
                 System.err.println("错误：输出流不是ByteArrayOutputStream类型");
@@ -43,18 +44,23 @@ public class ESAreaQueryTest {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        //view = query.query("510504001");
-        //Assert.assertNotNull(view);
-        //System.out.println(view);
-        //view = query.query("5234001");
-        //Assert.assertNull(view);
+        try (OutputStream os = query.query("name",0,999)) {
+            if (os instanceof ByteArrayOutputStream) {
+                String content = ((ByteArrayOutputStream) os).toString(StandardCharsets.UTF_8);
+                System.out.println("名字模糊查询：\n" + content);
+            } else {
+                System.err.println("错误：输出流不是ByteArrayOutputStream类型");
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
     public void testQueryCountry() {
         try (OutputStream os = query.queryCountry()) {
             if (os instanceof ByteArrayOutputStream) {
-                String content = ((ByteArrayOutputStream) os).toString("UTF-8");
+                String content = ((ByteArrayOutputStream) os).toString(StandardCharsets.UTF_8);
                 System.out.println("国家：\n" + content);
             } else {
                 System.err.println("错误：输出流不是ByteArrayOutputStream类型");
@@ -62,6 +68,5 @@ public class ESAreaQueryTest {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
     }
 }

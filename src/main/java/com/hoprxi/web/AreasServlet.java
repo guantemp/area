@@ -31,6 +31,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import salt.hoprxi.utils.NumberHelper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -83,7 +84,8 @@ public class AreasServlet extends HttpServlet {
         }
          */
         try (JsonGenerator generator = jsonFactory.createGenerator(response.getOutputStream(), JsonEncoding.UTF8)) {
-            generator.useDefaultPrettyPrinter();
+            boolean pretty = NumberHelper.booleanOf(request.getParameter("pretty"));
+            if (pretty) generator.useDefaultPrettyPrinter();
             String pathInfo = request.getPathInfo();
             if (pathInfo == null) {
                 String query = request.getParameter("query");

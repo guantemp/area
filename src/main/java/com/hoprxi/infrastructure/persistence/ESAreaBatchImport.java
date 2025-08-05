@@ -8,7 +8,6 @@ import org.apache.http.HttpHost;
 import org.apache.poi.ss.usermodel.*;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
 import salt.hoprxi.crypto.application.DatabaseSpecDecrypt;
 import salt.hoprxi.to.PinYin;
@@ -53,7 +52,7 @@ public class ESAreaBatchImport implements AreaBatchImport {
     public void importXlsFrom(InputStream is) throws IOException {
         Workbook workbook = WorkbookFactory.create(is);
         Sheet sheet = workbook.getSheetAt(0);
-        StringBuilder batch = new StringBuilder();
+        StringBuilder batch = new StringBuilder(512);
         for (int i = 1, j = sheet.getLastRowNum() + 1; i < j; i++) {
             Row row = sheet.getRow(i);
             batch.append(parseBulk(row));
@@ -61,10 +60,9 @@ public class ESAreaBatchImport implements AreaBatchImport {
                 Request request = REQUEST_POOL.get();//?refresh=wait_for&pretty&filter_path=items.*.error
                 request.setOptions(COMMON_OPTIONS);
                 request.setJsonEntity(batch.toString());
-                //request.getParameters().clear();
-                System.out.println(batch);
-                Response response = CLIENT.performRequest(request);
-                //System.out.println(response.getEntity().getContentLength());
+                //System.out.println(batch);
+                //System.out.println(batch.length());
+                CLIENT.performRequest(request);
                 batch.setLength(0);
             }
         }
@@ -72,7 +70,7 @@ public class ESAreaBatchImport implements AreaBatchImport {
 
     private StringBuilder parseBulk(Row row) {
         int divisor = row.getPhysicalNumberOfCells();
-        String name = null, abbreviation = null;
+        String name = null, abbreviation = null, levelName = null;
         double longitude = 0.0, latitude = 0.0;
         int code = -1, parentCode = -1, level = 0;
         for (int k = row.getFirstCellNum(); k < row.getLastCellNum(); k++) {
@@ -109,25 +107,25 @@ public class ESAreaBatchImport implements AreaBatchImport {
                 .append(",\"abbreviation\":\"").append(abbreviation).append("\",\"mnemonic\":\"")
                 .append(PinYin.toShortPinYing(abbreviation)).append("\"},\"zipcode\":\"").append("\",\"telephone_code\":\"")
                 .append("\",\"location\": {\"lat\":").append(latitude).append(",\"lon\":").append(longitude)
-                .append("},\"type\":\"");
+                .append("},\"level\":{");
         switch (level) {
             case 0:
-                sb.append("COUNTRY");
+                sb.append("\"name\":\"COUNTRY\",\"order\":0");
                 break;
             case 1:
-                sb.append("PROVINCE");
+                sb.append("\"name\":\"PROVINCE\",\"order\":1");
                 break;
             case 2:
-                sb.append("CITY");
+                sb.append("\"name\":\"CITY\",\"order\":2");
                 break;
             case 3:
-                sb.append("COUNTY");
+                sb.append("\"name\":\"COUNTY\",\"order\":3");
                 break;
             case 4:
-                sb.append("TOWN");
+                sb.append("\"name\":\"TOWN\",\"order\":4");
                 break;
         }
-        sb.append("\"}\n");
+        sb.append("}}\n");
         return sb;
     }
 }
