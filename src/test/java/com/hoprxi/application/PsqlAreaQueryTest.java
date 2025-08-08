@@ -108,6 +108,8 @@ public class PsqlAreaQueryTest {
         Assert.assertEquals(views.length, 34);
         views = query.queryByJurisdiction("510500");
         Assert.assertEquals(views.length, 7);
+        for(AreaView view:views)
+            System.out.println(view);
     }
 
     @Test

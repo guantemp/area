@@ -4,11 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="06d15327-0203-4184-bc12-711a323ebadd" name="Changes" comment="202507182154">
+    <list default="true" id="06d15327-0203-4184-bc12-711a323ebadd" name="Changes" comment="202508051354">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/persistence/ESAreaBatchImport.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/persistence/ESAreaBatchImport.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/query/ESAreaQuery.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/query/ESAreaQuery.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/AreasServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/AreasServlet.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/ip/IPSeeker.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/web/ip/IPSeeker.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/hoprxi/application/PsqlAreaQueryTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/hoprxi/application/PsqlAreaQueryTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/com/hoprxi/infrastructure/query/ESAreaQueryTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/hoprxi/infrastructure/query/ESAreaQueryTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -105,6 +106,9 @@
     ]
   }
 }</component>
+  <component name="QodanaIsSelectedPersistenceService">
+    <option name="selectedOrLoading" value="true" />
+  </component>
   <component name="ReactorSettings">
     <option name="notificationShown" value="true" />
   </component>
@@ -388,7 +392,10 @@
       <workItem from="1753622999511" duration="47000" />
       <workItem from="1754210547794" duration="4925000" />
       <workItem from="1754221417476" duration="9729000" />
-      <workItem from="1754362909119" duration="9309000" />
+      <workItem from="1754362909119" duration="11007000" />
+      <workItem from="1754538064097" duration="3857000" />
+      <workItem from="1754550053560" duration="1238000" />
+      <workItem from="1754619593807" duration="1231000" />
     </task>
     <task id="LOCAL-00001" summary="202302131358">
       <created>1676267975047</created>
@@ -540,7 +547,15 @@
       <option name="project" value="LOCAL" />
       <updated>1752846879859</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="202508051354">
+      <option name="closed" value="true" />
+      <created>1754373297827</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1754373297827</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -582,7 +597,8 @@
     <MESSAGE value="202507181709" />
     <MESSAGE value="202507182101" />
     <MESSAGE value="202507182154" />
-    <option name="LAST_COMMIT_MESSAGE" value="202507182154" />
+    <MESSAGE value="202508051354" />
+    <option name="LAST_COMMIT_MESSAGE" value="202508051354" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -592,11 +608,6 @@
           <line>25</line>
           <properties field="BUILDER" class="com.hoprxi.infrastructure.query.ESAreaQuery" />
           <option name="timeStamp" value="1" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/persistence/ESAreaBatchImport.java</url>
-          <line>99</line>
-          <option name="timeStamp" value="2" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

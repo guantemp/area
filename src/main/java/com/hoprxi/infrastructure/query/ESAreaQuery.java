@@ -201,14 +201,32 @@ public class ESAreaQuery {
             Response response = client.performRequest(request);
             return rebuildAreas(response.getEntity().getContent());
         } catch (IOException e) {
-            //System.out.println(e);
-            LOGGER.error("The area(country) can't retrieve", e);
+            LOGGER.error("The area(jurisdiction) can't retrieve", e);
         }
         return new ByteArrayOutputStream(0);
     }
 
     private String jurisdictionJsonEntity(int code) {
         StringWriter writer = new StringWriter();
+        try (JsonGenerator generator = JSON_FACTORY.createGenerator(writer)) {
+            generator.writeStartObject();// 开始生成 JSON
+            // query 部分
+            generator.writeObjectFieldStart("query");
+            generator.writeObjectFieldStart("term");
+            generator.writeNumberField("parent_code", code);
+            generator.writeEndObject(); // 结束 term
+            generator.writeEndObject(); // 结束 query
+            // sort 部分
+            generator.writeArrayFieldStart("sort");
+            generator.writeStartObject();
+            generator.writeStringField("code", "asc");
+            generator.writeEndObject();
+            generator.writeEndArray();
+
+            generator.writeEndObject(); // 结束根对象
+        } catch (IOException e) {
+            LOGGER.error("Cannot assemble request JSON", e);
+        }
         return writer.toString();
     }
 

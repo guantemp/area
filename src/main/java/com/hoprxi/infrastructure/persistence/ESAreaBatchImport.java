@@ -19,8 +19,8 @@ import java.util.Base64;
 
 /***
  * @author <a href="www.hoprxi.com/authors/guan xiangHuan">guan xiangHuang</a>
- * @since JDK8.0
- * @version 0.0.1 builder 2025-07-09
+ * @since JDK21
+ * @version 0.0.2 builder 2025-07-09
  */
 public class ESAreaBatchImport implements AreaBatchImport {
     private static final RequestOptions COMMON_OPTIONS;

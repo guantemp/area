@@ -26,6 +26,7 @@ import java.net.URISyntaxException;
 import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -74,13 +75,13 @@ public class IPSeeker {
     private static final byte NO_AREA = 0x2;
     // 单一模式实例
     private static IPSeeker instance = new IPSeeker();
-    private byte[] b3;
+    private final byte[] b3;
     private byte[] b4;
     private byte[] buf;
     // 起始地区的开始和结束的绝对偏移
     private long ipBegin, ipEnd;
     // 用来做为cache，查询一个ip时首先查看cache，以减少不必要的重复查找
-    private Hashtable<String, IPLocation> ipCache;
+    private final Hashtable<String, IPLocation> ipCache;
     // 随机文件访问类
     private RandomAccessFile ipFile;
     // 为提高效率而采用的临时变量
@@ -128,7 +129,7 @@ public class IPSeeker {
         return instance;
     }
 
-    public static void main(String args[]) throws JsonProcessingException, UnsupportedEncodingException {
+    public static void main(String[] args) throws JsonProcessingException, UnsupportedEncodingException {
         // byte[] a = getIpByteArrayFromString("202.96.22.24");
         // for (int i = 0; i < a.length; i++)
         // System.out.println(a[i]);
@@ -143,7 +144,7 @@ public class IPSeeker {
         System.out.println(mapper.writeValueAsString(entry));
         long start = System.currentTimeMillis();
         // System.out.println(seeker.getList());
-        System.out.println(new String(seeker.getAddress("118.125.23.187").getBytes("UTF-8"), "UTF-8"));
+        System.out.println(new String(seeker.getAddress("118.125.23.187").getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
         System.out.println("execute time:" + (System.currentTimeMillis() - start));
     }
 

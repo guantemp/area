@@ -44,7 +44,7 @@ public class ESAreaQueryTest {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        try (OutputStream os = query.query("name",0,999)) {
+        try (OutputStream os = query.query("name", 0, 999)) {
             if (os instanceof ByteArrayOutputStream) {
                 String content = ((ByteArrayOutputStream) os).toString(StandardCharsets.UTF_8);
                 System.out.println("名字模糊查询：\n" + content);
@@ -62,6 +62,20 @@ public class ESAreaQueryTest {
             if (os instanceof ByteArrayOutputStream) {
                 String content = ((ByteArrayOutputStream) os).toString(StandardCharsets.UTF_8);
                 System.out.println("国家：\n" + content);
+            } else {
+                System.err.println("错误：输出流不是ByteArrayOutputStream类型");
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    public void testQueryJurisdiction() {
+        try (OutputStream os = query.queryJurisdiction(510500)) {
+            if (os instanceof ByteArrayOutputStream) {
+                String content = ((ByteArrayOutputStream) os).toString(StandardCharsets.UTF_8);
+                System.out.println("辖区：\n" + content);
             } else {
                 System.err.println("错误：输出流不是ByteArrayOutputStream类型");
             }
