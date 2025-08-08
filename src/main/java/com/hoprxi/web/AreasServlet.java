@@ -33,9 +33,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import salt.hoprxi.utils.NumberHelper;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.Arrays;
 
 /***
@@ -61,10 +59,11 @@ public class AreasServlet extends HttpServlet {
     //private static final String[] FIELDS = {"name", "zipcode", "telephoneCode"};
 
     //static {
-   //     Arrays.sort(FIELDS, String.CASE_INSENSITIVE_ORDER);
-   // }
-
-    private final JsonFactory jsonFactory = JsonFactory.builder().build();
+    //     Arrays.sort(FIELDS, String.CASE_INSENSITIVE_ORDER);
+    // }
+    private static final int OFFSET = 0;
+    private static final int SIZE = 64;
+    private final JsonFactory JSON_FACTORY = JsonFactory.builder().build();
     private final AreaQuery query = new PsqlAreaQuery();
     private final ESAreaQuery query1 = new ESAreaQuery();
 
@@ -83,14 +82,19 @@ public class AreasServlet extends HttpServlet {
             }
         }
          */
-        try (JsonGenerator generator = jsonFactory.createGenerator(response.getOutputStream(), JsonEncoding.UTF8)) {
+        try (JsonGenerator generator = JSON_FACTORY.createGenerator(response.getOutputStream(), JsonEncoding.UTF8)) {
             boolean pretty = NumberHelper.booleanOf(request.getParameter("pretty"));
             if (pretty) generator.useDefaultPrettyPrinter();
             String pathInfo = request.getPathInfo();
             if (pathInfo == null) {
-                String query = request.getParameter("query");
+                String query = request.getParameter("q");
                 AreaView[] views;
                 if (query != null) {
+                    int offset = NumberHelper.intOf(request.getParameter("offset"), OFFSET);
+                    int size = NumberHelper.intOf(request.getParameter("size"), SIZE);
+                    ByteArrayOutputStream os = (ByteArrayOutputStream) query1.query(query,null, offset, size);
+                    InputStream inputStream = new ByteArrayInputStream(os.toByteArray());
+                    /*
                     views = this.query.queryByName(query);
                     String filters = request.getParameter("filters");
                     if (filters != null) {
@@ -101,11 +105,11 @@ public class AreasServlet extends HttpServlet {
                             }
                             return false;
                         }).toArray(AreaView[]::new);
-                    }
+                    } */
                 } else {
                     views = this.query.queryCountry();
                 }
-                writeAreaViews(generator, views);
+                //writeAreaViews(generator, views);
             } else {
                 String[] paths = pathInfo.split("/");
                 if (paths.length == 2) {//id query
@@ -127,6 +131,13 @@ public class AreasServlet extends HttpServlet {
                     writeNotFind(response, generator, paths[1]);
                 }
             }
+        }
+    }
+
+    private void copyRaw(JsonGenerator generator, InputStream is) throws IOException {
+        JsonParser parser = JSON_FACTORY.createParser(is);
+        while (parser.nextToken() != null) {
+            generator.copyCurrentEvent(parser);
         }
     }
 
@@ -208,7 +219,7 @@ public class AreasServlet extends HttpServlet {
      * @throws IOException
      */
     private Area parserJson(InputStream is) throws JsonParseException, IOException {
-        JsonParser parser = jsonFactory.createParser(is);
+        JsonParser parser = JSON_FACTORY.createParser(is);
         String code = "", parentCode = "", name = "", abbreviation = "";
         String zipcode = null, alias = null, telephoneCode = null;
         WGS84 wgs84 = null;
@@ -313,7 +324,7 @@ public class AreasServlet extends HttpServlet {
             }
         }
         resp.setContentType("application/json; charset=UTF-8");
-        JsonGenerator generator = jsonFactory.createGenerator(resp.getOutputStream(), JsonEncoding.UTF8)
+        JsonGenerator generator = JSON_FACTORY.createGenerator(resp.getOutputStream(), JsonEncoding.UTF8)
                 .setPrettyPrinter(new DefaultPrettyPrinter());
         generator.writeStartObject();
         generator.writeStringField("status", "success");

@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.util.EnumSet;
 
 /***
  * @author <a href="www.hoprxi.com/authors/guan xiangHuan">guan xiangHuang</a>
@@ -44,7 +45,17 @@ public class ESAreaQueryTest {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        try (OutputStream os = query.query("name", 0, 999)) {
+        try (OutputStream os = query.query("四", EnumSet.of(ESAreaQuery.LEVEL.PROVINCE, ESAreaQuery.LEVEL.CITY), 0, 999)) {
+            if (os instanceof ByteArrayOutputStream) {
+                String content = ((ByteArrayOutputStream) os).toString(StandardCharsets.UTF_8);
+                System.out.println("名字模糊查询：\n" + content);
+            } else {
+                System.err.println("错误：输出流不是ByteArrayOutputStream类型");
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        try (OutputStream os = query.query("四", EnumSet.noneOf(ESAreaQuery.LEVEL.class), 0, 999)) {
             if (os instanceof ByteArrayOutputStream) {
                 String content = ((ByteArrayOutputStream) os).toString(StandardCharsets.UTF_8);
                 System.out.println("名字模糊查询：\n" + content);

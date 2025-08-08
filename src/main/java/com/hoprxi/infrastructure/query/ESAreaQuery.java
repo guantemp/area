@@ -13,6 +13,7 @@ import salt.hoprxi.crypto.application.DatabaseSpecDecrypt;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.EnumSet;
 
 /***
  * @author <a href="www.hoprxi.com/authors/guan xiangHuan">guan xiangHuang</a>
@@ -42,6 +43,10 @@ public class ESAreaQuery {
         //.HeapBufferedResponseConsumerFactory(30 * 1024 * 1024 * 1024));
         COMMON_OPTIONS = builder.build();
         BUILDER = RestClient.builder(new HttpHost(host, port, "https"));
+    }
+
+    public enum LEVEL {
+        COUNTRY, PROVINCE, CITY, COUNTY, TOWN
     }
 
     public OutputStream query(int code) {
@@ -124,37 +129,42 @@ public class ESAreaQuery {
         return writer.toString();
     }
 
-
-    public OutputStream query(String name, int from, int size) {
+    public OutputStream query(String name, EnumSet<LEVEL> filters, int from, int size) {
         try (RestClient client = BUILDER.build()) {
             Request request = new Request("GET", "/area/_search");
             request.setOptions(COMMON_OPTIONS);
-            request.setJsonEntity(nameJsonEntity(name, from, size));
+            System.out.println(nameJsonEntity(name, filters, from, size));
+            request.setJsonEntity(nameJsonEntity(name, filters, from, size));
             Response response = client.performRequest(request);
             return rebuildAreas(response.getEntity().getContent());
         } catch (IOException e) {
-            //System.out.println(e);
             LOGGER.error("The area(country) can't retrieve", e);
         }
         return new ByteArrayOutputStream(0);
     }
 
-    private String nameJsonEntity(String name, int from, int size) {
+    private String nameJsonEntity(String name, EnumSet<LEVEL> filters, int from, int size) {
         StringWriter writer = new StringWriter();
         try (JsonGenerator generator = JSON_FACTORY.createGenerator(writer)) {
             generator.writeStartObject(); // 开始生成整个JSON对象
             // 分页参数
-            generator.writeNumberField("from", 0);
-            generator.writeNumberField("size", 400);
+            generator.writeNumberField("from", from);
+            generator.writeNumberField("size", size);
             // query 结构
             generator.writeObjectFieldStart("query");
+            if (filters != null && !filters.isEmpty()) {
+                generator.writeObjectFieldStart("bool");
+                generator.writeArrayFieldStart("must");             // must 数组
+                generator.writeStartObject();//有must需要包装一个bool查询到对象
+            }
+            // 必须有的 bool 查询
             generator.writeObjectFieldStart("bool");
             generator.writeFieldName("should");
             generator.writeStartArray();
             // 第一个 should 条件：multi_match
             generator.writeStartObject();
             generator.writeObjectFieldStart("multi_match");
-            generator.writeStringField("query", "四");
+            generator.writeStringField("query", name);
             generator.writeFieldName("fields");
             generator.writeStartArray();
             generator.writeString("name.name");
@@ -165,12 +175,27 @@ public class ESAreaQuery {
             // 第二个 should 条件：term
             generator.writeStartObject();
             generator.writeObjectFieldStart("term");
-            generator.writeStringField("name.mnemonic", "四");
+            generator.writeStringField("name.mnemonic", name);
             generator.writeEndObject();
             generator.writeEndObject();
 
             generator.writeEndArray(); // 结束 should 数组
             generator.writeEndObject(); // 结束 bool
+
+            if (filters != null && !filters.isEmpty()) {
+                generator.writeEndObject();//结束第一个must的bool外包
+                generator.writeStartObject();
+                generator.writeObjectFieldStart("terms");
+                generator.writeArrayFieldStart("level.name");
+                for (LEVEL level : filters) {
+                    generator.writeString(level.name());
+                }
+                generator.writeEndArray(); // 结束 level.name 数组
+                generator.writeEndObject(); // 结束 terms
+                generator.writeEndObject(); // 结束 terms 对象
+                generator.writeEndArray(); // 结束 must 数组
+                generator.writeEndObject(); // 结束 bool
+            }
             generator.writeEndObject(); // 结束 query
 
             // sort 结构
