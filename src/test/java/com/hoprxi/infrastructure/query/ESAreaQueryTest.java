@@ -6,7 +6,6 @@ import salt.hoprxi.crypto.util.StoreKeyLoad;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.EnumSet;
 
@@ -24,10 +23,10 @@ public class ESAreaQueryTest {
     private static final ESAreaQuery query = new ESAreaQuery();
 
     @Test
-    public void testQuery() throws UnsupportedEncodingException {
+    public void testQuery() {
         try (OutputStream os = query.query(510000)) {
             if (os instanceof ByteArrayOutputStream) {
-                String content = ((ByteArrayOutputStream) os).toString("UTF-8");
+                String content = ((ByteArrayOutputStream) os).toString(StandardCharsets.UTF_8);
                 System.out.println("查询四川：\n" + content);
             } else {
                 System.err.println("错误：输出流不是ByteArrayOutputStream类型");
@@ -45,17 +44,17 @@ public class ESAreaQueryTest {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        try (OutputStream os = query.query("四", EnumSet.of(ESAreaQuery.LEVEL.PROVINCE, ESAreaQuery.LEVEL.CITY), 0, 999)) {
+        try (OutputStream os = query.query("四", EnumSet.of(ESAreaQuery.Level.PROVINCE, ESAreaQuery.Level.CITY), 0, 999)) {
             if (os instanceof ByteArrayOutputStream) {
                 String content = ((ByteArrayOutputStream) os).toString(StandardCharsets.UTF_8);
-                System.out.println("名字模糊查询：\n" + content);
+                System.out.println("名字模糊查询（过滤）：\n" + content);
             } else {
                 System.err.println("错误：输出流不是ByteArrayOutputStream类型");
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        try (OutputStream os = query.query("四", EnumSet.noneOf(ESAreaQuery.LEVEL.class), 0, 999)) {
+        try (OutputStream os = query.query("四", EnumSet.noneOf(ESAreaQuery.Level.class), 0, 999)) {
             if (os instanceof ByteArrayOutputStream) {
                 String content = ((ByteArrayOutputStream) os).toString(StandardCharsets.UTF_8);
                 System.out.println("名字模糊查询：\n" + content);
@@ -72,7 +71,7 @@ public class ESAreaQueryTest {
         try (OutputStream os = query.queryCountry()) {
             if (os instanceof ByteArrayOutputStream) {
                 String content = ((ByteArrayOutputStream) os).toString(StandardCharsets.UTF_8);
-                System.out.println("国家：\n" + content);
+                System.out.println("国家查询：\n" + content);
             } else {
                 System.err.println("错误：输出流不是ByteArrayOutputStream类型");
             }
@@ -86,7 +85,7 @@ public class ESAreaQueryTest {
         try (OutputStream os = query.queryJurisdiction(510500)) {
             if (os instanceof ByteArrayOutputStream) {
                 String content = ((ByteArrayOutputStream) os).toString(StandardCharsets.UTF_8);
-                System.out.println("辖区：\n" + content);
+                System.out.println("辖区查询：\n" + content);
             } else {
                 System.err.println("错误：输出流不是ByteArrayOutputStream类型");
             }

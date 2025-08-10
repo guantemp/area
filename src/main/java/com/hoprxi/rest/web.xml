@@ -22,7 +22,7 @@
     <display-name>Archetype Created Web Application</display-name>
     <servlet>
         <servlet-name>upload</servlet-name>
-        <servlet-class>com.hoprxi.web.UploadServlet</servlet-class>
+        <servlet-class>com.hoprxi.rest.UploadServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>upload</servlet-name>

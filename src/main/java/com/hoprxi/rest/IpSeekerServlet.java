@@ -14,11 +14,11 @@
  *  limitations under the License.
  */
 
-package com.hoprxi.web;
+package com.hoprxi.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hoprxi.web.ip.IPEntry;
-import com.hoprxi.web.ip.IPSeeker;
+import com.hoprxi.rest.ip.IPEntry;
+import com.hoprxi.rest.ip.IPSeeker;
 import jakarta.servlet.AsyncContext;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;

@@ -1,8 +1,8 @@
 package com.hoprxi;
 
-import com.hoprxi.web.AreasServlet;
-import com.hoprxi.web.IpSeekerServlet;
-import com.hoprxi.web.UploadServlet;
+import com.hoprxi.rest.AreasServlet;
+import com.hoprxi.rest.IpSeekerServlet;
+import com.hoprxi.rest.UploadServlet;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
 import io.undertow.server.handlers.PathHandler;

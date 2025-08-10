@@ -45,8 +45,16 @@ public class ESAreaQuery {
         BUILDER = RestClient.builder(new HttpHost(host, port, "https"));
     }
 
-    public enum LEVEL {
-        COUNTRY, PROVINCE, CITY, COUNTY, TOWN
+    public enum Level {
+        COUNTRY, PROVINCE, CITY, COUNTY, TOWN, UNKNOWN;
+
+        public static Level of(String s) {
+            for (Level Level : values()) {
+                if (Level.name().equalsIgnoreCase(s))
+                    return Level;
+            }
+            return Level.UNKNOWN;
+        }
     }
 
     public OutputStream query(int code) {
@@ -129,11 +137,11 @@ public class ESAreaQuery {
         return writer.toString();
     }
 
-    public OutputStream query(String name, EnumSet<LEVEL> filters, int from, int size) {
+    public OutputStream query(String name, EnumSet<Level> filters, int from, int size) {
         try (RestClient client = BUILDER.build()) {
             Request request = new Request("GET", "/area/_search");
             request.setOptions(COMMON_OPTIONS);
-            System.out.println(nameJsonEntity(name, filters, from, size));
+            //System.out.println(nameJsonEntity(name, filters, from, size));
             request.setJsonEntity(nameJsonEntity(name, filters, from, size));
             Response response = client.performRequest(request);
             return rebuildAreas(response.getEntity().getContent());
@@ -143,7 +151,7 @@ public class ESAreaQuery {
         return new ByteArrayOutputStream(0);
     }
 
-    private String nameJsonEntity(String name, EnumSet<LEVEL> filters, int from, int size) {
+    private String nameJsonEntity(String name, EnumSet<Level> filters, int from, int size) {
         StringWriter writer = new StringWriter();
         try (JsonGenerator generator = JSON_FACTORY.createGenerator(writer)) {
             generator.writeStartObject(); // 开始生成整个JSON对象
@@ -187,7 +195,7 @@ public class ESAreaQuery {
                 generator.writeStartObject();
                 generator.writeObjectFieldStart("terms");
                 generator.writeArrayFieldStart("level.name");
-                for (LEVEL level : filters) {
+                for (Level level : filters) {
                     generator.writeString(level.name());
                 }
                 generator.writeEndArray(); // 结束 level.name 数组

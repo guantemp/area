@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package com.hoprxi.web.ip;
+package com.hoprxi.rest.ip;
 
 import java.io.UnsupportedEncodingException;
 

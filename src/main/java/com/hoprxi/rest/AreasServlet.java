@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package com.hoprxi.web;
+package com.hoprxi.rest;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
@@ -34,7 +34,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import salt.hoprxi.utils.NumberHelper;
 
 import java.io.*;
-import java.util.Arrays;
 
 /***
  * @author <a href="www.hoprxi.com/authors/guan xianghuang">guan xiangHuan</a>
@@ -53,8 +52,7 @@ import java.util.Arrays;
  *          </ul>
  *          </p>
  */
-@WebServlet(urlPatterns = {"/v1/areas/*"}, name = "areas", initParams = {
-        @WebInitParam(name = "database", value = "elasticsearch")})
+@WebServlet(urlPatterns = {"/v1/areas/*"}, name = "areas")
 public class AreasServlet extends HttpServlet {
     //private static final String[] FIELDS = {"name", "zipcode", "telephoneCode"};
 
@@ -92,8 +90,9 @@ public class AreasServlet extends HttpServlet {
                 if (query != null) {
                     int offset = NumberHelper.intOf(request.getParameter("offset"), OFFSET);
                     int size = NumberHelper.intOf(request.getParameter("size"), SIZE);
-                    ByteArrayOutputStream os = (ByteArrayOutputStream) query1.query(query,null, offset, size);
-                    InputStream inputStream = new ByteArrayInputStream(os.toByteArray());
+                    String[] filters=request.getParameter("filters").split(",");
+                    for(String filter:filters)
+                    copyRaw(generator, query1.query(query, null, offset, size));
                     /*
                     views = this.query.queryByName(query);
                     String filters = request.getParameter("filters");
@@ -134,10 +133,13 @@ public class AreasServlet extends HttpServlet {
         }
     }
 
-    private void copyRaw(JsonGenerator generator, InputStream is) throws IOException {
-        JsonParser parser = JSON_FACTORY.createParser(is);
-        while (parser.nextToken() != null) {
-            generator.copyCurrentEvent(parser);
+    private void copyRaw(JsonGenerator generator, OutputStream os) throws IOException {
+        if (os instanceof ByteArrayOutputStream) {
+            InputStream is = new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
+            JsonParser parser = JSON_FACTORY.createParser(is);
+            while (parser.nextToken() != null) {
+                generator.copyCurrentEvent(parser);
+            }
         }
     }
 

@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package com.hoprxi.web.filter;
+package com.hoprxi.rest.filter;
 
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
