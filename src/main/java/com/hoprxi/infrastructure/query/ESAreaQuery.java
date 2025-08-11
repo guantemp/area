@@ -5,7 +5,10 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
-import org.elasticsearch.client.*;
+import org.elasticsearch.client.Request;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.Response;
+import org.elasticsearch.client.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import salt.hoprxi.crypto.application.DatabaseSpecDecrypt;
@@ -22,9 +25,9 @@ import java.util.EnumSet;
  */
 public class ESAreaQuery {
     private static final Logger LOGGER = LoggerFactory.getLogger(ESAreaQuery.class);
-    private static final int COUNTRY_SIZE = 999;
+    private static final int COUNTRY_SIZE = 333;
     private static final RequestOptions COMMON_OPTIONS;
-    private static final RestClientBuilder BUILDER;
+    private static final RestClient CLIENT;
     private static final JsonFactory JSON_FACTORY = JsonFactory.builder().build();
 
     static {
@@ -42,7 +45,7 @@ public class ESAreaQuery {
         //new HttpAsyncResponseConsumerFactory
         //.HeapBufferedResponseConsumerFactory(30 * 1024 * 1024 * 1024));
         COMMON_OPTIONS = builder.build();
-        BUILDER = RestClient.builder(new HttpHost(host, port, "https"));
+        CLIENT = RestClient.builder(new HttpHost(host, port, "https")).build();
     }
 
     public enum Level {
@@ -58,14 +61,13 @@ public class ESAreaQuery {
     }
 
     public OutputStream query(int code) {
-        try (RestClient client = BUILDER.build(); OutputStream os = new ByteArrayOutputStream()) {
+        try (OutputStream os = new ByteArrayOutputStream(); JsonGenerator generator = JSON_FACTORY.createGenerator(os, JsonEncoding.UTF8)) {
             Request request = new Request("GET", "/area/_doc/" + code);
             request.setOptions(COMMON_OPTIONS);
-            Response response = client.performRequest(request);
+            Response response = CLIENT.performRequest(request);
             JsonParser parser = JSON_FACTORY.createParser(response.getEntity().getContent());
             while (parser.nextToken() != null) {
                 if (parser.currentToken() == JsonToken.START_OBJECT && "_source".equals(parser.getCurrentName())) {
-                    JsonGenerator generator = JSON_FACTORY.createGenerator(os, JsonEncoding.UTF8);
                     generator.writeStartObject();
                     while (parser.nextToken() != null) {
                         //System.out.println(parser.currentToken()+":"+parser.getCurrentName());
@@ -74,34 +76,30 @@ public class ESAreaQuery {
                         generator.copyCurrentEvent(parser);
                     }
                     generator.writeEndObject();
-                    generator.close();
                     break;
                 }
             }
             return os;
         } catch (IOException e) {
-            //System.out.println(e);
             LOGGER.error("The area(code={}) can't retrieve", code, e);
         }
         return new ByteArrayOutputStream(0);
     }
 
     public OutputStream queryCountry() {
-        try (RestClient client = BUILDER.build()) {
+        try {
             Request request = new Request("GET", "/area/_search");
             request.setOptions(COMMON_OPTIONS);
-            request.setJsonEntity(rootJsonEntity());
-            Response response = client.performRequest(request);
+            request.setJsonEntity(countryJsonEntity());
+            Response response = CLIENT.performRequest(request);
             return rebuildAreas(response.getEntity().getContent());
-            //response.getEntity().getContent().transferTo(os);
         } catch (IOException e) {
-            //System.out.println(e);
             LOGGER.error("The area(country) can't retrieve", e);
         }
         return new ByteArrayOutputStream(0);
     }
 
-    private String rootJsonEntity() {
+    private String countryJsonEntity() {
         StringWriter writer = new StringWriter();
         try (JsonGenerator generator = JSON_FACTORY.createGenerator(writer)) {
             generator.writeStartObject();  // 开始生成整个JSON对象
@@ -137,13 +135,13 @@ public class ESAreaQuery {
         return writer.toString();
     }
 
-    public OutputStream query(String name, EnumSet<Level> filters, int from, int size) {
-        try (RestClient client = BUILDER.build()) {
+    public OutputStream query(String key, EnumSet<Level> filters, int from, int size) {
+        try {
             Request request = new Request("GET", "/area/_search");
             request.setOptions(COMMON_OPTIONS);
             //System.out.println(nameJsonEntity(name, filters, from, size));
-            request.setJsonEntity(nameJsonEntity(name, filters, from, size));
-            Response response = client.performRequest(request);
+            request.setJsonEntity(keyJsonEntity(key, filters, from, size));
+            Response response = CLIENT.performRequest(request);
             return rebuildAreas(response.getEntity().getContent());
         } catch (IOException e) {
             LOGGER.error("The area(country) can't retrieve", e);
@@ -151,7 +149,7 @@ public class ESAreaQuery {
         return new ByteArrayOutputStream(0);
     }
 
-    private String nameJsonEntity(String name, EnumSet<Level> filters, int from, int size) {
+    private String keyJsonEntity(String key, EnumSet<Level> filters, int from, int size) {
         StringWriter writer = new StringWriter();
         try (JsonGenerator generator = JSON_FACTORY.createGenerator(writer)) {
             generator.writeStartObject(); // 开始生成整个JSON对象
@@ -172,7 +170,7 @@ public class ESAreaQuery {
             // 第一个 should 条件：multi_match
             generator.writeStartObject();
             generator.writeObjectFieldStart("multi_match");
-            generator.writeStringField("query", name);
+            generator.writeStringField("query", key);
             generator.writeFieldName("fields");
             generator.writeStartArray();
             generator.writeString("name.name");
@@ -183,7 +181,7 @@ public class ESAreaQuery {
             // 第二个 should 条件：term
             generator.writeStartObject();
             generator.writeObjectFieldStart("term");
-            generator.writeStringField("name.mnemonic", name);
+            generator.writeStringField("name.mnemonic", key);
             generator.writeEndObject();
             generator.writeEndObject();
 
@@ -226,12 +224,29 @@ public class ESAreaQuery {
         return writer.toString();
     }
 
+    public OutputStream query(EnumSet<Level> filters, int from, int size) {
+        try {
+            Request request = new Request("GET", "/area/_search");
+            request.setOptions(COMMON_OPTIONS);
+            request.setJsonEntity(jsonEntity(filters, from, size));
+            Response response = CLIENT.performRequest(request);
+            return rebuildAreas(response.getEntity().getContent());
+        } catch (IOException e) {
+            LOGGER.error("The area(country) can't retrieve", e);
+        }
+        return new ByteArrayOutputStream(0);
+    }
+
+    private String jsonEntity(EnumSet<Level> filters, int from, int size) {
+        return "";
+    }
+
     public OutputStream queryJurisdiction(int code) {
-        try (RestClient client = BUILDER.build()) {
+        try {
             Request request = new Request("GET", "/area/_search");
             request.setOptions(COMMON_OPTIONS);
             request.setJsonEntity(jurisdictionJsonEntity(code));
-            Response response = client.performRequest(request);
+            Response response = CLIENT.performRequest(request);
             return rebuildAreas(response.getEntity().getContent());
         } catch (IOException e) {
             LOGGER.error("The area(jurisdiction) can't retrieve", e);
@@ -243,6 +258,7 @@ public class ESAreaQuery {
         StringWriter writer = new StringWriter();
         try (JsonGenerator generator = JSON_FACTORY.createGenerator(writer)) {
             generator.writeStartObject();// 开始生成 JSON
+            generator.writeNumberField("size", 199);
             // query 部分
             generator.writeObjectFieldStart("query");
             generator.writeObjectFieldStart("term");

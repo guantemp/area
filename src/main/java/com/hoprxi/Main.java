@@ -11,6 +11,7 @@ import io.undertow.servlet.api.DeploymentInfo;
 import io.undertow.servlet.api.DeploymentManager;
 import io.undertow.servlet.api.ServletContainer;
 import jakarta.servlet.ServletException;
+import salt.hoprxi.crypto.util.StoreKeyLoad;
 
 /***
  * @author <a href="www.hoprxi.com/authors/guan xiangHuan">guan xiangHuang</a>
@@ -20,6 +21,8 @@ import jakarta.servlet.ServletException;
 public class Main {
 
     public static void main(String[] args) throws ServletException {
+        StoreKeyLoad.loadSecretKey("keystore.jks", "Qwe123465",
+                new String[]{"slave.tooo.top:9200", "slave.tooo.top:6543:P$Qwe123465Pg", "slave.tooo.top:6379:P$Qwe123465Re"});
         ServletContainer container = ServletContainer.Factory.newInstance();
         DeploymentInfo deploymentInfo = Servlets.deployment()
                 .setClassLoader(Main.class.getClassLoader())

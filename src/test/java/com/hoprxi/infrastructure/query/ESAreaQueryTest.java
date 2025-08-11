@@ -64,6 +64,16 @@ public class ESAreaQueryTest {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        try (OutputStream os = query.query("", EnumSet.noneOf(ESAreaQuery.Level.class), 0, 999)) {
+            if (os instanceof ByteArrayOutputStream) {
+                String content = ((ByteArrayOutputStream) os).toString(StandardCharsets.UTF_8);
+                System.out.println("全局查询：\n" + content);
+            } else {
+                System.err.println("错误：输出流不是ByteArrayOutputStream类型");
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test

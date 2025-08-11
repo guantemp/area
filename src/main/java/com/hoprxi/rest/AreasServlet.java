@@ -18,15 +18,12 @@ package com.hoprxi.rest;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
-import com.hoprxi.application.AreaQuery;
 import com.hoprxi.application.AreaView;
 import com.hoprxi.domain.model.*;
 import com.hoprxi.domain.model.coordinate.Boundary;
 import com.hoprxi.domain.model.coordinate.WGS84;
 import com.hoprxi.infrastructure.persistence.PsqlAreaRepository;
 import com.hoprxi.infrastructure.query.ESAreaQuery;
-import com.hoprxi.infrastructure.query.PsqlAreaQuery;
-import jakarta.servlet.annotation.WebInitParam;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,6 +31,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import salt.hoprxi.utils.NumberHelper;
 
 import java.io.*;
+import java.util.EnumSet;
 
 /***
  * @author <a href="www.hoprxi.com/authors/guan xianghuang">guan xiangHuan</a>
@@ -62,70 +60,36 @@ public class AreasServlet extends HttpServlet {
     private static final int OFFSET = 0;
     private static final int SIZE = 64;
     private final JsonFactory JSON_FACTORY = JsonFactory.builder().build();
-    private final AreaQuery query = new PsqlAreaQuery();
-    private final ESAreaQuery query1 = new ESAreaQuery();
+    private final ESAreaQuery query = new ESAreaQuery();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("application/json;charset=UTF-8");
-        /*
-        String[] fields = this.fileds(request);
-        String sort = this.sortBy(request);
-        boolean asc = true;
-        if (null != request.getParameter("sort")) {
-            String[] s = request.getParameter("sort").split(",");
-            sort = s[0];
-            if (s.length == 2 && "desc".equalsIgnoreCase(s[1])) {
-                asc = false;
-            }
-        }
-         */
         try (JsonGenerator generator = JSON_FACTORY.createGenerator(response.getOutputStream(), JsonEncoding.UTF8)) {
             boolean pretty = NumberHelper.booleanOf(request.getParameter("pretty"));
             if (pretty) generator.useDefaultPrettyPrinter();
-            String pathInfo = request.getPathInfo();
+            String pathInfo = request.getPathInfo();//restful路径
             if (pathInfo == null) {
                 String query = request.getParameter("q");
-                AreaView[] views;
-                if (query != null) {
-                    int offset = NumberHelper.intOf(request.getParameter("offset"), OFFSET);
-                    int size = NumberHelper.intOf(request.getParameter("size"), SIZE);
-                    String[] filters=request.getParameter("filters").split(",");
-                    for(String filter:filters)
-                    copyRaw(generator, query1.query(query, null, offset, size));
-                    /*
-                    views = this.query.queryByName(query);
-                    String filters = request.getParameter("filters");
-                    if (filters != null) {
-                        views = Arrays.stream(views).filter(view -> {
-                            for (String filter : filters.split(",")) {
-                                if (AreaView.Level.valueOf(filter.toUpperCase()) == view.level())
-                                    return true;
-                            }
-                            return false;
-                        }).toArray(AreaView[]::new);
-                    } */
-                } else {
-                    views = this.query.queryCountry();
+                int offset = NumberHelper.intOf(request.getParameter("offset"), OFFSET);
+                int size = NumberHelper.intOf(request.getParameter("size"), SIZE);
+                String temp = request.getParameter("filters");
+                String[] filters = temp == null ? new String[0] : temp.split(",");
+                EnumSet<ESAreaQuery.Level> sets = EnumSet.noneOf(ESAreaQuery.Level.class);
+                for (String filter : filters) {
+                    sets.add(ESAreaQuery.Level.of(filter));
                 }
-                //writeAreaViews(generator, views);
-            } else {
+                if (query == null || query.isEmpty()) {//无查询关键字，全范围
+                    copyRaw(generator, this.query.query(query, sets, offset, size));
+                } else {//key查询
+                    copyRaw(generator, this.query.query(query, sets, offset, size));
+                }
+            } else {//code
                 String[] paths = pathInfo.split("/");
                 if (paths.length == 2) {//id query
-                    ESAreaQuery esAreaQuery = new ESAreaQuery();
-                    try (OutputStream os = esAreaQuery.query(Integer.parseInt(paths[1]))) {
-
-                    }
-                /*
-                AreaView view = query.query(paths[1]);
-                if (view != null) {
-                    writeAreaView(generator, view);
-                } else {
-                    writeNotFind(response, generator, paths[1]);
-                }*/
+                    copyRaw(generator, query.query(Integer.parseInt(paths[1])));
                 } else if (paths.length > 2 && paths[2].equals("juri")) {
-                    AreaView[] views = query.queryByJurisdiction(paths[1]);
-                    writeAreaViews(generator, views);
+                    copyRaw(generator, query.queryJurisdiction(Integer.parseInt(paths[1])));
                 } else {
                     writeNotFind(response, generator, paths[1]);
                 }
@@ -143,53 +107,11 @@ public class AreasServlet extends HttpServlet {
         }
     }
 
-    private void writeAreaViews(JsonGenerator generator, AreaView[] views) throws IOException {
-        generator.writeStartObject();
-        generator.writeArrayFieldStart("areas");
-        for (AreaView view : views)
-            writeAreaView(generator, view);
-        generator.writeEndArray();
-        generator.writeEndObject();
-    }
-
     private void writeNotFind(HttpServletResponse resp, JsonGenerator generator, String id) throws IOException {
         resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         generator.writeStartObject();
         generator.writeNumberField("code", 1001);
         generator.writeStringField("message", "Not query area(code=" + id + ")");
-        generator.writeEndObject();
-    }
-
-    private void writeAreaView(JsonGenerator generator, AreaView view) throws IOException {
-        generator.writeStartObject();
-        generator.writeStringField("code", view.code());
-
-        generator.writeObjectFieldStart("name");
-        generator.writeStringField("name", view.name().name());
-        generator.writeStringField("initials", String.valueOf(view.name().initials()));
-        //if (Arrays.binarySearch(fields, "abbreviation") >= 0)
-        generator.writeStringField("abbreviation", view.name().abbreviation());
-        generator.writeStringField("mnemonic", view.name().mnemonic());
-        if (view.name().alias() != null && !view.name().alias().isEmpty())
-            generator.writeStringField("alias", view.name().alias());
-        generator.writeEndObject();
-
-        generator.writeObjectFieldStart("parent");
-        generator.writeStringField("code", view.parentAreaView().code());
-        generator.writeStringField("name", view.parentAreaView().name());
-        generator.writeStringField("abbreviation", view.parentAreaView().abbreviation());
-        generator.writeEndObject();
-
-
-        generator.writeObjectFieldStart("location");
-        generator.writeNumberField("longitude", view.location().longitude());
-        generator.writeNumberField("latitude", view.location().latitude());
-        generator.writeEndObject();
-
-
-        generator.writeStringField("zipcode", view.zipcode());
-        generator.writeStringField("telephoneCode", view.telephoneCode());
-        generator.writeStringField("level", view.level().name());
         generator.writeEndObject();
     }
 
