@@ -1,6 +1,7 @@
 import com.hoprxi.infrastructure.query.ESAreaQuery;
 
 import java.util.EnumSet;
+import java.util.regex.Pattern;
 
 /***
  * @author <a href="www.hoprxi.com/authors/guan xiangHuan">guan xiangHuang</a>
@@ -17,5 +18,8 @@ public class App {
             sets.add(ESAreaQuery.Level.of(filter));
         }
         System.out.println(sets);
+        System.out.println(Integer.parseInt("788123"));
+        System.out.println(Pattern
+                .compile("[+-]?\\d+").matcher("123").matches());
     }
 }

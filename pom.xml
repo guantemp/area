@@ -71,6 +71,12 @@
             <artifactId>undertow-servlet</artifactId>
             <version>2.3.15.Final</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.linecorp.armeria/armeria -->
+        <dependency>
+            <groupId>com.linecorp.armeria</groupId>
+            <artifactId>armeria</artifactId>
+            <version>1.33.0</version>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-fileupload2-jakarta-servlet5 -->
         <dependency>
             <groupId>org.apache.commons</groupId>

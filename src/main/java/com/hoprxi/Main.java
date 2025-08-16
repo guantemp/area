@@ -27,7 +27,7 @@ public class Main {
         DeploymentInfo deploymentInfo = Servlets.deployment()
                 .setClassLoader(Main.class.getClassLoader())
                 .setContextPath("/")
-                .setDeploymentName("area.war")
+                .setDeploymentName("areas")
                 .addServlets(
                         Servlets.servlet("AreasServlet", AreasServlet.class)
                                 .addMapping("/v1/areas/*"),
@@ -48,7 +48,7 @@ public class Main {
                 .addPrefixPath(deploymentInfo.getContextPath(), manager.start());
 
         Undertow server = Undertow.builder()
-                .addHttpListener(8081, "0.0.0.0")
+                .addHttpListener(8000, "0.0.0.0")
                 .setHandler(path)
                 .build();
         server.start();

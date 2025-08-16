@@ -32,6 +32,7 @@ import salt.hoprxi.utils.NumberHelper;
 
 import java.io.*;
 import java.util.EnumSet;
+import java.util.regex.Pattern;
 
 /***
  * @author <a href="www.hoprxi.com/authors/guan xianghuang">guan xiangHuan</a>
@@ -52,19 +53,15 @@ import java.util.EnumSet;
  */
 @WebServlet(urlPatterns = {"/v1/areas/*"}, name = "areas")
 public class AreasServlet extends HttpServlet {
-    //private static final String[] FIELDS = {"name", "zipcode", "telephoneCode"};
-
-    //static {
-    //     Arrays.sort(FIELDS, String.CASE_INSENSITIVE_ORDER);
-    // }
     private static final int OFFSET = 0;
     private static final int SIZE = 64;
+    private static final Pattern NUMBER = Pattern.compile("[+-]?\\d+");
     private final JsonFactory JSON_FACTORY = JsonFactory.builder().build();
     private final ESAreaQuery query = new ESAreaQuery();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        response.setContentType("application/json;charset=UTF-8");
+        //response.setContentType("application/json;charset=UTF-8");
         try (JsonGenerator generator = JSON_FACTORY.createGenerator(response.getOutputStream(), JsonEncoding.UTF8)) {
             boolean pretty = NumberHelper.booleanOf(request.getParameter("pretty"));
             if (pretty) generator.useDefaultPrettyPrinter();
@@ -80,16 +77,16 @@ public class AreasServlet extends HttpServlet {
                     sets.add(ESAreaQuery.Level.of(filter));
                 }
                 if (query == null || query.isEmpty()) {//无查询关键字，全范围
-                    copyRaw(generator, this.query.query(query, sets, offset, size));
+                    response(response,generator, this.query.query(query, sets, offset, size));
                 } else {//key查询
-                    copyRaw(generator, this.query.query(query, sets, offset, size));
+                    response(response,generator, this.query.query(query, sets, offset, size));
                 }
-            } else {//code
+            } else {//code,code/juri
                 String[] paths = pathInfo.split("/");
-                if (paths.length == 2) {//id query
-                    copyRaw(generator, query.query(Integer.parseInt(paths[1])));
-                } else if (paths.length > 2 && paths[2].equals("juri")) {
-                    copyRaw(generator, query.queryJurisdiction(Integer.parseInt(paths[1])));
+                if (paths.length == 2 && NUMBER.matcher(paths[1]).matches()) {
+                    response(response,generator, query.query(Integer.parseInt(paths[1])));
+                } else if (paths.length == 3 && paths[2].equals("juri") && NUMBER.matcher(paths[1]).matches()) {
+                    response(response,generator, query.queryJurisdiction(Integer.parseInt(paths[1])));
                 } else {
                     writeNotFind(response, generator, paths[1]);
                 }
@@ -97,12 +94,17 @@ public class AreasServlet extends HttpServlet {
         }
     }
 
-    private void copyRaw(JsonGenerator generator, OutputStream os) throws IOException {
+    private void response(HttpServletResponse response, JsonGenerator generator, OutputStream os) throws IOException {
+        response.setContentType("application/json;charset=UTF-8");
         if (os instanceof ByteArrayOutputStream) {
-            InputStream is = new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
-            JsonParser parser = JSON_FACTORY.createParser(is);
-            while (parser.nextToken() != null) {
-                generator.copyCurrentEvent(parser);
+            if (((ByteArrayOutputStream) os).size() == 0) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Resource not found");
+            } else {
+                InputStream is = new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
+                JsonParser parser = JSON_FACTORY.createParser(is);
+                while (parser.nextToken() != null) {
+                    generator.copyCurrentEvent(parser);
+                }
             }
         }
     }

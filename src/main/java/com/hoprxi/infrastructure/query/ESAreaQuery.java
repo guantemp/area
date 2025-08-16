@@ -5,10 +5,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
-import org.elasticsearch.client.Request;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.Response;
-import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import salt.hoprxi.crypto.application.DatabaseSpecDecrypt;
@@ -61,7 +58,7 @@ public class ESAreaQuery {
     }
 
     public OutputStream query(int code) {
-        try (OutputStream os = new ByteArrayOutputStream(); JsonGenerator generator = JSON_FACTORY.createGenerator(os, JsonEncoding.UTF8)) {
+        try (OutputStream os = new ByteArrayOutputStream(128); JsonGenerator generator = JSON_FACTORY.createGenerator(os, JsonEncoding.UTF8)) {
             Request request = new Request("GET", "/area/_doc/" + code);
             request.setOptions(COMMON_OPTIONS);
             Response response = CLIENT.performRequest(request);
@@ -70,7 +67,6 @@ public class ESAreaQuery {
                 if (parser.currentToken() == JsonToken.START_OBJECT && "_source".equals(parser.getCurrentName())) {
                     generator.writeStartObject();
                     while (parser.nextToken() != null) {
-                        //System.out.println(parser.currentToken()+":"+parser.getCurrentName());
                         if (parser.currentToken() == JsonToken.END_OBJECT && "_source".equals(parser.getCurrentName()))
                             break;
                         generator.copyCurrentEvent(parser);
@@ -80,7 +76,8 @@ public class ESAreaQuery {
                 }
             }
             return os;
-        } catch (IOException e) {
+        }  catch (IOException e) {
+            System.out.println(((ResponseException)e).getResponse().getStatusLine().getStatusCode());
             LOGGER.error("The area(code={}) can't retrieve", code, e);
         }
         return new ByteArrayOutputStream(0);
