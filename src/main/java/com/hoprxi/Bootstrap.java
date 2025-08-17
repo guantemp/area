@@ -86,11 +86,11 @@ public final class Bootstrap {
         sb.decorator(ThrottlingService.newDecorator( // 速率限制
                 ThrottlingStrategy.rateLimiting(100) // 100请求/秒
         ));
-        /* 添加文档服务
+        //添加文档服务
         sb.serviceUnder("/docs", DocService.builder()
-                .exampleRequests(AreaSevice.class)
+                .exampleRequests("/v1/areas","code")
                 .build());
-         */
+
         Server server = sb.http(9000)
                 .annotatedService("/",new AreaSevice())
                 .service("/", (ctx, req) -> HttpResponse.of("Hello, Armeria!"))

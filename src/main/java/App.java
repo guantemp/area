@@ -21,5 +21,6 @@ public class App {
         System.out.println(Integer.parseInt("788123"));
         System.out.println(Pattern
                 .compile("[+-]?\\d+").matcher("123").matches());
+        System.out.println("".split(",").length);
     }
 }

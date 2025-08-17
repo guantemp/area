@@ -64,7 +64,7 @@ public class ESAreaQueryTest {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        try (OutputStream os = query.query("", EnumSet.noneOf(ESAreaQuery.Level.class), 0, 999)) {
+        try (OutputStream os = query.query(EnumSet.of(ESAreaQuery.Level.PROVINCE), null, 50)) {
             if (os instanceof ByteArrayOutputStream) {
                 String content = ((ByteArrayOutputStream) os).toString(StandardCharsets.UTF_8);
                 System.out.println("全局查询：\n" + content);

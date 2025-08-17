@@ -5,7 +5,10 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
-import org.elasticsearch.client.*;
+import org.elasticsearch.client.Request;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.Response;
+import org.elasticsearch.client.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import salt.hoprxi.crypto.application.DatabaseSpecDecrypt;
@@ -46,14 +49,18 @@ public class ESAreaQuery {
     }
 
     public enum Level {
-        COUNTRY, PROVINCE, CITY, COUNTY, TOWN, UNKNOWN;
+        COUNTRY, PROVINCE, CITY, COUNTY, TOWN;
 
+        /**
+         * @param s
+         * @return <code>NULL if no match</code>
+         */
         public static Level of(String s) {
             for (Level Level : values()) {
                 if (Level.name().equalsIgnoreCase(s))
                     return Level;
             }
-            return Level.UNKNOWN;
+            return null;
         }
     }
 
@@ -76,8 +83,8 @@ public class ESAreaQuery {
                 }
             }
             return os;
-        }  catch (IOException e) {
-            System.out.println(((ResponseException)e).getResponse().getStatusLine().getStatusCode());
+        } catch (IOException e) {
+            //System.out.println(((ResponseException)e).getResponse().getStatusLine().getStatusCode());
             LOGGER.error("The area(code={}) can't retrieve", code, e);
         }
         return new ByteArrayOutputStream(0);
@@ -155,7 +162,7 @@ public class ESAreaQuery {
             generator.writeNumberField("size", size);
             // query 结构
             generator.writeObjectFieldStart("query");
-            if (filters != null && !filters.isEmpty()) {
+            if (filters != null && !filters.isEmpty()) {//有过滤要求
                 generator.writeObjectFieldStart("bool");
                 generator.writeArrayFieldStart("must");             // must 数组
                 generator.writeStartObject();//有must需要包装一个bool查询到对象
@@ -221,11 +228,11 @@ public class ESAreaQuery {
         return writer.toString();
     }
 
-    public OutputStream query(EnumSet<Level> filters, int from, int size) {
+    public OutputStream query(EnumSet<Level> filters, String searchAfter, int size) {
         try {
             Request request = new Request("GET", "/area/_search");
             request.setOptions(COMMON_OPTIONS);
-            request.setJsonEntity(jsonEntity(filters, from, size));
+            request.setJsonEntity(jsonEntity(filters, searchAfter, size));
             Response response = CLIENT.performRequest(request);
             return rebuildAreas(response.getEntity().getContent());
         } catch (IOException e) {
@@ -234,8 +241,54 @@ public class ESAreaQuery {
         return new ByteArrayOutputStream(0);
     }
 
-    private String jsonEntity(EnumSet<Level> filters, int from, int size) {
-        return "";
+    private String jsonEntity(EnumSet<Level> filters, String searchAfter, int size) {
+        StringWriter writer = new StringWriter();
+        try (JsonGenerator generator = JSON_FACTORY.createGenerator(writer)) {
+            generator.writeStartObject();
+            generator.writeNumberField("size", size);   // size 字段
+            generator.writeObjectFieldStart("query");// query 对象
+            if (filters != null && !filters.isEmpty()) {//有过滤要求
+                generator.writeObjectFieldStart("bool");
+                generator.writeArrayFieldStart("must");             // must 数组
+                generator.writeStartObject();//有must需要包装一个bool查询到对象
+            }
+            //  条件：match_all 查询
+            generator.writeObjectFieldStart("match_all");
+            generator.writeEndObject();// 结束 match_all
+            if (filters != null && !filters.isEmpty()) {
+                generator.writeEndObject();//结束第一个must的bool外包
+                generator.writeStartObject();
+                generator.writeObjectFieldStart("terms");
+                generator.writeArrayFieldStart("level.name");
+                for (Level level : filters) {
+                    generator.writeString(level.name());
+                }
+                generator.writeEndArray(); // 结束 level.name 数组
+                generator.writeEndObject(); // 结束 terms
+                generator.writeEndObject(); // 结束 terms 对象
+                generator.writeEndArray(); // 结束 must 数组
+                generator.writeEndObject(); // 结束 bool
+            }
+            generator.writeEndObject(); // 结束 query
+            // sort 数组
+            generator.writeArrayFieldStart("sort");
+            generator.writeStartObject();
+            generator.writeStringField("code", "asc");
+            generator.writeEndObject();
+            generator.writeEndArray(); // 结束 sort 数组
+
+            if (searchAfter!=null&&!searchAfter.isBlank()) {// search_after 数组
+                generator.writeArrayFieldStart("search_after");
+                generator.writeNumber(searchAfter);
+                generator.writeEndArray(); // 结束 search_after 数组
+            }
+
+            generator.writeEndObject();
+        } catch (IOException e) {
+            LOGGER.error("Cannot assemble request JSON", e);
+        }
+
+        return writer.toString();
     }
 
     public OutputStream queryJurisdiction(int code) {
