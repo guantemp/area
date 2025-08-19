@@ -16,7 +16,7 @@ import salt.hoprxi.crypto.util.StoreKeyLoad;
 public class AreaRepositoryTest {
     static {
         StoreKeyLoad.loadSecretKey("keystore.jks", "Qwe123465",
-                "slave.tooo.top:6543:P$Qwe123465Pg");
+                new String[]{"slave.tooo.top:9200", "slave.tooo.top:6543:P$Qwe123465Pg"});
     }
 
     private static final AreaRepository repository = new PsqlAreaRepository();

@@ -1,14 +1,29 @@
+/*
+ * Copyright (c) 2025. www.hoprxi.com All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package com.hoprxi.infrastructure.persistence;
 
 
 import com.fasterxml.jackson.core.*;
 import com.hoprxi.domain.model.Area;
 import com.hoprxi.domain.model.AreaRepository;
-import com.hoprxi.infrastructure.query.ESAreaQuery;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
+import org.apache.http.HttpStatus;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;
@@ -20,6 +35,7 @@ import salt.hoprxi.crypto.application.DatabaseSpecDecrypt;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
@@ -34,6 +50,7 @@ public class ESAreaRepository implements AreaRepository {
     private static final RequestOptions COMMON_OPTIONS;
     private static final RestClient CLIENT;
     private static final JsonFactory JSON_FACTORY = JsonFactory.builder().build();
+
     static {
         Config config = ConfigFactory.load("area");
         Config read = config.getConfigList("read").getFirst();
@@ -48,6 +65,7 @@ public class ESAreaRepository implements AreaRepository {
         COMMON_OPTIONS = builder.build();
         CLIENT = RestClient.builder(new HttpHost(host, port, "https")).build();
     }
+
     @Override
     public Area find(int code) {
         try (OutputStream os = new ByteArrayOutputStream(128); JsonGenerator generator = JSON_FACTORY.createGenerator(os, JsonEncoding.UTF8)) {
@@ -77,11 +95,62 @@ public class ESAreaRepository implements AreaRepository {
 
     @Override
     public void save(Area area) {
+        try {
+            Request request = new Request("PUT", "/area/_update/" + area.code());
+            request.setOptions(COMMON_OPTIONS);
+            request.setJsonEntity(jsonEntity(area));
+            Response response = CLIENT.performRequest(request);
 
+        } catch (IOException e) {
+            //System.out.println(((ResponseException)e).getResponse().getStatusLine().getStatusCode());
+            LOGGER.error("The area({}) can't save", area, e);
+        }
+    }
+
+    private String jsonEntity(Area area) {
+        StringWriter writer = new StringWriter();
+        try (JsonGenerator gen = JSON_FACTORY.createGenerator(writer)) {
+            gen.writeStartObject();
+            gen.writeStartObject("doc");
+            gen.writeNumberField("code", area.code());
+            gen.writeNumberField("parent_code", area.parentCode());
+            gen.writeObjectFieldStart("name");
+            gen.writeStringField("name", area.name().name());
+            gen.writeNumberField("initials", area.name().initials());
+            gen.writeStringField("abbreviation", area.name().abbreviation());
+            gen.writeStringField("mnemonic", area.name().mnemonic());
+            gen.writeEndObject();//end name
+            gen.writeStringField("zipcode", area.zipcode());
+            gen.writeStringField("telephone_code", area.telephoneCode());
+            gen.writeObjectFieldStart("location");
+            gen.writeNumberField("lat", area.location().latitude());
+            gen.writeNumberField("lon", area.location().longitude());
+            gen.writeEndObject();//location
+            gen.writeObjectFieldStart("level");
+            gen.writeStringField("name", area.level().name());
+            gen.writeNumberField("order", area.level().ordinal());
+            gen.writeEndObject();//level
+            gen.writeEndObject();//end doc
+            gen.writeBooleanField("doc_as_upsert", true);
+            gen.writeEndObject();
+        } catch (IOException e) {
+            LOGGER.error("The area can't be serialized for upsert", e);
+        }
+        return writer.toString();
     }
 
     @Override
     public void delete(int code) {
-
+        try {
+            Request request = new Request("DELETE", "/area/_doc/" + code);
+            request.setOptions(COMMON_OPTIONS);
+            Response response = CLIENT.performRequest(request);
+            if (HttpStatus.SC_OK == response.getStatusLine().getStatusCode()) {
+                LOGGER.info("The area(code={}) is deleted", code);
+            }
+        } catch (IOException e) {
+            //System.out.println(((ResponseException)e).getResponse().getStatusLine().getStatusCode());
+            LOGGER.error("The area(code={}) can't delete", code, e);
+        }
     }
 }

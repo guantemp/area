@@ -30,11 +30,11 @@ public class City extends Area {
     private static final Pattern CITY_PATTERN = Pattern.compile("^\\d{6,6}$");
 
     public City(int code, int parentCode, Name name, WGS84 wgs84) {
-        super(code, parentCode, name, wgs84);
+        this(code, parentCode, name, wgs84, null, null);
     }
 
     public City(int code, int parentCode, Name name, WGS84 wgs84, String postcode, String telephoneCode) {
-        super(code, parentCode, name, wgs84, postcode, telephoneCode);
+        super(code, parentCode, name, wgs84, postcode, telephoneCode, Level.CITY);
     }
 
     @Override

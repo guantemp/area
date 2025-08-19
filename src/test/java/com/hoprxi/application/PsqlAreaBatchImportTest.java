@@ -21,11 +21,11 @@ public class PsqlAreaBatchImportTest {
     }
 
     @Test
-    public void testImportXlsFrom() throws IOException, SQLException {
+    public void testImportFromXls() throws IOException, SQLException {
         final AreaBatchImport areaBatchImport = new PsqlAreaBatchImport();
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         URL url = loader.getResource("areas.xls");
-        areaBatchImport.importXlsFrom(Objects.requireNonNull(url).openStream());
+        areaBatchImport.importFromXls(Objects.requireNonNull(url).openStream());
         //System.out.println(loader.getResource("areas.xls").getFile());
     }
 }

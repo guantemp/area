@@ -16,15 +16,14 @@ import java.util.Objects;
  */
 public class ESAreaBatchImportTest {
     static {
-        StoreKeyLoad.loadSecretKey("keystore.jks", "Qwe123465",
-                new String[]{"slave.tooo.top:9200"});
+        StoreKeyLoad.loadSecretKey("keystore.jks", "Qwe123465", "slave.tooo.top:9200");
     }
 
     @Test
-    public void testImportXlsFrom() throws IOException, SQLException {
+    public void testImportFromXls() throws IOException, SQLException {
         final AreaBatchImport areaBatchImport = new ESAreaBatchImport();
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         URL url = loader.getResource("areas.xls");
-        areaBatchImport.importXlsFrom(Objects.requireNonNull(url).openStream());
+        areaBatchImport.importFromXls(Objects.requireNonNull(url).openStream());
     }
 }

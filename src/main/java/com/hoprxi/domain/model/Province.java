@@ -32,11 +32,11 @@ public class Province extends Area {
     private static final Pattern PROVINCE_PARENT_PATTERN = Pattern.compile("^\\d{3,3}$");
 
     public Province(int code, int parentCode, Name name, WGS84 wgs84) {
-        super(code, parentCode, name, wgs84);
+        this(code, parentCode, name, wgs84,null,null);
     }
 
     public Province(int code, int parentCode, Name name, WGS84 wgs84, String postcode, String telephoneCode) {
-        super(code, parentCode, name, wgs84, postcode, telephoneCode);
+        super(code, parentCode, name, wgs84, postcode, telephoneCode,Level.PROVINCE);
     }
 
     @Override

@@ -18,7 +18,7 @@ package com.hoprxi.domain.model;
 /***
  * @author <a href="www.hoprxi.com/authors/guan xianghuang">guan xiangHuan</a>
  * @since JDK8.0
- * @version 0.0.1 builder 2019-12-01
+ * @version 0.0.1 builder 2023-12-01
  */
 
 public class OutOfChinaException extends Exception {

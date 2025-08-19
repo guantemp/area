@@ -18,6 +18,7 @@ package com.hoprxi.domain.model;
 
 import com.hoprxi.domain.model.coordinate.WGS84;
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /***
@@ -30,11 +31,11 @@ public class Country extends Area {
     public static Country CHINA = new Country(156, 156, new Name("中华人民共和国", 'c', "中国", "zhrmghg", "china"), new WGS84(116.405289, 39.904987));
 
     public Country(int code, int parentCode, Name name, WGS84 wgs84) {
-        super(code, parentCode, name, wgs84);
+        this(code, parentCode, name, wgs84, null, null);
     }
 
     public Country(int code, int parentCode, Name name, WGS84 wgs84, String postcode, String telephoneCode) {
-        super(code, parentCode, name, wgs84, postcode, telephoneCode);
+        super(code, parentCode, name, wgs84, postcode, telephoneCode, Level.COUNTRY);
     }
 
     @Override
@@ -46,8 +47,9 @@ public class Country extends Area {
 
     @Override
     protected void setCode(int code) {
-        if (code < 100)
-            throw new IllegalArgumentException("The code requires 3 digits");
+        Matcher matcher = COUNTRY_PATTERN.matcher(String.valueOf(code));
+        if (!matcher.matches())
+            throw new IllegalArgumentException("Parent code requires 3 digits");
         this.code = code;
     }
 }

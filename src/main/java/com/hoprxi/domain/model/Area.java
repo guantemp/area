@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. www.hoprxi.com All Rights Reserved.
+ * Copyright (c) 2025. www.hoprxi.com All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,27 +24,25 @@ import java.util.StringJoiner;
 /***
  * @author <a href="www.hoprxi.com/authors/guan xianghuang">guan xiangHuan</a>
  * @since JDK8.0
- * @version 0.0.2 builder 2023-02-08
+ * @version 0.0.3 builder 2025-08-19
  */
 public abstract class Area {
-    protected int code;
-    protected int parentCode;
     private final WGS84 location;
     private final Name name;
     private final String zipcode;
     private final String telephoneCode;
+    protected int code;
+    protected int parentCode;
+    private final Level level;
 
-    public Area(int code, int parentCode, Name name, WGS84 location) {
-        this(code, parentCode, name, location, "", "");
-    }
-
-    public Area(int code, int parentCode, Name name, WGS84 location, String zipcode, String telephoneCode) {
+    protected Area(int code, int parentCode, Name name, WGS84 location, String zipcode, String telephoneCode, Level level) {
         setCode(code);
         setParentCode(parentCode);
         this.name = Objects.requireNonNull(name, "name required");
         this.location = location;
         this.zipcode = zipcode;
         this.telephoneCode = telephoneCode;
+        this.level = level;
     }
 
     protected abstract void setCode(int code);
@@ -75,6 +73,10 @@ public abstract class Area {
         return telephoneCode;
     }
 
+    public Level level() {
+        return level;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
@@ -98,6 +100,10 @@ public abstract class Area {
                 .add("zipcode='" + zipcode + "'")
                 .add("telephoneCode='" + telephoneCode + "'")
                 .toString();
+    }
+
+    public enum Level {
+        COUNTRY, PROVINCE, CITY, COUNTY, TOWN;
     }
 }
 
