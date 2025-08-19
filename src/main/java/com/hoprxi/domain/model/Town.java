@@ -31,26 +31,24 @@ public class Town extends Area {
     private static final Pattern TOWN_PATTERN = Pattern.compile("^\\d{9,9}$");
     private static final Pattern TOWN_PARENT_PATTERN = Pattern.compile("^\\d{6,6}$");
 
-    public Town(String code, String parentCode, Name name, WGS84 wgs84) {
+    public Town(int code, int parentCode, Name name, WGS84 wgs84) {
         super(code, parentCode, name, wgs84);
     }
 
-    public Town(String code, String parentCode, Name name, WGS84 wgs84, String postcode, String telephoneCode) {
+    public Town(int code, int parentCode, Name name, WGS84 wgs84, String postcode, String telephoneCode) {
         super(code, parentCode, name, wgs84, postcode, telephoneCode);
     }
 
     @Override
-    protected void setParentCode(String parentCode) {
-        parentCode = Objects.requireNonNull(parentCode, "parentCode required").trim();
-        Matcher matcher = TOWN_PARENT_PATTERN.matcher(parentCode);
+    protected void setParentCode(int parentCode) {
+        Matcher matcher = TOWN_PARENT_PATTERN.matcher(String.valueOf(parentCode));
         if (!matcher.matches()) throw new IllegalArgumentException("Parent code requires 6 digits");
         this.parentCode = parentCode;
     }
 
     @Override
-    protected void setCode(String code) {
-        code = Objects.requireNonNull(code, "code required").trim();
-        Matcher matcher = TOWN_PATTERN.matcher(code);
+    protected void setCode(int code) {
+        Matcher matcher = TOWN_PATTERN.matcher(String.valueOf(code));
         if (!matcher.matches()) throw new IllegalArgumentException("The code requires 9 digits");
         this.code = code;
     }

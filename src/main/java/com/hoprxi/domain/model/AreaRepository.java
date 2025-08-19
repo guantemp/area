@@ -26,7 +26,7 @@ public interface AreaRepository {
      * @param code
      * @return
      */
-    Area find(String code);
+    Area find(int code);
 
 
     /**
@@ -38,5 +38,5 @@ public interface AreaRepository {
     /**
      * @param code
      */
-    void delete(String code);
+    void delete(int code);
 }

@@ -18,7 +18,6 @@ package com.hoprxi.domain.model;
 
 import com.hoprxi.domain.model.coordinate.WGS84;
 
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,27 +29,25 @@ import java.util.regex.Pattern;
 public class City extends Area {
     private static final Pattern CITY_PATTERN = Pattern.compile("^\\d{6,6}$");
 
-    public City(String code, String parentCode, Name name, WGS84 wgs84) {
+    public City(int code, int parentCode, Name name, WGS84 wgs84) {
         super(code, parentCode, name, wgs84);
     }
 
-    public City(String code, String parentCode, Name name, WGS84 wgs84, String postcode, String telephoneCode) {
+    public City(int code, int parentCode, Name name, WGS84 wgs84, String postcode, String telephoneCode) {
         super(code, parentCode, name, wgs84, postcode, telephoneCode);
     }
 
     @Override
-    protected void setParentCode(String parentCode) {
-        parentCode = Objects.requireNonNull(parentCode, "parentCode required").trim();
-        Matcher matcher = CITY_PATTERN.matcher(parentCode);
+    protected void setParentCode(int parentCode) {
+        Matcher matcher = CITY_PATTERN.matcher(String.valueOf(parentCode));
         if (!matcher.matches())
             throw new IllegalArgumentException("Parent code requires 6 digits");
         this.parentCode = parentCode;
     }
 
     @Override
-    protected void setCode(String code) {
-        code = Objects.requireNonNull(code, "code required").trim();
-        Matcher matcher = CITY_PATTERN.matcher(code);
+    protected void setCode(int code) {
+        Matcher matcher = CITY_PATTERN.matcher(String.valueOf(code));
         if (!matcher.matches())
             throw new IllegalArgumentException("The code requires 6 digits");
         this.code = code;

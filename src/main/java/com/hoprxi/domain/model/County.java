@@ -30,26 +30,24 @@ import java.util.regex.Pattern;
 public class County extends Area {
     private static final Pattern COUNTY_PATTERN = Pattern.compile("^\\d{6,6}$");
 
-    public County(String code, String parentCode, Name name, WGS84 wgs84) {
+    public County(int code, int parentCode, Name name, WGS84 wgs84) {
         super(code, parentCode, name, wgs84);
     }
 
-    public County(String code, String parentCode, Name name, WGS84 wgs84, String postcode, String telephoneCode) {
+    public County(int code, int parentCode, Name name, WGS84 wgs84, String postcode, String telephoneCode) {
         super(code, parentCode, name, wgs84, postcode, telephoneCode);
     }
 
     @Override
-    protected void setParentCode(String parentCode) {
-        parentCode = Objects.requireNonNull(parentCode, "parentCode required").trim();
-        Matcher matcher = COUNTY_PATTERN.matcher(parentCode);
+    protected void setParentCode(int parentCode) {
+        Matcher matcher = COUNTY_PATTERN.matcher(String.valueOf(parentCode));
         if (!matcher.matches()) throw new IllegalArgumentException("Parent code requires 6 digits");
         this.parentCode = parentCode;
     }
 
     @Override
-    protected void setCode(String code) {
-        code = Objects.requireNonNull(code, "code required").trim();
-        Matcher matcher = COUNTY_PATTERN.matcher(code);
+    protected void setCode(int code) {
+        Matcher matcher = COUNTY_PATTERN.matcher(String.valueOf(code));
         if (!matcher.matches()) throw new IllegalArgumentException("The code requires 6 digits");
         this.code = code;
     }

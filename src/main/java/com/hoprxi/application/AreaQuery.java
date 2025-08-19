@@ -24,9 +24,9 @@ package com.hoprxi.application;
 public interface AreaQuery {
     AreaView[] queryByName(String regularExpression);
 
-    AreaView query(String code);
+    AreaView query(int code);
 
-    AreaView[] queryByJurisdiction(String code);
+    AreaView[] queryByJurisdiction(int code);
 
     AreaView[] queryCountry();
 }

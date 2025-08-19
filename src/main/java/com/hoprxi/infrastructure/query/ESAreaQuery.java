@@ -96,7 +96,7 @@ public class ESAreaQuery {
             request.setOptions(COMMON_OPTIONS);
             request.setJsonEntity(countryJsonEntity());
             Response response = CLIENT.performRequest(request);
-            return rebuildAreas(response.getEntity().getContent());
+            return writeAreas(response.getEntity().getContent());
         } catch (IOException e) {
             LOGGER.error("The area(country) can't retrieve", e);
         }
@@ -146,7 +146,7 @@ public class ESAreaQuery {
             //System.out.println(nameJsonEntity(name, filters, from, size));
             request.setJsonEntity(keyJsonEntity(key, filters, from, size));
             Response response = CLIENT.performRequest(request);
-            return rebuildAreas(response.getEntity().getContent());
+            return writeAreas(response.getEntity().getContent());
         } catch (IOException e) {
             LOGGER.error("The area(country) can't retrieve", e);
         }
@@ -234,7 +234,7 @@ public class ESAreaQuery {
             request.setOptions(COMMON_OPTIONS);
             request.setJsonEntity(jsonEntity(filters, searchAfter, size));
             Response response = CLIENT.performRequest(request);
-            return rebuildAreas(response.getEntity().getContent());
+            return writeAreas(response.getEntity().getContent());
         } catch (IOException e) {
             LOGGER.error("The area(country) can't retrieve", e);
         }
@@ -297,7 +297,7 @@ public class ESAreaQuery {
             request.setOptions(COMMON_OPTIONS);
             request.setJsonEntity(jurisdictionJsonEntity(code));
             Response response = CLIENT.performRequest(request);
-            return rebuildAreas(response.getEntity().getContent());
+            return writeAreas(response.getEntity().getContent());
         } catch (IOException e) {
             LOGGER.error("The area(jurisdiction) can't retrieve", e);
         }
@@ -330,7 +330,7 @@ public class ESAreaQuery {
     }
 
 
-    private OutputStream rebuildAreas(InputStream is) throws IOException {
+    private OutputStream writeAreas(InputStream is) throws IOException {
         OutputStream os = new ByteArrayOutputStream();
         try (JsonParser parser = JSON_FACTORY.createParser(is); JsonGenerator generator = JSON_FACTORY.createGenerator(os)) {
             while (parser.nextToken() != null) {

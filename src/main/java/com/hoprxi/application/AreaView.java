@@ -19,7 +19,6 @@ package com.hoprxi.application;
 import com.hoprxi.domain.model.Name;
 import com.hoprxi.domain.model.coordinate.WGS84;
 
-import java.util.Objects;
 import java.util.StringJoiner;
 
 /***
@@ -29,20 +28,20 @@ import java.util.StringJoiner;
  */
 public class AreaView {
     private final ParentArea parentArea;
-    private final String code;
+    private final int code;
     private WGS84 location;
     private final Name name;
     private String zipcode;
     private String telephoneCode;
     private Level level;
 
-    public AreaView(String code, Name name, ParentArea parentArea) {
+    public AreaView(int code, Name name, ParentArea parentArea) {
         this.parentArea = parentArea;
         this.code = code;
         this.name = name;
     }
 
-    public AreaView(String code, ParentArea parentArea, Name name, WGS84 location, String zipcode, String telephoneCode, Level level) {
+    public AreaView(int code, ParentArea parentArea, Name name, WGS84 location, String zipcode, String telephoneCode, Level level) {
         this.parentArea = parentArea;
         this.code = code;
         this.location = location;
@@ -56,7 +55,7 @@ public class AreaView {
         return parentArea;
     }
 
-    public String code() {
+    public int code() {
         return code;
     }
 
@@ -78,15 +77,15 @@ public class AreaView {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof AreaView view)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        return Objects.equals(code, view.code);
+        AreaView areaView = (AreaView) o;
+        return code == areaView.code;
     }
 
     @Override
     public int hashCode() {
-        return code != null ? code.hashCode() : 0;
+        return code;
     }
 
     public Level level() {
@@ -111,17 +110,17 @@ public class AreaView {
     }
 
     public static class ParentArea {
-        private final String code;
+        private final int code;
         private final String name;
         private final String abbreviation;
 
-        public ParentArea(String code, String name, String abbreviation) {
+        public ParentArea(int code, String name, String abbreviation) {
             this.code = code;
             this.name = name;
             this.abbreviation = abbreviation;
         }
 
-        public String code() {
+        public int code() {
             return code;
         }
 

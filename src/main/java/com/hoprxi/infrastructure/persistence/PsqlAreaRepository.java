@@ -43,13 +43,12 @@ public class PsqlAreaRepository implements AreaRepository {
      * @return
      */
     @Override
-    public Area find(String code) {
-        code = Objects.requireNonNull(code, "code required").trim();
+    public Area find(int code) {
         try (Connection connection = PsqlUtil.getConnection()) {
             final String findSql = "select code,parent_code,name::jsonb->>'name' name,name::jsonb->>'initials' initials,name::jsonb->>'abbreviation' abbreviation,name::jsonb->>'mnemonic' mnemonic,name::jsonb->>'alias' alias," +
                     "zipcode,telephone_code,location::jsonb->>'longitude' longitude,location::jsonb->>'latitude' latitude,\"type\" from area where code=? limit 1";
             PreparedStatement preparedStatement = connection.prepareStatement(findSql);
-            preparedStatement.setString(1, code);
+            preparedStatement.setInt(1, code);
             ResultSet rs = preparedStatement.executeQuery();
             return rebuild(rs);
         } catch (SQLException | IOException e) {
@@ -59,16 +58,15 @@ public class PsqlAreaRepository implements AreaRepository {
     }
 
     private Area rebuild(ResultSet rs) throws SQLException, IOException {
-        Area area = null;
         if (rs.next()) {
-            String code = rs.getString("code");
-            String parentCode = rs.getString("parent_code");
+            int code = rs.getInt("code");
+            int parentCode = rs.getInt("parent_code");
             Name name = new Name(rs.getString("name"), (char) rs.getInt("initials"), rs.getString("abbreviation"), rs.getString("mnemonic"), rs.getString("alias"));
             WGS84 wgs84 = new WGS84(rs.getDouble("longitude"), rs.getDouble("latitude"));
             String zipcode = rs.getString("zipcode");
             String telephoneCode = rs.getString("telephone_code");
             String type = rs.getString("type");
-            area = switch (type) {
+            return switch (type) {
                 case "PROVINCE" -> new Province(code, parentCode, name, wgs84, zipcode, telephoneCode);
                 case "COUNTRY" -> new Country(code, parentCode, name, wgs84, zipcode, telephoneCode);
                 case "CITY" -> new City(code, parentCode, name, wgs84, zipcode, telephoneCode);
@@ -77,7 +75,7 @@ public class PsqlAreaRepository implements AreaRepository {
                 default -> null;
             };
         }
-        return area;
+        return null;
     }
 
 
@@ -86,8 +84,8 @@ public class PsqlAreaRepository implements AreaRepository {
         final String insertRoot = "insert into area (code,parent_code,name,zipcode,telephone_code,location,\"type\") values (?,?,?::jsonb,?,?,?::jsonb,CAST(? AS area_type)) ";
         try (Connection connection = PsqlUtil.getConnection()) {
             PreparedStatement ps = connection.prepareStatement(insertRoot);
-            ps.setString(1, area.code());
-            ps.setString(2, area.parentCode());
+            ps.setInt(1, area.code());
+            ps.setInt(2, area.parentCode());
             ps.setString(3, PsqlAreaUtil.toJson(area.name()));
             ps.setString(4, area.zipcode());
             ps.setString(5, area.telephoneCode());
@@ -105,11 +103,11 @@ public class PsqlAreaRepository implements AreaRepository {
      * @param code
      */
     @Override
-    public void delete(String code) {
+    public void delete(int code) {
         try (Connection connection = PsqlUtil.getConnection()) {
             final String removeSql = "delete from area where code=?";
             PreparedStatement preparedStatement = connection.prepareStatement(removeSql);
-            preparedStatement.setString(1, code);
+            preparedStatement.setInt(1, code);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             LOGGER.error("Can't delete brand(code={})", code, e);

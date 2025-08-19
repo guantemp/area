@@ -41,7 +41,7 @@ import java.util.Objects;
  * @version 0.0.1 builder 2023-02-09
  */
 public class PsqlAreaQuery implements AreaQuery {
-    private static final Cache<String, AreaView> cache = CacheFactory.build("area");
+    private static final Cache<Integer, AreaView> cache = CacheFactory.build("area");
     private static final Logger LOGGER = LoggerFactory.getLogger(PsqlAreaQuery.class);
 
     @Override
@@ -81,8 +81,7 @@ public class PsqlAreaQuery implements AreaQuery {
     }
 
     @Override
-    public AreaView query(String code) {
-        code = Objects.requireNonNull(code, "code required").trim();
+    public AreaView query(int code) {
         AreaView area = cache.get(code);
         if (area != null)
             return area;
@@ -90,7 +89,7 @@ public class PsqlAreaQuery implements AreaQuery {
             final String findSql = "select a1.code,a1.parent_code,a2.name::jsonb->>'name' parent_name,a2.name::jsonb->>'abbreviation' parent_abbreviation,a1.name::jsonb->>'name' name,a1.name::jsonb->>'initials' initials,a1.name::jsonb->>'abbreviation' abbreviation,a1.name::jsonb->>'mnemonic' mnemonic,a1.name::jsonb->>'alias' alias,a1.zipcode,a1.telephone_code,a1.location::jsonb->>'longitude' longitude,a1.location::jsonb->>'latitude' latitude,a1.\"type\" from area a1\n" +
                     " inner join area a2 on a2.code = a1.parent_code where a1.code=? limit 1";
             PreparedStatement preparedStatement = connection.prepareStatement(findSql);
-            preparedStatement.setString(1, code);
+            preparedStatement.setInt(1, code);
             ResultSet rs = preparedStatement.executeQuery();
             if (rs.next()) {
                 area = rebuild(rs);
@@ -105,8 +104,8 @@ public class PsqlAreaQuery implements AreaQuery {
 
     private AreaView rebuild(ResultSet rs) throws SQLException, IOException {
         AreaView areaView;
-        String code = rs.getString("code");
-        AreaView.ParentArea parentArea = new AreaView.ParentArea(rs.getString("parent_code"), rs.getString("parent_name"), rs.getString("parent_abbreviation"));
+        int code = rs.getInt("code");
+        AreaView.ParentArea parentArea = new AreaView.ParentArea(rs.getInt("parent_code"), rs.getString("parent_name"), rs.getString("parent_abbreviation"));
         Name name = new Name(rs.getString("name"), (char) rs.getInt("initials"), rs.getString("abbreviation"), rs.getString("mnemonic"), rs.getString("alias"));
         WGS84 wgs84 = new WGS84(rs.getDouble("longitude"), rs.getDouble("latitude"));
         String zipcode = rs.getString("zipcode");
@@ -116,14 +115,14 @@ public class PsqlAreaQuery implements AreaQuery {
     }
 
     @Override
-    public AreaView[] queryByJurisdiction(String code) {
+    public AreaView[] queryByJurisdiction(int code) {
         try (Connection connection = PsqlUtil.getConnection()) {
             final String queryByNameSql = """
                     select a1.code,a1.parent_code,a2.name::jsonb->>'name' parent_name,a2.name::jsonb->>'abbreviation' parent_abbreviation,a1.name::jsonb->>'name' name,a1.name::jsonb->>'initials' initials,a1.name::jsonb->>'abbreviation' abbreviation,a1.name::jsonb->>'mnemonic' mnemonic,a1.name::jsonb->>'alias' alias,a1.zipcode,a1.telephone_code,a1.location::jsonb->>'longitude' longitude,a1.location::jsonb->>'latitude' latitude,a1."type" from area a1
                     inner join area a2 on a2.code = a1.parent_code
                     where a1.code != a1.parent_code and a1.parent_code = ?""";
             PreparedStatement ps = connection.prepareStatement(queryByNameSql);
-            ps.setString(1, code);
+            ps.setInt(1, code);
             ResultSet rs = ps.executeQuery();
             return transform(rs);
         } catch (SQLException | IOException e) {

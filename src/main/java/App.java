@@ -13,6 +13,8 @@ public class App {
     public static void main(String[] args) {
         EnumSet<ESAreaQuery.Level> sets = EnumSet.noneOf(ESAreaQuery.Level.class);
         System.out.println(sets);
+        for (ESAreaQuery.Level level : ESAreaQuery.Level.values()) {
+        }
         String[] filters = new String[]{"COUNTRY", "PROVINCE", "CITY"};
         for (String filter : filters) {
             sets.add(ESAreaQuery.Level.of(filter));

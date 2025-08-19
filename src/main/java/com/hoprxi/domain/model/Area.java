@@ -27,18 +27,18 @@ import java.util.StringJoiner;
  * @version 0.0.2 builder 2023-02-08
  */
 public abstract class Area {
-    protected String code;
-    protected String parentCode;
+    protected int code;
+    protected int parentCode;
     private final WGS84 location;
     private final Name name;
     private final String zipcode;
     private final String telephoneCode;
 
-    public Area(String code, String parentCode, Name name, WGS84 location) {
+    public Area(int code, int parentCode, Name name, WGS84 location) {
         this(code, parentCode, name, location, "", "");
     }
 
-    public Area(String code, String parentCode, Name name, WGS84 location, String zipcode, String telephoneCode) {
+    public Area(int code, int parentCode, Name name, WGS84 location, String zipcode, String telephoneCode) {
         setCode(code);
         setParentCode(parentCode);
         this.name = Objects.requireNonNull(name, "name required");
@@ -47,15 +47,15 @@ public abstract class Area {
         this.telephoneCode = telephoneCode;
     }
 
-    protected abstract void setCode(String code);
+    protected abstract void setCode(int code);
 
-    protected abstract void setParentCode(String parentCode);
+    protected abstract void setParentCode(int parentCode);
 
-    public String code() {
+    public int code() {
         return code;
     }
 
-    public String parentCode() {
+    public int parentCode() {
         return parentCode;
     }
 
@@ -77,15 +77,15 @@ public abstract class Area {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Area area)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        return Objects.equals(code, area.code);
+        Area area = (Area) o;
+        return code == area.code;
     }
 
     @Override
     public int hashCode() {
-        return code != null ? code.hashCode() : 0;
+        return code;
     }
 
     @Override
@@ -93,8 +93,8 @@ public abstract class Area {
         return new StringJoiner(", ", Area.class.getSimpleName() + "[", "]")
                 .add("code='" + code + "'")
                 .add("parentCode='" + parentCode + "'")
-                .add("location=" + location)
                 .add("name=" + name)
+                .add("location=" + location)
                 .add("zipcode='" + zipcode + "'")
                 .add("telephoneCode='" + telephoneCode + "'")
                 .toString();

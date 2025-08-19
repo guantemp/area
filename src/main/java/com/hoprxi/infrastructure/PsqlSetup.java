@@ -38,7 +38,7 @@ public class PsqlSetup {
     private static final String CREATE_DATABASE = "create database {0} with owner=area;";
     private static final String CREATE_TABLE_AREA_SQL = """
             CREATE TABLE if not exists area (
-            \tcode varchar(16) NOT NULL,
+            \tcode int NOT NULL,
             \tparent_code varchar(16) NOT NULL,
             \tname jsonb NOT NULL,
             \tzipcode varchar(8) DEFAULT '',

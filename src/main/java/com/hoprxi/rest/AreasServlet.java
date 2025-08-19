@@ -146,7 +146,10 @@ public class AreasServlet extends HttpServlet {
      */
     private Area parserJson(InputStream is) throws JsonParseException, IOException {
         JsonParser parser = JSON_FACTORY.createParser(is);
-        String code = "", parentCode = "", name = "", abbreviation = "";
+        int code = 0;
+        int parentCode = 0;
+        String name = "";
+        String abbreviation = "";
         String zipcode = null, alias = null, telephoneCode = null;
         WGS84 wgs84 = null;
         AreaView.Level level = AreaView.Level.COUNTRY;
@@ -174,10 +177,10 @@ public class AreasServlet extends HttpServlet {
                 parser.nextToken();
                 switch (fieldName) {
                     case "code":
-                        code = parser.getValueAsString();
+                        code = parser.getIntValue();
                         break;
                     case "parentCode":
-                        parentCode = parser.getValueAsString();
+                        parentCode = parser.getIntValue();
                         break;
                     case "name":
                         name = parser.getValueAsString();
@@ -246,7 +249,7 @@ public class AreasServlet extends HttpServlet {
             String[] paths = pathInfo.split("/");
             if (paths.length == 2) {
                 AreaRepository repository = new PsqlAreaRepository();
-                repository.delete(paths[1]);
+                repository.delete(Integer.parseInt(paths[1]));
             }
         }
         resp.setContentType("application/json; charset=UTF-8");

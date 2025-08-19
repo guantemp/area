@@ -17,7 +17,7 @@ import java.util.Objects;
 public class PsqlAreaBatchImportTest {
     static {
         StoreKeyLoad.loadSecretKey("keystore.jks", "Qwe123465",
-                new String[]{"slave.tooo.top:6543:P$Qwe123465Pg", "129.28.29.105:5432:P$Qwe123465Pg"});
+                "slave.tooo.top:6543:P$Qwe123465Pg");
     }
 
     @Test

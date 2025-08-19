@@ -52,17 +52,17 @@ public class ESAreaBatchImport implements AreaBatchImport {
     public void importXlsFrom(InputStream is) throws IOException {
         Workbook workbook = WorkbookFactory.create(is);
         Sheet sheet = workbook.getSheetAt(0);
-        StringBuilder batch = new StringBuilder(512);
+        StringBuilder batch = new StringBuilder(4096);//4kb
         for (int i = 1, j = sheet.getLastRowNum() + 1; i < j; i++) {
             Row row = sheet.getRow(i);
             batch.append(parseBulk(row));
-            if (i % 4096 == 0 || i == j - 1) {
+            if (i % 2048 == 0 || i == j - 1) {
                 Request request = REQUEST_POOL.get();//?refresh=wait_for&pretty&filter_path=items.*.error
                 request.setOptions(COMMON_OPTIONS);
                 request.setJsonEntity(batch.toString());
-                //System.out.println(batch);
-                //System.out.println(batch.length());
+                System.out.println(batch.length());
                 CLIENT.performRequest(request);
+                //System.out.println(batch);
                 batch.setLength(0);
             }
         }
@@ -109,21 +109,11 @@ public class ESAreaBatchImport implements AreaBatchImport {
                 .append("\",\"location\": {\"lat\":").append(latitude).append(",\"lon\":").append(longitude)
                 .append("},\"level\":{");
         switch (level) {
-            case 0:
-                sb.append("\"name\":\"COUNTRY\",\"order\":0");
-                break;
-            case 1:
-                sb.append("\"name\":\"PROVINCE\",\"order\":1");
-                break;
-            case 2:
-                sb.append("\"name\":\"CITY\",\"order\":2");
-                break;
-            case 3:
-                sb.append("\"name\":\"COUNTY\",\"order\":3");
-                break;
-            case 4:
-                sb.append("\"name\":\"TOWN\",\"order\":4");
-                break;
+            case 0 -> sb.append("\"name\":\"COUNTRY\",\"order\":0");
+            case 1 -> sb.append("\"name\":\"PROVINCE\",\"order\":1");
+            case 2 -> sb.append("\"name\":\"CITY\",\"order\":2");
+            case 3 -> sb.append("\"name\":\"COUNTY\",\"order\":3");
+            case 4 -> sb.append("\"name\":\"TOWN\",\"order\":4");
         }
         sb.append("}}\n");
         return sb;

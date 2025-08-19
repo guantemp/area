@@ -18,8 +18,6 @@ package com.hoprxi.domain.model;
 
 import com.hoprxi.domain.model.coordinate.WGS84;
 
-import java.util.Objects;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /***
@@ -29,29 +27,26 @@ import java.util.regex.Pattern;
  */
 public class Country extends Area {
     private static final Pattern COUNTRY_PATTERN = Pattern.compile("^\\d{3,3}$");
-    public static Country CHINA = new Country("156", "156", new Name("中华人民共和国", 'c', "中国", "zhrmghg", "china"), new WGS84(116.405289, 39.904987));
+    public static Country CHINA = new Country(156, 156, new Name("中华人民共和国", 'c', "中国", "zhrmghg", "china"), new WGS84(116.405289, 39.904987));
 
-    public Country(String code, String parentCode, Name name, WGS84 wgs84) {
+    public Country(int code, int parentCode, Name name, WGS84 wgs84) {
         super(code, parentCode, name, wgs84);
     }
 
-    public Country(String code, String parentCode, Name name, WGS84 wgs84, String postcode, String telephoneCode) {
+    public Country(int code, int parentCode, Name name, WGS84 wgs84, String postcode, String telephoneCode) {
         super(code, parentCode, name, wgs84, postcode, telephoneCode);
     }
 
     @Override
-    protected void setParentCode(String parentCode) {
-        parentCode = Objects.requireNonNull(parentCode, "parentCode required").trim();
-        if (!code.equals(parentCode))
+    protected void setParentCode(int parentCode) {
+        if (code != parentCode)
             throw new IllegalArgumentException("Root, zone code must be consistent with parent zone code");
         this.parentCode = parentCode;
     }
 
     @Override
-    protected void setCode(String code) {
-        code = Objects.requireNonNull(code, "code required").trim();
-        Matcher matcher = COUNTRY_PATTERN.matcher(code);
-        if (!matcher.matches())
+    protected void setCode(int code) {
+        if (code < 100)
             throw new IllegalArgumentException("The code requires 3 digits");
         this.code = code;
     }
