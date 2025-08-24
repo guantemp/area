@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.hoprxi.domain.model.*;
 import com.hoprxi.domain.model.coordinate.WGS84;
-import com.hoprxi.infrastructure.persistence.PsqlAreaRepository;
+import com.hoprxi.infrastructure.persistence.ESAreaRepository;
 import com.hoprxi.infrastructure.query.ESAreaQuery;
 import com.linecorp.armeria.common.*;
 import com.linecorp.armeria.common.stream.ByteStreamMessage;
@@ -28,6 +28,18 @@ import java.util.Optional;
  * @author <a href="www.hoprxi.com/authors/guan xiangHuan">guan xiangHuang</a>
  * @since JDK21
  * @version 0.0.1 builder 2025/8/13
+ *          <p>
+ *          restful http<br/>
+ *          areas return all <br/>
+ *          areas/code return area where key=area.code,such as:areas/51000
+ *          areas/code/juri(jurisdiction) return jurisdiction area where area code,such as:areas/51000/juri
+ *          <br/>
+ *          <ul>
+ *          parameter:
+ *          <li>query=name、abbreviation、mnemonic and filters=country,province,city,county,town</li>
+ *          <li>fields=name,pinyin,abbreviation, initials,alias, wgs84, zipcode,telephoneCode</li>
+ *          </ul>
+ *          </p>
  */
 @PathPrefix("/v1")
 public class AreaSevice {
@@ -37,10 +49,11 @@ public class AreaSevice {
     private static final PooledByteBufAllocator ALLOCATOR = PooledByteBufAllocator.DEFAULT;
 
     private final ESAreaQuery query = new ESAreaQuery();
-    private final AreaRepository repository = new PsqlAreaRepository();
+    private final AreaRepository repository = new ESAreaRepository();
     private final JsonFactory JSON_FACTORY = JsonFactory.builder().build();
 
     @Get("/areas/{code}")
+    @Description("Retrieves the user information by the given user ID.")
     public HttpResponse query(ServiceRequestContext ctx, @Param("code") int code) {
         StreamWriter<HttpObject> stream = StreamMessage.streaming();
         ctx.whenRequestCancelled().thenAccept(stream::close);

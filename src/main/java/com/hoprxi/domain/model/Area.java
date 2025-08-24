@@ -93,12 +93,13 @@ public abstract class Area {
     @Override
     public String toString() {
         return new StringJoiner(", ", Area.class.getSimpleName() + "[", "]")
-                .add("code='" + code + "'")
-                .add("parentCode='" + parentCode + "'")
-                .add("name=" + name)
                 .add("location=" + location)
+                .add("name=" + name)
                 .add("zipcode='" + zipcode + "'")
                 .add("telephoneCode='" + telephoneCode + "'")
+                .add("code=" + code)
+                .add("parentCode=" + parentCode)
+                .add("level=" + level)
                 .toString();
     }
 

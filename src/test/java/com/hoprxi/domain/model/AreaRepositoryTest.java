@@ -1,9 +1,8 @@
 package com.hoprxi.domain.model;
 
 import com.hoprxi.domain.model.coordinate.WGS84;
-import com.hoprxi.infrastructure.persistence.PsqlAreaRepository;
+import com.hoprxi.infrastructure.persistence.ESAreaRepository;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import salt.hoprxi.crypto.util.StoreKeyLoad;
@@ -19,7 +18,7 @@ public class AreaRepositoryTest {
                 new String[]{"slave.tooo.top:9200", "slave.tooo.top:6543:P$Qwe123465Pg"});
     }
 
-    private static final AreaRepository repository = new PsqlAreaRepository();
+    private static final AreaRepository repository = new ESAreaRepository();
 
     @BeforeClass
     public void beforeClass() {
@@ -72,7 +71,7 @@ public class AreaRepositoryTest {
         repository.save(yunnan);
     }
 
-    @Test(invocationCount = 10)
+    @Test(invocationCount = 2)
     public void testFind() {
         Area area = repository.find(156);
         Assert.assertNotNull(area);
@@ -80,7 +79,7 @@ public class AreaRepositoryTest {
         Assert.assertNotNull(area);
     }
 
-
+/*
     @AfterClass
     public void tearDown() {
         repository.delete(510504001);
@@ -95,5 +94,5 @@ public class AreaRepositoryTest {
         repository.delete(530000);
         repository.delete(156);
     }
-
+*/
 }

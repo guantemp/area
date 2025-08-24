@@ -16,9 +16,12 @@
 package com.hoprxi.infrastructure.persistence;
 
 
-import com.fasterxml.jackson.core.*;
-import com.hoprxi.domain.model.Area;
-import com.hoprxi.domain.model.AreaRepository;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.hoprxi.domain.model.*;
+import com.hoprxi.domain.model.coordinate.WGS84;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.apache.http.HttpHeaders;
@@ -32,9 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import salt.hoprxi.crypto.application.DatabaseSpecDecrypt;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -68,24 +69,16 @@ public class ESAreaRepository implements AreaRepository {
 
     @Override
     public Area find(int code) {
-        try (OutputStream os = new ByteArrayOutputStream(128); JsonGenerator generator = JSON_FACTORY.createGenerator(os, JsonEncoding.UTF8)) {
+        try {
             Request request = new Request("GET", "/area/_doc/" + code);
             request.setOptions(COMMON_OPTIONS);
             Response response = CLIENT.performRequest(request);
             JsonParser parser = JSON_FACTORY.createParser(response.getEntity().getContent());
             while (parser.nextToken() != null) {
                 if (parser.currentToken() == JsonToken.START_OBJECT && "_source".equals(parser.getCurrentName())) {
-                    generator.writeStartObject();
-                    while (parser.nextToken() != null) {
-                        if (parser.currentToken() == JsonToken.END_OBJECT && "_source".equals(parser.getCurrentName()))
-                            break;
-                        generator.copyCurrentEvent(parser);
-                    }
-                    generator.writeEndObject();
-                    break;
+                    return rebuild(parser);
                 }
             }
-            return null;
         } catch (IOException e) {
             //System.out.println(((ResponseException)e).getResponse().getStatusLine().getStatusCode());
             LOGGER.error("The area(code={}) can't retrieve", code, e);
@@ -93,14 +86,91 @@ public class ESAreaRepository implements AreaRepository {
         return null;
     }
 
+    private Area rebuild(JsonParser parser) throws IOException {
+        int code = 0, parentCode = 0;
+        Name name = null;
+        String zipcode = null, telephoneCode = null;
+        WGS84 wgs84 = null;
+        Area.Level level = null;
+        while (parser.nextToken() != null) {
+            if (parser.currentToken() == JsonToken.END_OBJECT && "_source".equals(parser.getCurrentName()))//防止超_source范围
+                break;
+            if (JsonToken.FIELD_NAME.equals(parser.currentToken())) {
+                String fieldName = parser.getCurrentName();
+                parser.nextToken();
+                switch (fieldName) {
+                    case "code" -> code = parser.getIntValue();
+                    case "parent_code" -> parentCode = parser.getIntValue();
+                    case "name" -> name = nameOf(parser);
+                    case "zipcode" -> zipcode = parser.getValueAsString();
+                    case "telephoneCode" -> telephoneCode = parser.getValueAsString();
+                    case "location" -> wgs84 = wgs84Of(parser);
+                    case "level" -> level = levelOf(parser);
+                }
+            }
+        }
+        return switch (level.name()) {
+            case "COUNTRY" -> new Country(code, parentCode, name, wgs84, zipcode, telephoneCode);
+            case "PROVINCE" -> new Province(code, parentCode, name, wgs84, zipcode, telephoneCode);
+            case "CITY" -> new City(code, parentCode, name, wgs84, zipcode, telephoneCode);
+            case "COUNTY" -> new County(code, parentCode, name, wgs84, zipcode, telephoneCode);
+            case "TOWN" -> new Town(code, parentCode, name, wgs84, zipcode, telephoneCode);
+            default -> null;
+        };
+    }
+
+    private Name nameOf(JsonParser parser) throws IOException {
+        String name = "", abbreviation = "";
+        while (parser.nextToken() != JsonToken.END_OBJECT) {
+            String fieldName = parser.getCurrentName();
+            parser.nextToken();
+            switch (fieldName) {
+                case "name":
+                    name = parser.getValueAsString();
+                    break;
+                case "abbreviation":
+                    abbreviation = parser.getValueAsString();
+                    break;
+            }
+        }
+        return new Name(name, abbreviation);
+    }
+
+    private WGS84 wgs84Of(JsonParser parser) throws IOException {
+        double longitude = 0.0, latitude = 0.0;
+        while (parser.nextToken() != JsonToken.END_OBJECT) {
+            String fieldName = parser.getCurrentName();
+            parser.nextToken();
+            switch (fieldName) {
+                case "lon":
+                    longitude = parser.getValueAsDouble(0.0);
+                    break;
+                case "lat":
+                    latitude = parser.getValueAsDouble(0.0);
+                    break;
+            }
+        }
+        return new WGS84(longitude, latitude);
+    }
+
+    private Area.Level levelOf(JsonParser parser) throws IOException {
+        String name = "";
+        while (parser.nextToken() != JsonToken.END_OBJECT) {
+            String fieldName = parser.getCurrentName();
+            parser.nextToken();
+            if ("name".equals(fieldName))
+                name = parser.getValueAsString();
+        }
+        return Area.Level.valueOf(name);
+    }
+
     @Override
     public void save(Area area) {
         try {
-            Request request = new Request("PUT", "/area/_update/" + area.code());
+            Request request = new Request("POST", "/area/_update/" + area.code());
             request.setOptions(COMMON_OPTIONS);
             request.setJsonEntity(jsonEntity(area));
             Response response = CLIENT.performRequest(request);
-
         } catch (IOException e) {
             //System.out.println(((ResponseException)e).getResponse().getStatusLine().getStatusCode());
             LOGGER.error("The area({}) can't save", area, e);
@@ -111,7 +181,7 @@ public class ESAreaRepository implements AreaRepository {
         StringWriter writer = new StringWriter();
         try (JsonGenerator gen = JSON_FACTORY.createGenerator(writer)) {
             gen.writeStartObject();
-            gen.writeStartObject("doc");
+            gen.writeObjectFieldStart("doc");
             gen.writeNumberField("code", area.code());
             gen.writeNumberField("parent_code", area.parentCode());
             gen.writeObjectFieldStart("name");
@@ -133,6 +203,7 @@ public class ESAreaRepository implements AreaRepository {
             gen.writeEndObject();//end doc
             gen.writeBooleanField("doc_as_upsert", true);
             gen.writeEndObject();
+            gen.flush();
         } catch (IOException e) {
             LOGGER.error("The area can't be serialized for upsert", e);
         }

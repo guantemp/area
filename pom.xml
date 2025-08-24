@@ -42,40 +42,16 @@
             <version>1.4.2</version>
         </dependency>
         <dependency>
-            <groupId>com.zaxxer</groupId>
-            <artifactId>HikariCP</artifactId>
-            <version>4.0.3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>42.7.7</version>
-        </dependency>
-        <dependency>
             <groupId>org.elasticsearch.client</groupId>
             <artifactId>elasticsearch-rest-client</artifactId>
             <version>8.11.0</version>
         </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.14.2</version>
-        </dependency>
-        <dependency>
-            <groupId>io.undertow</groupId>
-            <artifactId>undertow-core</artifactId>
-            <version>2.3.17.Final</version>
-        </dependency>
-        <dependency>
-            <groupId>io.undertow</groupId>
-            <artifactId>undertow-servlet</artifactId>
-            <version>2.3.15.Final</version>
-        </dependency>
+
         <!-- https://mvnrepository.com/artifact/com.linecorp.armeria/armeria -->
         <dependency>
             <groupId>com.linecorp.armeria</groupId>
             <artifactId>armeria</artifactId>
-            <version>1.33.0</version>
+            <version>1.33.1</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-fileupload2-jakarta-servlet5 -->
         <dependency>
