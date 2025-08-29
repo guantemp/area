@@ -44,13 +44,15 @@ public class UploadFileService {
         StreamMessage<BodyPart> bodyParts = multipart.bodyParts();
         // 2. 创建流处理器
         bodyParts.subscribe(new Subscriber<>() {
+                                private Subscription subscription;
                                 private final AtomicReference<AsynchronousFileChannel> fileChannelRef = new AtomicReference<>();
                                 private final AtomicReference<String> filenameRef = new AtomicReference<>();
                                 private final AtomicBoolean fileProcessed = new AtomicBoolean(false);
 
                                 @Override
                                 public void onSubscribe(Subscription subscription) {
-                                    subscription.request(1);  // 请求第一个body part
+                                    //this.subscription = subscription;
+                                    //subscription.request(1);  // 请求第一个body part
                                 }
 
                                 @Override
@@ -59,7 +61,7 @@ public class UploadFileService {
                                     if ("file".equals(part.name())) {
                                         String fileName = part.filename();
                                         //StringJoiner relativePath = new StringJoiner("/", request.getScheme() + "://" + request.getServerName(), "").add("/images");
-                                        StringJoiner relativePath=new StringJoiner("/");
+                                        StringJoiner relativePath = new StringJoiner("/");
                                         String folder = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                                         relativePath.add(folder);
                                         if (rename) {
@@ -71,7 +73,7 @@ public class UploadFileService {
                                             relativePath.add(fileName);
                                             //path.add(fileName);
                                         }
-                                   
+
                                         if (fileName != null && !fileName.isEmpty()) {
                                             try {
                                                 // 创建文件

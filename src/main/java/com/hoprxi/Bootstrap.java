@@ -34,8 +34,9 @@ import java.util.regex.Pattern;
 public final class Bootstrap {
     private static final Logger LOGGER = LoggerFactory.getLogger(Bootstrap.class);
     private static final Pattern EXCLUDE = Pattern.compile("^-{1,}.*");
+    private static final int PORT = 9000;
 
-    public static void main(String[] args)  {
+    public static void main(String[] args) {
         String fileName = "keystore.jks", fileProtectedPasswd = "";
         Set<String> entries = new HashSet<>();
         for (int i = 0, j = args.length; i < j; i++) {
@@ -124,7 +125,7 @@ public final class Bootstrap {
         //ssl
         //sb.https(8443).tls(new File("certificate.crt"), new File("private.key"), "myPassphrase");
 
-        Server server = sb.http(9000)
+        Server server = sb.http(PORT)
                 .annotatedService("/", new AreaSevice())
                 .annotatedService("/", new IPSeekerService())
                 .annotatedService("/", new UploadFileService())
