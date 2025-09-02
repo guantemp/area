@@ -235,7 +235,7 @@ public class AreaSevice {
         int level = -1;
         while (parser.nextToken() != null) {
             if (JsonToken.FIELD_NAME.equals(parser.currentToken())) {
-                String fieldName = parser.getCurrentName();
+                String fieldName = parser.currentName();
                 parser.nextToken();
                 switch (fieldName) {
                     case "code" -> code = parser.getIntValue();
@@ -263,7 +263,7 @@ public class AreaSevice {
     private WGS84 deserialize(JsonParser parser) throws IOException {
         double longitude = 0.0, latitude = 0.0;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            String fieldName = parser.getCurrentName();
+            String fieldName = parser.currentName();
             parser.nextToken();
             switch (fieldName) {
                 case "lon":

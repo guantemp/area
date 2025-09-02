@@ -30,34 +30,31 @@ import java.util.StringJoiner;
 public class Name {
     private final String abbreviation;
     private final String alias;
-    private final char initials;
     private final String name;
     private final String mnemonic;
 
-    public Name(String name, char initials, String abbreviation, String mnemonic, String alias) {
+    public Name(String name,  String abbreviation, String mnemonic, String alias) {
         this.name = Objects.requireNonNull(name, "name required").trim();
         this.mnemonic = Objects.requireNonNull(mnemonic, "pinyin required").trim();
-        this.initials = Objects.requireNonNull(initials, "initials required");
         this.abbreviation = abbreviation;
         this.alias = alias;
     }
 
     public Name(String name, String abbreviation, String alias) {
-        this(name, PinYin.toShortPinYing(name).charAt(0), abbreviation, PinYin.toShortPinYing(abbreviation), alias);
+        this(name,  abbreviation, PinYin.toShortPinYing(name), alias);
     }
 
     public Name(String name, String abbreviation) {
-        this(name, abbreviation, PinYin.toPinYing(name));
+        this(name, abbreviation, PinYin.toPinYing(abbreviation));
     }
 
     @Override
     public String toString() {
         return new StringJoiner(", ", Name.class.getSimpleName() + "[", "]")
-                .add("abbreviation='" + abbreviation + "'")
-                .add("alias='" + alias + "'")
-                .add("initials=" + initials)
                 .add("name='" + name + "'")
                 .add("mnemonic='" + mnemonic + "'")
+                .add("abbreviation='" + abbreviation + "'")
+                .add("alias='" + alias + "'")
                 .toString();
     }
 
@@ -67,10 +64,6 @@ public class Name {
 
     public String alias() {
         return alias;
-    }
-
-    public char initials() {
-        return initials;
     }
 
     public String name() {

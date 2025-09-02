@@ -79,6 +79,9 @@ public class AreaRepositoryTest {
         area = repository.find(510502);
         Assert.assertNotNull(area);
         System.out.println(area);
+        area = repository.find(510504001);
+        Assert.assertNotNull(area);
+        System.out.println(area);
     }
 
 /*

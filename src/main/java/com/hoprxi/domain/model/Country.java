@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
  */
 public class Country extends Area {
     private static final Pattern COUNTRY_PATTERN = Pattern.compile("^\\d{3,3}$");
-    public static Country CHINA = new Country(156, 156, new Name("中华人民共和国", 'c', "中国", "zhrmghg", "china"), new WGS84(116.405289, 39.904987));
+    public static Country CHINA = new Country(156, 156, new Name("中华人民共和国",  "中国", "zhrmghg", "china"), new WGS84(116.405289, 39.904987));
 
     public Country(int code, int parentCode, Name name, WGS84 wgs84) {
         this(code, parentCode, name, wgs84, null, null);

@@ -34,6 +34,7 @@ import org.elasticsearch.client.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import salt.hoprxi.crypto.application.DatabaseSpecDecrypt;
+import salt.hoprxi.to.PinYin;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -75,7 +76,7 @@ public class ESAreaRepository implements AreaRepository {
             Response response = CLIENT.performRequest(request);
             JsonParser parser = JSON_FACTORY.createParser(response.getEntity().getContent());
             while (parser.nextToken() != null) {
-                if (parser.currentToken() == JsonToken.START_OBJECT && "_source".equals(parser.getCurrentName())) {
+                if (parser.currentToken() == JsonToken.START_OBJECT && "_source".equals(parser.currentName())) {
                     return rebuild(parser);
                 }
             }
@@ -93,10 +94,10 @@ public class ESAreaRepository implements AreaRepository {
         WGS84 wgs84 = null;
         Area.Level level = null;
         while (parser.nextToken() != null) {
-            if (parser.currentToken() == JsonToken.END_OBJECT && "_source".equals(parser.getCurrentName()))//防止超_source范围
+            if (parser.currentToken() == JsonToken.END_OBJECT && "_source".equals(parser.currentName()))//防止超_source范围
                 break;
             if (JsonToken.FIELD_NAME.equals(parser.currentToken())) {
-                String fieldName = parser.getCurrentName();
+                String fieldName = parser.currentName();
                 parser.nextToken();
                 switch (fieldName) {
                     case "code" -> code = parser.getIntValue();
@@ -120,13 +121,16 @@ public class ESAreaRepository implements AreaRepository {
     }
 
     private Name nameOf(JsonParser parser) throws IOException {
-        String name = "", abbreviation = "", alias = "";
+        String name = "", abbreviation = "", alias = "", mnemonic = "";
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             String fieldName = parser.currentName();
             parser.nextToken();
             switch (fieldName) {
                 case "name":
                     name = parser.getValueAsString();
+                    break;
+                case "mnemonic":
+                    mnemonic = parser.getValueAsString();
                     break;
                 case "abbreviation":
                     abbreviation = parser.getValueAsString();
@@ -136,7 +140,7 @@ public class ESAreaRepository implements AreaRepository {
                     break;
             }
         }
-        return new Name(name, abbreviation, alias);
+        return new Name(name, abbreviation, mnemonic, alias);
     }
 
     private WGS84 wgs84Of(JsonParser parser) throws IOException {
@@ -189,9 +193,8 @@ public class ESAreaRepository implements AreaRepository {
             gen.writeNumberField("parent_code", area.parentCode());
             gen.writeObjectFieldStart("name");
             gen.writeStringField("name", area.name().name());
-            gen.writeNumberField("initials", area.name().initials());
-            gen.writeStringField("abbreviation", area.name().abbreviation());
             gen.writeStringField("mnemonic", area.name().mnemonic());
+            gen.writeStringField("abbreviation", area.name().abbreviation());
             gen.writeStringField("alias", area.name().alias());
             gen.writeEndObject();//end name
             gen.writeStringField("zipcode", area.zipcode());

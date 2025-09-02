@@ -82,7 +82,7 @@ public class ESAreaBatchImport implements AreaBatchImport {
 
     private StringBuilder parseBulk(Row row) {
         int divisor = row.getPhysicalNumberOfCells();
-        String name = null, abbreviation = null, levelName = null;
+        String name = null, abbreviation = null;
         double longitude = 0.0, latitude = 0.0;
         int code = -1, parentCode = -1, level = 0;
         for (int k = row.getFirstCellNum(); k < row.getLastCellNum(); k++) {
@@ -114,8 +114,7 @@ public class ESAreaBatchImport implements AreaBatchImport {
         StringBuilder sb = new StringBuilder("{\"index\":{\"_id\":");
         sb.append(code).append("}}\n");
         sb.append("{\"code\":").append(code).append(",\"parent_code\":").append(parentCode).append(",\"name\":{")
-                .append("\"name\":\"").append(name).append("\",\"initials\":").append((int) PinYin.toShortPinYing(name).charAt(0))
-                .append(",\"abbreviation\":\"").append(abbreviation).append("\",\"mnemonic\":\"")
+                .append("\"name\":\"").append(name).append("\",\"abbreviation\":\"").append(abbreviation).append("\",\"mnemonic\":\"")
                 .append(PinYin.toShortPinYing(abbreviation)).append("\"},\"zipcode\":\"").append("\",\"telephone_code\":\"")
                 .append("\",\"location\": {\"lat\":").append(latitude).append(",\"lon\":").append(longitude)
                 .append("},\"level\":{");
