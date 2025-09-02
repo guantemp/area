@@ -53,9 +53,6 @@ public class ESAreaBatchImport implements AreaBatchImport {
 
         RequestOptions.Builder builder = RequestOptions.DEFAULT.toBuilder();
         builder.addHeader(HttpHeaders.AUTHORIZATION, "Basic " + Base64.getEncoder().encodeToString((user + ":" + password).getBytes(StandardCharsets.UTF_8))).addHeader(HttpHeaders.CONTENT_TYPE, "application/x-ndjson;charset=utf-8");
-        //builder.setHttpAsyncResponseConsumerFactory(
-        //new HttpAsyncResponseConsumerFactory
-        //.HeapBufferedResponseConsumerFactory(30 * 1024 * 1024 * 1024));
         COMMON_OPTIONS = builder.build();
         CLIENT = RestClient.builder(new HttpHost(host, port, "https")).build();
         REQUEST_POOL = ThreadLocal.withInitial(
@@ -92,7 +89,6 @@ public class ESAreaBatchImport implements AreaBatchImport {
             Cell cell = row.getCell(k);
             switch (k % divisor) {
                 case 0:
-                    //System.out.println(cell.getCellType());
                     code = (int) cell.getNumericCellValue();
                     break;
                 case 1:

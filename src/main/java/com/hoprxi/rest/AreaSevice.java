@@ -22,6 +22,9 @@ import io.netty.buffer.PooledByteBufAllocator;
 import java.io.*;
 import java.util.EnumSet;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 
 /***
@@ -90,7 +93,7 @@ public class AreaSevice {
                 stream.write(ResponseHeaders.of(HttpStatus.OK, HttpHeaderNames.CONTENT_TYPE, MediaType.JSON_UTF_8));
                 stream.write(HttpData.wrap(buffer));
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                handleStreamError(stream, e);
             } finally {
                 stream.close();
             }
@@ -124,7 +127,7 @@ public class AreaSevice {
                     stream.write(ResponseHeaders.of(HttpStatus.OK, HttpHeaderNames.CONTENT_TYPE, MediaType.JSON_UTF_8));
                     stream.write(HttpData.wrap(buffer));
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    handleStreamError(stream, e);
                 } finally {
                     stream.close();
                 }
@@ -141,7 +144,7 @@ public class AreaSevice {
                     stream.write(ResponseHeaders.of(HttpStatus.OK, HttpHeaderNames.CONTENT_TYPE, MediaType.JSON_UTF_8));
                     stream.write(HttpData.wrap(buffer));
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    handleStreamError(stream, e);
                 } finally {
                     stream.close();
                 }
@@ -170,10 +173,11 @@ public class AreaSevice {
             stream.write(HttpData.wrap(buffer));
         } catch (IOException ex) {
             stream.close();
-            throw new RuntimeException(ex);
+            //throw new RuntimeException(ex);
         }
     }
 
+    @StatusCode(201)
     @Post("/areas")
     public HttpResponse create(ServiceRequestContext ctx, ByteStreamMessage body) {
         RequestHeaders headers = ctx.request().headers();
@@ -181,22 +185,49 @@ public class AreaSevice {
             return HttpResponse.of(HttpStatus.UNSUPPORTED_MEDIA_TYPE,
                     MediaType.PLAIN_TEXT_UTF_8, "Expected JSON content");
         }
+        CompletableFuture<HttpResponse> future = new CompletableFuture<>();
         ctx.blockingTaskExecutor().execute(() -> {
             try (JsonParser parser = JSON_FACTORY.createParser(body.toInputStream())) {
-                Area area = parserJson(parser);
+                Area area = parserJson(parser, -1);
                 repository.save(area);
+                ctx.eventLoop().execute(() -> {
+                    assert area != null;
+                    future.complete(HttpResponse.of(HttpStatus.CREATED, MediaType.JSON_UTF_8,
+                            "{\"status\":\"success\",\"code\":201,\"message\":\"A area created,it's {}\"}", area));
+                });
             } catch (Exception e) {
-                //return HttpResponse.of(HttpStatus.BAD_REQUEST,
-                // MediaType.PLAIN_TEXT_UTF_8,
-                //"JSON parse error:{} " ,e.getMessage());
+                ctx.eventLoop().execute(() -> {
+                    future.complete(HttpResponse.of(HttpStatus.INTERNAL_SERVER_ERROR, MediaType.JSON_UTF_8, "{\"status\":500,\"code\":500,\"message\":\"Can't create a area,cause by {}\"}", e));
+                });
             }
         });
-        return HttpResponse.of(HttpStatus.OK,
-                MediaType.PLAIN_TEXT_UTF_8, "Sues");
+        return HttpResponse.of(future);
     }
 
-    private Area parserJson(JsonParser parser) throws IOException {
-        int code = 0, parentCode = 0;
+    @StatusCode(201)
+    @Put("/areas/{code}")
+    public HttpResponse update(ServiceRequestContext ctx, @Param("code") @Default("-1") int code, ByteStreamMessage body) throws ExecutionException, InterruptedException, TimeoutException {
+        CompletableFuture<HttpResponse> future = new CompletableFuture<>();
+        ctx.blockingTaskExecutor().execute(() -> {
+            try (JsonParser parser = JSON_FACTORY.createParser(body.toInputStream())) {
+                Area area = parserJson(parser, code);
+                repository.save(area);
+                ctx.eventLoop().execute(() -> {
+                    assert area != null;
+                    future.complete(HttpResponse.of(HttpStatus.OK, MediaType.PLAIN_TEXT_UTF_8, "It's ok,Area(code={}) has updated", area.code()));
+                });
+            } catch (Exception e) {
+                ctx.eventLoop().execute(() -> {
+                    future.complete(HttpResponse.of(HttpStatus.INTERNAL_SERVER_ERROR, MediaType.PLAIN_TEXT_UTF_8,
+                            "Not update area,cause by: {}", e));
+                });
+            }
+        });
+        return HttpResponse.of(future);
+    }
+
+    private Area parserJson(JsonParser parser, int code) throws IOException {
+        int parentCode = 0;
         String name = "";
         String abbreviation = "";
         String zipcode = null, alias = null, telephoneCode = null;
@@ -214,15 +245,14 @@ public class AreaSevice {
                     case "alias" -> alias = parser.getValueAsString();
                     case "zipcode" -> zipcode = parser.getValueAsString();
                     case "telephoneCode" -> telephoneCode = parser.getValueAsString();
-                    case "bound" -> wgs84 = deserialize(parser);
+                    case "location" -> wgs84 = deserialize(parser);
                     case "level" -> level = parser.getIntValue();
                 }
             }
         }
         return switch (level) {
             case 0 -> new Country(code, parentCode, new Name(name, abbreviation, alias), wgs84, zipcode, telephoneCode);
-            case 1 ->
-                    new Province(code, parentCode, new Name(name, abbreviation, alias), wgs84, zipcode, telephoneCode);
+            case 1 -> new Province(code, parentCode, new Name(name, abbreviation, alias), wgs84, zipcode, telephoneCode);
             case 2 -> new City(code, parentCode, new Name(name, abbreviation, alias), wgs84, zipcode, telephoneCode);
             case 3 -> new County(code, parentCode, new Name(name, abbreviation, alias), wgs84, zipcode, telephoneCode);
             case 4 -> new Town(code, parentCode, new Name(name, abbreviation, alias), wgs84, zipcode, telephoneCode);
@@ -236,34 +266,14 @@ public class AreaSevice {
             String fieldName = parser.getCurrentName();
             parser.nextToken();
             switch (fieldName) {
-                case "longitude":
+                case "lon":
                     longitude = parser.getValueAsDouble(0.0);
                     break;
-                case "latitude":
+                case "lat":
                     latitude = parser.getValueAsDouble(0.0);
                     break;
             }
         }
         return new WGS84(longitude, latitude);
-    }
-
-    @Put("/areas/{code}")
-    public HttpResponse update(ServiceRequestContext ctx, @Param("code") int code, ByteStreamMessage body) {
-        ctx.blockingTaskExecutor().execute(() -> {
-            try (JsonParser parser = JSON_FACTORY.createParser(body.toInputStream())) {
-                Area area = parserJson(parser);
-                repository.save(area);
-            } catch (Exception e) {
-                //return HttpResponse.of(HttpStatus.BAD_REQUEST,
-                // MediaType.PLAIN_TEXT_UTF_8,
-                //"JSON parse error:{} " ,e.getMessage());
-            }
-        });
-        return null;
-    }
-
-    private Area parserJson(JsonParser parser, int code) throws IOException {
-
-        return null;
     }
 }

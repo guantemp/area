@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. www.hoprxi.com All Rights Reserved.
+ * Copyright (c) 2025. www.hoprxi.com All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,8 @@ import java.util.StringJoiner;
 
 /***
  * @author <a href="www.hoprxi.com/authors/guan xiangHuan">guan xiangHuang</a>
- * @since JDK8.0
- * @version 0.0.2 builder 2023-02-08
+ * @since JDK21
+ * @version 0.0.3 builder 2025-09-02
  */
 public class Name {
     private final String abbreviation;
@@ -47,7 +47,7 @@ public class Name {
     }
 
     public Name(String name, String abbreviation) {
-        this(name, abbreviation, "");
+        this(name, abbreviation, PinYin.toPinYing(name));
     }
 
     @Override

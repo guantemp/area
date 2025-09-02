@@ -4,7 +4,7 @@ import com.hoprxi.rest.AreaSevice;
 import com.hoprxi.rest.IPSeekerService;
 import com.hoprxi.rest.UploadFileService;
 import com.linecorp.armeria.common.HttpHeaderNames;
-import com.linecorp.armeria.common.util.InetAddressPredicates;
+import com.linecorp.armeria.common.SessionProtocol;
 import com.linecorp.armeria.server.ClientAddressSource;
 import com.linecorp.armeria.server.Server;
 import com.linecorp.armeria.server.ServerBuilder;
@@ -87,7 +87,7 @@ public final class Bootstrap {
         // Configure a filter which evaluates whether an address of a remote endpoint is
 // trusted. If unspecified, no remote endpoint is trusted.
 // e.g. servers who have an IP address in 10.0.0.0/8.
-        sb.clientAddressTrustedProxyFilter(InetAddressPredicates.ofCidr("10.0.0.0/8"));
+        //sb.clientAddressTrustedProxyFilter(InetAddressPredicates.ofCidr("10.0.0.0/8"));
 
 // Configure a filter which evaluates whether an address can be used as
 // a client address. If unspecified, any address would be accepted.
@@ -122,18 +122,17 @@ public final class Bootstrap {
         sb.serviceUnder("/docs", DocService.builder()
                 .exampleRequests("/v1/areas", "query")
                 .build());
-        //ssl
-        //sb.https(8443).tls(new File("certificate.crt"), new File("private.key"), "myPassphrase");
+        sb.http(PORT);
+        //sb.https(PORT+1).tls(new File("certificate.crt"), new File("private.key"), "myPassphrase");
 
-        Server server = sb.http(PORT)
-                .annotatedService("/", new AreaSevice())
+        Server server = sb.annotatedService("/", new AreaSevice())
                 .annotatedService("/", new IPSeekerService())
                 .annotatedService("/", new UploadFileService())
                 .build();
         server.closeOnJvmShutdown();
         server.start().join();
-        System.out.println(String.format("Server has been started. Serving dummy service at http://127.0.0.1:%d",
-                server.activeLocalPort()));
+        System.out.printf("Server has been started. Serving dummy service at http://127.0.0.1:%d%n and at https://127.0.0.1:%d%n",
+                server.activeLocalPort(SessionProtocol.HTTP), server.activeLocalPort(SessionProtocol.HTTP));
 
         // 添加关闭钩子
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {

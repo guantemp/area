@@ -6,6 +6,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import salt.hoprxi.crypto.util.StoreKeyLoad;
+import salt.hoprxi.to.PinYin;
 
 /***
  * @author <a href="www.hoprxi.com/authors/guan xiangHuan">guan xiangHuang</a>
@@ -22,7 +23,7 @@ public class AreaRepositoryTest {
 
     @BeforeClass
     public void beforeClass() {
-        Name name = new Name("中华人民共和国", "中国");
+        Name name = new Name("中华人民共和国", "中国","china");
         WGS84 wgs84 = new WGS84(116.405289, 39.904987);
         Country china = new Country(156, 156, name, wgs84);
         repository.save(china);
@@ -31,7 +32,7 @@ public class AreaRepositoryTest {
         wgs84 = new WGS84(104.065735, 30.659462);
         Province sichuan = new Province(510000, 156, name, wgs84);
         repository.save(sichuan);
-        name = new Name("乐山市", "乐山");
+        name = new Name("乐山市", "乐山", PinYin.toPinYing("乐山市"));
         wgs84 = new WGS84(105.435226, 28.897572);
         City leshan = new City(511100, 510000, name, wgs84, "614000", "0833");
         repository.save(leshan);
@@ -56,7 +57,7 @@ public class AreaRepositoryTest {
         wgs84 = new WGS84(105.453644, 28.993362);
         Town sidong = new Town(510504102, 510504, name, wgs84);
         repository.save(sidong);
-        name = new Name("江阳区", "江阳");
+        name = new Name("江阳区", "江阳",PinYin.toPinYing("江阳区"));
         wgs84 = new WGS84(105.445129, 28.882889);
         County jiangyan = new County(510502, 510500, name, wgs84);
         repository.save(jiangyan);
@@ -77,6 +78,7 @@ public class AreaRepositoryTest {
         Assert.assertNotNull(area);
         area = repository.find(510502);
         Assert.assertNotNull(area);
+        System.out.println(area);
     }
 
 /*

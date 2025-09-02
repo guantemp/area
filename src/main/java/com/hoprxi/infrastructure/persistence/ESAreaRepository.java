@@ -120,9 +120,9 @@ public class ESAreaRepository implements AreaRepository {
     }
 
     private Name nameOf(JsonParser parser) throws IOException {
-        String name = "", abbreviation = "";
+        String name = "", abbreviation = "", alias = "";
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            String fieldName = parser.getCurrentName();
+            String fieldName = parser.currentName();
             parser.nextToken();
             switch (fieldName) {
                 case "name":
@@ -131,15 +131,18 @@ public class ESAreaRepository implements AreaRepository {
                 case "abbreviation":
                     abbreviation = parser.getValueAsString();
                     break;
+                case "alias":
+                    alias = parser.getValueAsString();
+                    break;
             }
         }
-        return new Name(name, abbreviation);
+        return new Name(name, abbreviation, alias);
     }
 
     private WGS84 wgs84Of(JsonParser parser) throws IOException {
         double longitude = 0.0, latitude = 0.0;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            String fieldName = parser.getCurrentName();
+            String fieldName = parser.currentName();
             parser.nextToken();
             switch (fieldName) {
                 case "lon":
@@ -156,7 +159,7 @@ public class ESAreaRepository implements AreaRepository {
     private Area.Level levelOf(JsonParser parser) throws IOException {
         String name = "";
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            String fieldName = parser.getCurrentName();
+            String fieldName = parser.currentName();
             parser.nextToken();
             if ("name".equals(fieldName))
                 name = parser.getValueAsString();
@@ -189,6 +192,7 @@ public class ESAreaRepository implements AreaRepository {
             gen.writeNumberField("initials", area.name().initials());
             gen.writeStringField("abbreviation", area.name().abbreviation());
             gen.writeStringField("mnemonic", area.name().mnemonic());
+            gen.writeStringField("alias", area.name().alias());
             gen.writeEndObject();//end name
             gen.writeStringField("zipcode", area.zipcode());
             gen.writeStringField("telephone_code", area.telephoneCode());
