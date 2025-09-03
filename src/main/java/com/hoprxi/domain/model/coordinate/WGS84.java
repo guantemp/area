@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. www.hoprxi.com All Rights Reserved.
+ * Copyright (c) 2025. www.hoprxi.com All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,17 +23,12 @@ import java.util.StringJoiner;
 
 /***
  * @author <a href="www.hoprxi.com/authors/guan xianghuang">guan xiangHuan</a>
- * @since JDK8.0
- * @version 0.0.2 builder 2023-02-08
+ * @since JDK21
+ * @version 0.0.2 builder 2025-09-03
+ * @param latitude public static final double A = 6378245.0;public static final double EE = 0.00669342162296594323;public static final double PI = 3.1415926535897932384626;
  */
 
-public final class WGS84 {
-    //public static final double A = 6378245.0;
-    //public static final double EE = 0.00669342162296594323;
-    //public static final double PI = 3.1415926535897932384626;
-    private final double latitude;
-    private final double longitude;
-
+public record WGS84(double longitude, double latitude) {
     /**
      * @param longitude
      * @param latitude
@@ -56,14 +51,6 @@ public final class WGS84 {
         int result = Double.hashCode(latitude);
         result = 31 * result + Double.hashCode(longitude);
         return result;
-    }
-
-    public double latitude() {
-        return latitude;
-    }
-
-    public double longitude() {
-        return longitude;
     }
 
 

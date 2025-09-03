@@ -69,15 +69,17 @@ public final class Bootstrap {
                     break;
                 case "-h":
                 case "--help":
-                    System.out.println("Non-option arguments:\n" +
-                            "command              \n" +
-                            "\n" +
-                            "Option                         Description        \n" +
-                            "------                         -----------        \n" +
-                            "-f, --file <filename>          A file that stores the key\n" +
-                            "-e <KeyValuePair>              encrypt a passwd\n" +
-                            "-l, --list                     entries in the keystore\n" +
-                            "-h, --help                     Show help          \n");
+                    System.out.println("""
+                            Non-option arguments:
+                            command             \s
+                            
+                            Option                         Description       \s
+                            ------                         -----------       \s
+                            -f, --file <filename>          A file that stores the key
+                            -e <KeyValuePair>              encrypt a passwd
+                            -l, --list                     entries in the keystore
+                            -h, --help                     Show help         \s
+                            """);
                     break;
             }
         }
@@ -131,7 +133,8 @@ public final class Bootstrap {
                 .build();
         server.closeOnJvmShutdown();
         server.start().join();
-        System.out.printf("Server has been started. Serving dummy service at http://127.0.0.1:%d%n and at https://127.0.0.1:%d%n",
+        LOGGER.info("Server has been started. Serving dummy service at http://127.0.0.1:{} and https://127.0.0.1:{}", server.activeLocalPort(SessionProtocol.HTTP), server.activeLocalPort(SessionProtocol.HTTP));
+        System.out.printf("Server has been started. Serving dummy service at http://127.0.0.1:%d and https://127.0.0.1:%d%n",
                 server.activeLocalPort(SessionProtocol.HTTP), server.activeLocalPort(SessionProtocol.HTTP));
 
         // 添加关闭钩子

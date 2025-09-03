@@ -34,7 +34,6 @@ import org.elasticsearch.client.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import salt.hoprxi.crypto.application.DatabaseSpecDecrypt;
-import salt.hoprxi.to.PinYin;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -92,7 +91,7 @@ public class ESAreaRepository implements AreaRepository {
         Name name = null;
         String zipcode = null, telephoneCode = null;
         WGS84 wgs84 = null;
-        Area.Level level = null;
+        Area.Level level = Area.Level.TOWN;
         while (parser.nextToken() != null) {
             if (parser.currentToken() == JsonToken.END_OBJECT && "_source".equals(parser.currentName()))//防止超_source范围
                 break;
@@ -177,7 +176,7 @@ public class ESAreaRepository implements AreaRepository {
             Request request = new Request("POST", "/area/_update/" + area.code());
             request.setOptions(COMMON_OPTIONS);
             request.setJsonEntity(jsonEntity(area));
-            Response response = CLIENT.performRequest(request);
+            CLIENT.performRequest(request);
         } catch (IOException e) {
             //System.out.println(((ResponseException)e).getResponse().getStatusLine().getStatusCode());
             LOGGER.error("The area({}) can't save", area, e);

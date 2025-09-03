@@ -24,10 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @version 0.0.2 builder 2023-02-08
  */
 
-public final class BD09 {
-    private final double latitude;
-    private final double longitude;
-
+public record BD09(double longitude, double latitude) {
     /**
      * @param longitude
      * @param latitude
@@ -50,13 +47,5 @@ public final class BD09 {
         double retLat = z * Math.sin(theta);
         double retLon = z * Math.cos(theta);
         return new GCJ02(retLon, retLat);
-    }
-
-    public double latitude() {
-        return latitude;
-    }
-
-    public double longitude() {
-        return longitude;
     }
 }

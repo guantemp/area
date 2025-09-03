@@ -109,36 +109,5 @@ public class AreaView {
                 .toString();
     }
 
-    public static class ParentArea {
-        private final int code;
-        private final String name;
-        private final String abbreviation;
-
-        public ParentArea(int code, String name, String abbreviation) {
-            this.code = code;
-            this.name = name;
-            this.abbreviation = abbreviation;
-        }
-
-        public int code() {
-            return code;
-        }
-
-        public String name() {
-            return name;
-        }
-
-        public String abbreviation() {
-            return abbreviation;
-        }
-
-        @Override
-        public String toString() {
-            return new StringJoiner(", ", ParentArea.class.getSimpleName() + "[", "]")
-                    .add("code='" + code + "'")
-                    .add("name='" + name + "'")
-                    .add("abbreviation='" + abbreviation + "'")
-                    .toString();
-        }
-    }
+    public record ParentArea(int code, String name, String abbreviation){}
 }
