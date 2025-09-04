@@ -1,4 +1,4 @@
-﻿package com.hoprxi.application;
+package com.hoprxi.application;
 
 import com.hoprxi.infrastructure.query.ESAreaQuery;
 
