@@ -27,8 +27,8 @@ import java.util.regex.Pattern;
  * @version 0.0.2 builder 2023-02-08
  */
 public class Town extends Area {
-    private static final Pattern TOWN_PATTERN = Pattern.compile("^\\d{9,9}$");
-    private static final Pattern TOWN_PARENT_PATTERN = Pattern.compile("^\\d{6,6}$");
+    private static final Pattern TOWN_PATTERN = Pattern.compile("^\\d{9}$");
+    private static final Pattern TOWN_PARENT_PATTERN = Pattern.compile("^\\d{6}$");
 
     public Town(int code, int parentCode, Name name, WGS84 wgs84) {
         this(code, parentCode, name, wgs84, null, null);

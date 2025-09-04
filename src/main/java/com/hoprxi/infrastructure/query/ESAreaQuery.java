@@ -1,6 +1,7 @@
 package com.hoprxi.infrastructure.query;
 
 import com.fasterxml.jackson.core.*;
+import com.hoprxi.application.AreaQuery;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.apache.http.HttpHeaders;
@@ -23,7 +24,7 @@ import java.util.EnumSet;
  * @since JDK8.0
  * @version 0.0.1 builder 2025-07-11
  */
-public class ESAreaQuery {
+public class ESAreaQuery implements AreaQuery {
     private static final Logger LOGGER = LoggerFactory.getLogger(ESAreaQuery.class);
     private static final int COUNTRY_SIZE = 333;
     private static final RequestOptions COMMON_OPTIONS;
@@ -61,6 +62,7 @@ public class ESAreaQuery {
         }
     }
 
+    @Override
     public OutputStream query(int code) {
         try (OutputStream os = new ByteArrayOutputStream(128); JsonGenerator generator = JSON_FACTORY.createGenerator(os, JsonEncoding.UTF8)) {
             Request request = new Request("GET", "/area/_doc/" + code);
@@ -274,7 +276,7 @@ public class ESAreaQuery {
             generator.writeEndObject();
             generator.writeEndArray(); // 结束 sort 数组
 
-            if (searchAfter!=null&&!searchAfter.isBlank()) {// search_after 数组
+            if (searchAfter != null && !searchAfter.isBlank()) {// search_after 数组
                 generator.writeArrayFieldStart("search_after");
                 generator.writeNumber(searchAfter);
                 generator.writeEndArray(); // 结束 search_after 数组
