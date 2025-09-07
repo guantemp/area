@@ -217,7 +217,7 @@ public class AreaSevice {
         String zipcode = null, alias = null, telephoneCode = null;
         WGS84 wgs84 = null;
         while (parser.nextToken() != null) {
-            if (JsonToken.FIELD_NAME.equals(parser.currentToken())) {
+            if (JsonToken.FIELD_NAME == parser.currentToken()) {
                 String fieldName = parser.currentName();
                 parser.nextToken();
                 switch (fieldName) {
