@@ -20,16 +20,25 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.http.ssl.TrustStrategy;
 import org.apache.poi.ss.usermodel.*;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
 import salt.hoprxi.crypto.application.DatabaseSpecDecrypt;
 import salt.hoprxi.to.PinYin;
 
+import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.X509Certificate;
 import java.util.Base64;
 
 /***
@@ -54,6 +63,38 @@ public class ESAreaBatchImport implements AreaBatchImport {
         RequestOptions.Builder builder = RequestOptions.DEFAULT.toBuilder();
         builder.addHeader(HttpHeaders.AUTHORIZATION, "Basic " + Base64.getEncoder().encodeToString((user + ":" + password).getBytes(StandardCharsets.UTF_8))).addHeader(HttpHeaders.CONTENT_TYPE, "application/x-ndjson;charset=utf-8");
         COMMON_OPTIONS = builder.build();
+        /*
+        // 1. 创建信任所有证书的策略
+        TrustStrategy trustStrategy = new TrustStrategy() {
+            @Override
+            public boolean isTrusted(X509Certificate[] chain, String authType) {
+                return true; // 信任所有证书，无论是否有效、过期或自签名
+            }
+        };
+        SSLContext sslContext;
+        // 2. 构建忽略证书验证的 SSLContext
+        try {
+           sslContext = new SSLContextBuilder()
+                    .loadTrustMaterial(null, trustStrategy) // null 表示使用默认的 KeyStore
+                    .build();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        } catch (KeyManagementException e) {
+            throw new RuntimeException(e);
+        } catch (KeyStoreException e) {
+            throw new RuntimeException(e);
+        }
+        RestClientBuilder builder = RestClient.builder(new HttpHost(host, port, "https"))
+                .setHttpClientConfigCallback(httpClientBuilder -> {
+                    // 设置自定义的 SSLContext
+                    httpClientBuilder.setSSLContext(sslContext);
+                    // 禁用主机名验证 (强烈建议同时禁用)
+                    httpClientBuilder.setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE);
+                    // 可以在此添加其他 HttpClient 配置（如超时、认证等）
+                    return httpClientBuilder;
+                });
+        CLIENT = builder.build();
+         */
         CLIENT = RestClient.builder(new HttpHost(host, port, "https")).build();
         REQUEST_POOL = ThreadLocal.withInitial(
                 () -> new Request("POST", "/area/_bulk")

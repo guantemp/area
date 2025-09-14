@@ -46,7 +46,6 @@ public class AreaSevice {
     private static final int OFFSET = 0;
     private static final int SIZE = 64;
     private static final int BUFFER_SIZE = 4096; // 4KB缓冲区
-    private static final PooledByteBufAllocator ALLOCATOR = PooledByteBufAllocator.DEFAULT;
 
     private final ESAreaQuery query = new ESAreaQuery();
     private final AreaRepository repository = new ESAreaRepository();
@@ -54,15 +53,16 @@ public class AreaSevice {
 
     @Get("/areas/{code}")
     @Description("Retrieves the user information by the given user ID.")
-    public HttpResponse query(ServiceRequestContext ctx, @Param("code") int code) {
+    public HttpResponse query(ServiceRequestContext ctx, @Param("code") int code, @Param("pretty") @Default("false") boolean pretty) {
         StreamWriter<HttpObject> stream = StreamMessage.streaming();
         ctx.whenRequestCancelled().thenAccept(stream::close);
         ctx.blockingTaskExecutor().execute(() -> {
             if (ctx.isCancelled()) return;
             try {
-                ByteBuf buffer = ALLOCATOR.buffer(BUFFER_SIZE);
+                ByteBuf buffer = PooledByteBufAllocator.DEFAULT.buffer(BUFFER_SIZE);
                 OutputStream os = new ByteBufOutputStream(buffer);
                 JsonGenerator gen = JSON_FACTORY.createGenerator(os);
+                if (pretty) gen.useDefaultPrettyPrinter();
                 OutputStream source = query.query(code);
                 copyRaw(gen, source);
                 gen.close();
@@ -78,13 +78,14 @@ public class AreaSevice {
     }
 
     @Get("/areas/{code}/juri")
-    public HttpResponse queryJurisdiction(ServiceRequestContext ctx, @Param("code") int code) {
+    public HttpResponse queryJurisdiction(ServiceRequestContext ctx, @Param("code") int code,@Param("pretty") @Default("false") boolean pretty) {
         StreamWriter<HttpObject> stream = StreamMessage.streaming();
         ctx.blockingTaskExecutor().execute(() -> {
             try {
-                ByteBuf buffer = ALLOCATOR.buffer(BUFFER_SIZE);
+                ByteBuf buffer = PooledByteBufAllocator.DEFAULT.buffer(BUFFER_SIZE);
                 OutputStream os = new ByteBufOutputStream(buffer);
                 JsonGenerator gen = JSON_FACTORY.createGenerator(os);
+                if (pretty) gen.useDefaultPrettyPrinter();
                 copyRaw(gen, query.queryJurisdiction(code));
                 gen.close();
                 stream.write(ResponseHeaders.of(HttpStatus.OK, HttpHeaderNames.CONTENT_TYPE, MediaType.JSON_UTF_8));
@@ -99,7 +100,7 @@ public class AreaSevice {
     }
 
     @Get("/areas")
-    public HttpResponse query(ServiceRequestContext ctx, QueryParams params) {
+    public HttpResponse query(ServiceRequestContext ctx, QueryParams params,@Param("pretty") @Default("false") boolean pretty) {
         int offset = params.getInt("offset", OFFSET);
         int size = params.getInt("size", SIZE);
         EnumSet<ESAreaQuery.Level> sets = EnumSet.noneOf(ESAreaQuery.Level.class);
@@ -115,9 +116,10 @@ public class AreaSevice {
         Optional.ofNullable(params.get("q")).filter(q -> !q.isBlank()).ifPresentOrElse(q -> {//key 查询
             ctx.blockingTaskExecutor().execute(() -> {
                 try {
-                    ByteBuf buffer = ALLOCATOR.buffer(BUFFER_SIZE);
+                    ByteBuf buffer = PooledByteBufAllocator.DEFAULT.buffer(BUFFER_SIZE);
                     OutputStream os = new ByteBufOutputStream(buffer);
                     JsonGenerator gen = JSON_FACTORY.createGenerator(os);
+                    if (pretty) gen.useDefaultPrettyPrinter();
                     copyRaw(gen, this.query.query(q, sets, offset, size));
                     gen.close();
                     stream.write(ResponseHeaders.of(HttpStatus.OK, HttpHeaderNames.CONTENT_TYPE, MediaType.JSON_UTF_8));
@@ -132,7 +134,7 @@ public class AreaSevice {
             String searchAfter = params.get("searchAfter", "");
             ctx.blockingTaskExecutor().execute(() -> {
                 try {
-                    ByteBuf buffer = ALLOCATOR.buffer(BUFFER_SIZE);
+                    ByteBuf buffer = PooledByteBufAllocator.DEFAULT.buffer(BUFFER_SIZE);
                     OutputStream os = new ByteBufOutputStream(buffer);
                     JsonGenerator gen = JSON_FACTORY.createGenerator(os);
                     copyRaw(gen, this.query.query(sets, searchAfter, size));
@@ -158,7 +160,7 @@ public class AreaSevice {
     }
 
     private void handleStreamError(StreamWriter<HttpObject> stream, IOException e) {
-        ByteBuf buffer = ALLOCATOR.buffer(BUFFER_SIZE);
+        ByteBuf buffer = PooledByteBufAllocator.DEFAULT.buffer(BUFFER_SIZE);
         OutputStream os = new ByteBufOutputStream(buffer);
         try (JsonGenerator gen = JSON_FACTORY.createGenerator(os)) {
             gen.writeStartObject();

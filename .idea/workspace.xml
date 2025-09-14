@@ -4,8 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="06d15327-0203-4184-bc12-711a323ebadd" name="Changes" comment="202509041142">
+    <list default="true" id="06d15327-0203-4184-bc12-711a323ebadd" name="Changes" comment="202509071050">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/persistence/ESAreaBatchImport.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/persistence/ESAreaBatchImport.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/rest/AreaSevice.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/rest/AreaSevice.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -366,7 +367,11 @@
       <workItem from="1755998388419" duration="2221000" />
       <workItem from="1756039646485" duration="4128000" />
       <workItem from="1756211594847" duration="49796000" />
-      <workItem from="1756987288821" duration="8539000" />
+      <workItem from="1756987288821" duration="12568000" />
+      <workItem from="1757290711102" duration="8258000" />
+      <workItem from="1757422667890" duration="2446000" />
+      <workItem from="1757596289603" duration="1069000" />
+      <workItem from="1757818687449" duration="2320000" />
     </task>
     <task id="LOCAL-00001" summary="202302131358">
       <created>1676267975047</created>
@@ -622,7 +627,15 @@
       <option name="project" value="LOCAL" />
       <updated>1756957342900</updated>
     </task>
-    <option name="localTasksCounter" value="35" />
+    <task id="LOCAL-00035" summary="202509071050">
+      <option name="closed" value="true" />
+      <created>1757213432061</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1757213432061</updated>
+    </task>
+    <option name="localTasksCounter" value="36" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -640,7 +653,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="202307071728" />
     <MESSAGE value="202506222227" />
     <MESSAGE value="202507091233" />
     <MESSAGE value="202407092358" />
@@ -665,7 +677,8 @@
     <MESSAGE value="202509032306" />
     <MESSAGE value="202509041140" />
     <MESSAGE value="202509041142" />
-    <option name="LAST_COMMIT_MESSAGE" value="202509041142" />
+    <MESSAGE value="202509071050" />
+    <option name="LAST_COMMIT_MESSAGE" value="202509071050" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/area$ESAreaQueryTest.ic" NAME="ESAreaQueryTest 覆盖结果" MODIFIED="1752756536654" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />
