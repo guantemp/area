@@ -4,10 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="06d15327-0203-4184-bc12-711a323ebadd" name="Changes" comment="202509071050">
+    <list default="true" id="06d15327-0203-4184-bc12-711a323ebadd" name="Changes" comment="202509141143">
+      <change afterPath="$PROJECT_DIR$/src/main/resources/GB+T+2659.1-2022+世界各国和地区及其行政区划名称代码+第1部分：国家和地区代码.pdf" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/persistence/ESAreaBatchImport.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/persistence/ESAreaBatchImport.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/Bootstrap.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/Bootstrap.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/rest/AreaSevice.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/rest/AreaSevice.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/areas.xls" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/areas.xls" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -157,7 +159,7 @@
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
       <option name="MAIN_CLASS_NAME" value="com.hoprxi.Bootstrap" />
       <module name="core" />
-      <option name="PROGRAM_PARAMETERS" value="-f keystore.jks Qwe123465 -e slave.tooo.top:6543:P$Qwe123465Pg slave.tooo.top:5432:P$Qwe123465Pg slave.tooo.top:9200" />
+      <option name="PROGRAM_PARAMETERS" value="-f keystore.jks Qwe123465 -e slave.tooo.top:9200" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -371,7 +373,17 @@
       <workItem from="1757290711102" duration="8258000" />
       <workItem from="1757422667890" duration="2446000" />
       <workItem from="1757596289603" duration="1069000" />
-      <workItem from="1757818687449" duration="2320000" />
+      <workItem from="1757818687449" duration="2950000" />
+      <workItem from="1758208256565" duration="16000" />
+      <workItem from="1758807565772" duration="39000" />
+      <workItem from="1758813390603" duration="148000" />
+      <workItem from="1759330949662" duration="4656000" />
+      <workItem from="1759802087183" duration="601000" />
+      <workItem from="1760019833315" duration="5625000" />
+      <workItem from="1760243481731" duration="1568000" />
+      <workItem from="1760629119128" duration="1151000" />
+      <workItem from="1762062162934" duration="626000" />
+      <workItem from="1762091531196" duration="1473000" />
     </task>
     <task id="LOCAL-00001" summary="202302131358">
       <created>1676267975047</created>
@@ -635,7 +647,15 @@
       <option name="project" value="LOCAL" />
       <updated>1757213432061</updated>
     </task>
-    <option name="localTasksCounter" value="36" />
+    <task id="LOCAL-00036" summary="202509141143">
+      <option name="closed" value="true" />
+      <created>1757821434234</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1757821434234</updated>
+    </task>
+    <option name="localTasksCounter" value="37" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -653,7 +673,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="202506222227" />
     <MESSAGE value="202507091233" />
     <MESSAGE value="202407092358" />
     <MESSAGE value="202507111536" />
@@ -678,7 +697,8 @@
     <MESSAGE value="202509041140" />
     <MESSAGE value="202509041142" />
     <MESSAGE value="202509071050" />
-    <option name="LAST_COMMIT_MESSAGE" value="202509071050" />
+    <MESSAGE value="202509141143" />
+    <option name="LAST_COMMIT_MESSAGE" value="202509141143" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/area$ESAreaQueryTest.ic" NAME="ESAreaQueryTest 覆盖结果" MODIFIED="1752756536654" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />

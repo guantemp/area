@@ -66,6 +66,8 @@ public final class Bootstrap {
                             entries.add(args[k]);
                         k++;
                     }
+                case "-p":
+                case "--port":
                     break;
                 case "-h":
                 case "--help":
@@ -74,7 +76,7 @@ public final class Bootstrap {
                             command             \s
                             
                             Option                         Description       \s
-                            ------                         -----------       \s
+                            -------------------            --------------------------\s
                             -f, --file <filename>          A file that stores the key
                             -e <KeyValuePair>              encrypt a passwd
                             -l, --list                     entries in the keystore

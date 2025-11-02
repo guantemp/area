@@ -45,7 +45,7 @@ import java.util.concurrent.CompletableFuture;
 public class AreaSevice {
     private static final int OFFSET = 0;
     private static final int SIZE = 64;
-    private static final int BUFFER_SIZE = 4096; // 4KB缓冲区
+    private static final int BUFFER_SIZE = 8192; // 8KB缓冲区
 
     private final ESAreaQuery query = new ESAreaQuery();
     private final AreaRepository repository = new ESAreaRepository();
@@ -53,54 +53,52 @@ public class AreaSevice {
 
     @Get("/areas/{code}")
     @Description("Retrieves the user information by the given user ID.")
-    public HttpResponse query(ServiceRequestContext ctx, @Param("code") int code, @Param("pretty") @Default("false") boolean pretty) {
+    public HttpResponse find(ServiceRequestContext ctx, @Param("code") int code, @Param("pretty") @Default("false") boolean pretty) {
         StreamWriter<HttpObject> stream = StreamMessage.streaming();
         ctx.whenRequestCancelled().thenAccept(stream::close);
         ctx.blockingTaskExecutor().execute(() -> {
-            if (ctx.isCancelled()) return;
-            try {
-                ByteBuf buffer = PooledByteBufAllocator.DEFAULT.buffer(BUFFER_SIZE);
-                OutputStream os = new ByteBufOutputStream(buffer);
-                JsonGenerator gen = JSON_FACTORY.createGenerator(os);
+            if (ctx.isCancelled() || ctx.isTimedOut()) return;
+            ByteBuf buffer = ctx.alloc().buffer(BUFFER_SIZE);
+            try (OutputStream os = new ByteBufOutputStream(buffer); JsonGenerator gen = JSON_FACTORY.createGenerator(os)) {
                 if (pretty) gen.useDefaultPrettyPrinter();
                 OutputStream source = query.query(code);
-                copyRaw(gen, source);
-                gen.close();
+                this.copyRaw(gen, source);
                 stream.write(ResponseHeaders.of(HttpStatus.OK, HttpHeaderNames.CONTENT_TYPE, MediaType.JSON_UTF_8));
                 stream.write(HttpData.wrap(buffer));
-            } catch (IOException e) {
-                handleStreamError(stream, e);
-            } finally {
+                buffer = null;
                 stream.close();
+            } catch (IOException e) {
+                this.handleStreamError(stream, e);
+            } finally {
+                if (buffer != null) buffer.release(); // 只释放未被转移的缓冲区
             }
         });
         return HttpResponse.of(stream);
     }
 
     @Get("/areas/{code}/juri")
-    public HttpResponse queryJurisdiction(ServiceRequestContext ctx, @Param("code") int code,@Param("pretty") @Default("false") boolean pretty) {
+    public HttpResponse queryJurisdiction(ServiceRequestContext ctx, @Param("code") int code, @Param("pretty") @Default("false") boolean pretty) {
         StreamWriter<HttpObject> stream = StreamMessage.streaming();
         ctx.blockingTaskExecutor().execute(() -> {
-            try {
-                ByteBuf buffer = PooledByteBufAllocator.DEFAULT.buffer(BUFFER_SIZE);
-                OutputStream os = new ByteBufOutputStream(buffer);
-                JsonGenerator gen = JSON_FACTORY.createGenerator(os);
+            ByteBuf buffer = ctx.alloc().buffer(BUFFER_SIZE);
+            try (OutputStream os = new ByteBufOutputStream(buffer); JsonGenerator gen = JSON_FACTORY.createGenerator(os)) {
                 if (pretty) gen.useDefaultPrettyPrinter();
-                copyRaw(gen, query.queryJurisdiction(code));
-                gen.close();
+                this.copyRaw(gen, query.queryJurisdiction(code));
                 stream.write(ResponseHeaders.of(HttpStatus.OK, HttpHeaderNames.CONTENT_TYPE, MediaType.JSON_UTF_8));
                 stream.write(HttpData.wrap(buffer));
-            } catch (IOException e) {
-                handleStreamError(stream, e);
-            } finally {
+                buffer = null;
                 stream.close();
+            } catch (IOException e) {
+                this.handleStreamError(stream, e);
+            } finally {
+                if (buffer != null) buffer.release(); // 只释放未被转移的缓冲区
             }
         });
         return HttpResponse.of(stream);
     }
 
     @Get("/areas")
-    public HttpResponse query(ServiceRequestContext ctx, QueryParams params,@Param("pretty") @Default("false") boolean pretty) {
+    public HttpResponse search(ServiceRequestContext ctx, QueryParams params, @Param("pretty") @Default("false") boolean pretty) {
         int offset = params.getInt("offset", OFFSET);
         int size = params.getInt("size", SIZE);
         EnumSet<ESAreaQuery.Level> sets = EnumSet.noneOf(ESAreaQuery.Level.class);
@@ -115,36 +113,34 @@ public class AreaSevice {
         StreamWriter<HttpObject> stream = StreamMessage.streaming();
         Optional.ofNullable(params.get("q")).filter(q -> !q.isBlank()).ifPresentOrElse(q -> {//key 查询
             ctx.blockingTaskExecutor().execute(() -> {
-                try {
-                    ByteBuf buffer = PooledByteBufAllocator.DEFAULT.buffer(BUFFER_SIZE);
-                    OutputStream os = new ByteBufOutputStream(buffer);
-                    JsonGenerator gen = JSON_FACTORY.createGenerator(os);
+                ByteBuf buffer = ctx.alloc().buffer(BUFFER_SIZE);
+                try (OutputStream os = new ByteBufOutputStream(buffer); JsonGenerator gen = JSON_FACTORY.createGenerator(os)) {
                     if (pretty) gen.useDefaultPrettyPrinter();
-                    copyRaw(gen, this.query.query(q, sets, offset, size));
-                    gen.close();
+                    this.copyRaw(gen, this.query.query(q, sets, offset, size));
                     stream.write(ResponseHeaders.of(HttpStatus.OK, HttpHeaderNames.CONTENT_TYPE, MediaType.JSON_UTF_8));
                     stream.write(HttpData.wrap(buffer));
-                } catch (IOException e) {
-                    handleStreamError(stream, e);
-                } finally {
+                    buffer = null;
                     stream.close();
+                } catch (IOException e) {
+                    this.handleStreamError(stream, e);
+                } finally {
+                    if (buffer != null) buffer.release(); // 只释放未被转移的缓冲区
                 }
             });
         }, () -> {//全局查询
             String searchAfter = params.get("searchAfter", "");
             ctx.blockingTaskExecutor().execute(() -> {
-                try {
-                    ByteBuf buffer = PooledByteBufAllocator.DEFAULT.buffer(BUFFER_SIZE);
-                    OutputStream os = new ByteBufOutputStream(buffer);
-                    JsonGenerator gen = JSON_FACTORY.createGenerator(os);
-                    copyRaw(gen, this.query.query(sets, searchAfter, size));
-                    gen.close();
+                ByteBuf buffer = ctx.alloc().buffer(BUFFER_SIZE);
+                try (OutputStream os = new ByteBufOutputStream(buffer); JsonGenerator gen = JSON_FACTORY.createGenerator(os)) {
+                    this.copyRaw(gen, this.query.query(sets, searchAfter, size));
                     stream.write(ResponseHeaders.of(HttpStatus.OK, HttpHeaderNames.CONTENT_TYPE, MediaType.JSON_UTF_8));
                     stream.write(HttpData.wrap(buffer));
-                } catch (IOException e) {
-                    handleStreamError(stream, e);
-                } finally {
+                    buffer = null;
                     stream.close();
+                } catch (IOException e) {
+                    this.handleStreamError(stream, e);
+                } finally {
+                    if (buffer != null) buffer.release(); // 只释放未被转移的缓冲区
                 }
             });
         });
@@ -157,22 +153,13 @@ public class AreaSevice {
         while (parser.nextToken() != null) {
             generator.copyCurrentEvent(parser);
         }
+        generator.close();
     }
 
     private void handleStreamError(StreamWriter<HttpObject> stream, IOException e) {
-        ByteBuf buffer = PooledByteBufAllocator.DEFAULT.buffer(BUFFER_SIZE);
-        OutputStream os = new ByteBufOutputStream(buffer);
-        try (JsonGenerator gen = JSON_FACTORY.createGenerator(os)) {
-            gen.writeStartObject();
-            gen.writeStringField("error", "Stream generation failed");
-            gen.writeStringField("message", e.getMessage());
-            gen.writeEndObject();
-            gen.close();
-            stream.write(HttpData.wrap(buffer));
-        } catch (IOException ex) {
-            stream.close();
-            //throw new RuntimeException(ex);
-        }
+        stream.write(ResponseHeaders.of(HttpStatus.INTERNAL_SERVER_ERROR, HttpHeaderNames.CONTENT_TYPE, MediaType.JSON_UTF_8));
+        stream.write(HttpData.ofUtf8("{\"status\":\"error\",\"code\":500,\"message\":\"Error,it's %s\"}", e.getMessage()));
+        stream.close();
     }
 
     @StatusCode(201)
