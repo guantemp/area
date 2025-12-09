@@ -16,7 +16,7 @@ import java.util.Objects;
  */
 public class ESAreaBatchImportTest {
     static {
-        StoreKeyLoad.loadSecretKey("keystore.jks", "Qwe123465", "slave.tooo.top:9200");
+        StoreKeyLoad.loadSecretKey("keystore.jks", "Qwe123465", "slave.tooo.top:9201");
     }
 
     @Test

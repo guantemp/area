@@ -20,25 +20,16 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.ssl.SSLContextBuilder;
-import org.apache.http.ssl.TrustStrategy;
 import org.apache.poi.ss.usermodel.*;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
-import org.elasticsearch.client.RestClientBuilder;
 import salt.hoprxi.crypto.application.DatabaseSpecDecrypt;
 import salt.hoprxi.to.PinYin;
 
-import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.X509Certificate;
 import java.util.Base64;
 
 /***
@@ -108,12 +99,12 @@ public class ESAreaBatchImport implements AreaBatchImport {
         StringBuilder batch = new StringBuilder(4096);//4kb
         for (int i = 1, j = sheet.getLastRowNum() + 1; i < j; i++) {
             Row row = sheet.getRow(i);
-            batch.append(parseBulk(row));
+            batch.append(this.parseBulk(row));
             if (i % 2048 == 0 || i == j - 1) {
                 Request request = REQUEST_POOL.get();//?refresh=wait_for&pretty&filter_path=items.*.error
                 request.setOptions(COMMON_OPTIONS);
                 request.setJsonEntity(batch.toString());
-                System.out.println(batch.length());
+                //System.out.println(batch.length());
                 CLIENT.performRequest(request);
                 //System.out.println(batch);
                 batch.setLength(0);
@@ -129,27 +120,13 @@ public class ESAreaBatchImport implements AreaBatchImport {
         for (int k = row.getFirstCellNum(); k < row.getLastCellNum(); k++) {
             Cell cell = row.getCell(k);
             switch (k % divisor) {
-                case 0:
-                    code = (int) cell.getNumericCellValue();
-                    break;
-                case 1:
-                    name = cell.getStringCellValue();
-                    break;
-                case 2:
-                    parentCode = (int) cell.getNumericCellValue();
-                    break;
-                case 3:
-                    abbreviation = cell.getStringCellValue();
-                    break;
-                case 4:
-                    longitude = cell.getNumericCellValue();
-                    break;
-                case 5:
-                    latitude = cell.getNumericCellValue();
-                    break;
-                case 6:
-                    level = (int) cell.getNumericCellValue();
-                    break;
+                case 0 -> code = (int) cell.getNumericCellValue();
+                case 1 -> name = cell.getStringCellValue();
+                case 2 -> parentCode = (int) cell.getNumericCellValue();
+                case 3 -> abbreviation = cell.getStringCellValue();
+                case 4 -> longitude = cell.getNumericCellValue();
+                case 5 -> latitude = cell.getNumericCellValue();
+                case 6 -> level = (int) cell.getNumericCellValue();
             }
         }
         StringBuilder sb = new StringBuilder("{\"index\":{\"_id\":");
