@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Locale;
 
 /***
  * @author <a href="www.hoprxi.com/authors/guan xiangHuan">guan xiangHuang</a>
@@ -105,13 +106,15 @@ public class ESAreaBatchImport implements AreaBatchImport {
                 if (bulkLine != null) {
                     batch.append(bulkLine);
                 }
-                if (i % 2048 == 0 || i == j - 1) {//每2048条或最后不足2048条，
-                    Request request = REQUEST_POOL.get();//?refresh=wait_for&pretty&filter_path=items.*.error
-                    request.setOptions(COMMON_OPTIONS);
-                    request.setJsonEntity(batch.toString());
-                    //System.out.println(batch.length());
-                    //System.out.println(batch);
-                    CLIENT.performRequest(request);
+                if (i % 2048 == 0 || i == j - 1) {
+                    if (batch.length() > 0) { //每2048条或最后不足2048条，
+                        Request request = REQUEST_POOL.get();//?refresh=wait_for&pretty&filter_path=items.*.error
+                        request.setOptions(COMMON_OPTIONS);
+                        request.setJsonEntity(batch.toString());
+                        //System.out.println(batch.length());
+                        //System.out.println(batch);
+                        CLIENT.performRequest(request);
+                    }
                     batch.setLength(0);
                 }
             }
@@ -217,8 +220,8 @@ public class ESAreaBatchImport implements AreaBatchImport {
                 .append("\",\"abbreviation\":\"").append(escapedAbbr)
                 .append("\",\"mnemonic\":\"").append(escapedMnemonic)
                 .append("\"},\"zipcode\":\"\",\"telephone_code\":\"\"")
-                .append(",\"location\":{\"lat\":").append(latitude)
-                .append(",\"lon\":").append(longitude)
+                .append(",\"location\":{\"lat\":").append(String.format(Locale.ROOT, "%.6f", latitude))//小数6位，精度约为 10 厘米
+                .append(",\"lon\":").append(String.format(Locale.ROOT, "%.6f", longitude))
                 .append("},\"level\":");
 
         // level 映射
