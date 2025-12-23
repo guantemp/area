@@ -232,7 +232,7 @@ public class ESAreaBatchImport implements AreaBatchImport {
             case 3 -> sb.append("{\"name\":\"COUNTY\",\"order\":3}");
             case 4 -> sb.append("{\"name\":\"TOWN\",\"order\":4}");
             default -> {
-                return null; // 无效 level
+                sb.append("{\"name\":\"invalid\",\"order\":-1}");// 无效 level
             }
         }
 
