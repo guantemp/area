@@ -101,7 +101,10 @@ public class ESAreaBatchImport implements AreaBatchImport {
             for (int i = 1, j = sheet.getLastRowNum() + 1; i < j; i++) {
                 Row row = sheet.getRow(i);
                 if (row == null) continue;
-                batch.append(this.parseBulk(row, TOTAL_COLUMNS));
+                StringBuilder bulkLine = parseBulk(row, TOTAL_COLUMNS);
+                if (bulkLine != null) {
+                    batch.append(bulkLine);
+                }
                 if (i % 2048 == 0 || i == j - 1) {//每2048条或最后不足2048条，
                     Request request = REQUEST_POOL.get();//?refresh=wait_for&pretty&filter_path=items.*.error
                     request.setOptions(COMMON_OPTIONS);
