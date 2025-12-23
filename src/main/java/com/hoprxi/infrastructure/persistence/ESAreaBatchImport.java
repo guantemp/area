@@ -195,33 +195,33 @@ public class ESAreaBatchImport implements AreaBatchImport {
         Integer code = (Integer) values[0];
         String name = (String) values[1];
         Integer parentCode = (Integer) values[2];
-        String abbreviation = (String) values[3];
+        String alias = (String) values[3];
         Double longitude = (Double) values[4];
         Double latitude = (Double) values[5];
         Integer level = (Integer) values[6];
 
         // 必填字段校验
         if (code == null || name == null || parentCode == null || level == null ||
-            longitude == null || latitude == null || abbreviation == null) {
+            longitude == null || latitude == null || alias == null) {
             return null; // 跳过无效行
         }
         // 转义字符串（防止 JSON 注入）
         String escapedName = escapeJson(name);
-        String escapedAbbr = escapeJson(abbreviation);
-        String mnemonic = PinYin.toShortPinYing(abbreviation); // 注意：abbreviation 不能为空
+        String escapedAbbr = escapeJson(alias);
+        String mnemonic = PinYin.toShortPinYing(alias); // 注意：abbreviation 不能为空
         String escapedMnemonic = escapeJson(mnemonic != null ? mnemonic : "");
 
-        StringBuilder sb = new StringBuilder(256).append("{\"index\":{\"_id\":");
+        StringBuilder sb = new StringBuilder(512).append("{\"index\":{\"_id\":");
         sb.append(code).append("}}\n");
         sb.append("{\"code\":").append(code)
                 .append(",\"parent_code\":").append(parentCode)
                 .append(",\"name\":{")
                 .append("\"name\":\"").append(escapedName)
-                .append("\",\"abbreviation\":\"").append(escapedAbbr)
+                .append("\",\"alias\":\"").append(escapedAbbr)
                 .append("\",\"mnemonic\":\"").append(escapedMnemonic)
                 .append("\"},\"zipcode\":\"\",\"telephone_code\":\"\"")
-                .append(",\"location\":{\"lat\":").append(String.format(Locale.ROOT, "%.6f", latitude))//小数6位，精度约为 10 厘米
-                .append(",\"lon\":").append(String.format(Locale.ROOT, "%.6f", longitude))
+                .append(",\"location\":{\"lat\":").append( latitude)//小数6位，精度约为 10 厘米
+                .append(",\"lon\":").append(longitude)
                 .append("},\"level\":");
 
         // level 映射
@@ -237,22 +237,6 @@ public class ESAreaBatchImport implements AreaBatchImport {
         }
 
         sb.append("}\n");
-        /*
-        sb.append(code).append("}}\n");
-        sb.append("{\"code\":").append(code).append(",\"parent_code\":").append(parentCode).append(",\"name\":{")
-                .append("\"name\":\"").append(name).append("\",\"abbreviation\":\"").append(abbreviation).append("\",\"mnemonic\":\"")
-                .append(PinYin.toShortPinYing(abbreviation)).append("\"},\"zipcode\":\"").append("\",\"telephone_code\":\"")
-                .append("\",\"location\": {\"lat\":").append(latitude).append(",\"lon\":").append(longitude)
-                .append("},\"level\":{");
-        switch (level) {
-            case 0 -> sb.append("\"name\":\"COUNTRY\",\"order\":0");
-            case 1 -> sb.append("\"name\":\"PROVINCE\",\"order\":1");
-            case 2 -> sb.append("\"name\":\"CITY\",\"order\":2");
-            case 3 -> sb.append("\"name\":\"COUNTY\",\"order\":3");
-            case 4 -> sb.append("\"name\":\"TOWN\",\"order\":4");
-        }
-        sb.append("}}\n");
-         */
         return sb;
     }
 
