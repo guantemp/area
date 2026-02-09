@@ -15,16 +15,20 @@
  */
 package com.hoprxi.infrastructure.query;
 
-import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.hoprxi.application.AreaQuery;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufInputStream;
+import io.netty.buffer.ByteBufOutputStream;
+import io.netty.buffer.PooledByteBufAllocator;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
-import org.elasticsearch.client.Request;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.Response;
-import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import salt.hoprxi.crypto.application.DatabaseSpecDecrypt;
@@ -42,6 +46,7 @@ import java.util.EnumSet;
 public class ESAreaQuery implements AreaQuery {
     private static final Logger LOGGER = LoggerFactory.getLogger(ESAreaQuery.class);
     private static final int COUNTRY_SIZE = 333;
+    private static final int BUFFER_SIZE = 2048;//2KB缓冲区
     private static final RequestOptions COMMON_OPTIONS;
     private static final RestClient CLIENT;
     private static final JsonFactory JSON_FACTORY = JsonFactory.builder().build();
@@ -78,30 +83,45 @@ public class ESAreaQuery implements AreaQuery {
     }
 
     @Override
-    public OutputStream query(int code) {
-        try (OutputStream os = new ByteArrayOutputStream(128); JsonGenerator generator = JSON_FACTORY.createGenerator(os, JsonEncoding.UTF8)) {
-            Request request = new Request("GET", "/area/_doc/" + code);
-            request.setOptions(COMMON_OPTIONS);
+    public InputStream query(int code) {
+        Request request = new Request("GET", "/area/_doc/" + code);
+        request.setOptions(COMMON_OPTIONS);
+        ByteBuf buffer = PooledByteBufAllocator.DEFAULT.buffer(BUFFER_SIZE);
+        boolean success = false;
+        try {
             Response response = CLIENT.performRequest(request);
-            JsonParser parser = JSON_FACTORY.createParser(response.getEntity().getContent());
-            while (parser.nextToken() != null) {
-                if (parser.currentToken() == JsonToken.START_OBJECT && "_source".equals(parser.getCurrentName())) {
-                    generator.writeStartObject();
-                    while (parser.nextToken() != null) {
-                        if (parser.currentToken() == JsonToken.END_OBJECT && "_source".equals(parser.getCurrentName()))
-                            break;
-                        generator.copyCurrentEvent(parser);
+            try (OutputStream os = new ByteBufOutputStream(buffer); JsonGenerator generator = JSON_FACTORY.createGenerator(os);
+                 InputStream is = response.getEntity().getContent(); JsonParser parser = JSON_FACTORY.createParser(is)) {
+                while (parser.nextToken() != null) {
+                    if (parser.currentToken() == JsonToken.FIELD_NAME && "_source".equals(parser.currentName())) {
+                        parser.nextToken(); // move to value (START_OBJECT)
+                        if (parser.currentToken() != JsonToken.START_OBJECT) {
+                            throw new IllegalStateException("_source is not an object");
+                        }
+                        generator.copyCurrentStructure(parser);
                     }
-                    generator.writeEndObject();
-                    break;
                 }
+                generator.flush();
+                success = true;
+                return new ByteBufInputStream(buffer, true);
             }
-            return os;
+        } catch (ResponseException e) {
+            if (e.getResponse().getStatusLine().getStatusCode() == 404) {
+                LOGGER.warn("Area not found in Elasticsearch: id={}", code);
+                //throw new AreaSearchException(String.format("The item(id=%s) not found", code));
+            } else {
+                LOGGER.error("Elasticsearch error for id={}", code, e);
+                //throw new RuntimeException("Elasticsearch internal error", e);
+            }
+            return null;
         } catch (IOException e) {
-            //System.out.println(((ResponseException)e).getResponse().getStatusLine().getStatusCode());
-            LOGGER.error("The area(code={}) can't retrieve", code, e);
+            LOGGER.error("I/O failed", e);
+            throw new RuntimeException("Error: Elasticsearch timeout or no connection", e);
+        } finally {
+            if (!success && buffer.refCnt() > 0) {
+                buffer.release(); // 仅在未成功返回时释放
+            }
         }
-        return new ByteArrayOutputStream(0);
     }
 
     public OutputStream queryCountry() {

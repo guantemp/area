@@ -27,15 +27,13 @@ import com.typesafe.config.ConfigFactory;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpStatus;
-import org.elasticsearch.client.Request;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.Response;
-import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import salt.hoprxi.crypto.application.DatabaseSpecDecrypt;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -73,15 +71,28 @@ public class ESAreaRepository implements AreaRepository {
             Request request = new Request("GET", "/area/_doc/" + code);
             request.setOptions(COMMON_OPTIONS);
             Response response = CLIENT.performRequest(request);
-            JsonParser parser = JSON_FACTORY.createParser(response.getEntity().getContent());
-            while (parser.nextToken() != null) {
-                if (parser.currentToken() == JsonToken.START_OBJECT && "_source".equals(parser.currentName())) {
-                    return rebuild(parser);
+            try (InputStream is = response.getEntity().getContent();
+                 JsonParser parser = JSON_FACTORY.createParser(is)) {
+                while (parser.nextToken() != null) {
+                    if (parser.currentToken() == JsonToken.FIELD_NAME && "_source".equals(parser.currentName())) {
+                        parser.nextToken(); // move to value (START_OBJECT)
+                        if (parser.currentToken() != JsonToken.START_OBJECT) {
+                            throw new IllegalStateException("_source is not an object");
+                        }
+                        return rebuild(parser);
+                    }
                 }
             }
+        } catch (ResponseException e) {
+            if (e.getResponse().getStatusLine().getStatusCode() == 404) {
+                return null; // 确实不存在
+            } else {
+                LOGGER.error("ES server error for area(code={})", code, e);
+                throw new RuntimeException("Failed to retrieve area", e); // 或其他处理
+            }
         } catch (IOException e) {
-            //System.out.println(((ResponseException)e).getResponse().getStatusLine().getStatusCode());
-            LOGGER.error("The area(code={}) can't retrieve", code, e);
+            LOGGER.error("Network or IO error for area(code={})", code, e);
+            throw new RuntimeException("IO error", e);
         }
         return null;
     }

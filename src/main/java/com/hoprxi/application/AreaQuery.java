@@ -2,6 +2,7 @@ package com.hoprxi.application;
 
 import com.hoprxi.infrastructure.query.ESAreaQuery;
 
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.EnumSet;
 
@@ -12,7 +13,12 @@ import java.util.EnumSet;
  */
 
 public interface AreaQuery {
-    OutputStream query(int code);
+    /**
+     * Returns an InputStream containing the JSON of the '_source' field from Elasticsearch,
+     * or null if the document does not exist or has no _source.
+     * The returned InputStream MUST be closed by the caller to avoid memory leaks.
+     */
+    InputStream query(int code);
 
     OutputStream queryCountry();
 

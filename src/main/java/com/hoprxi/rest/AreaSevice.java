@@ -16,9 +16,10 @@ import com.linecorp.armeria.server.ServiceRequestContext;
 import com.linecorp.armeria.server.annotation.*;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufOutputStream;
-import io.netty.buffer.PooledByteBufAllocator;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -45,7 +46,7 @@ import java.util.concurrent.CompletableFuture;
 public class AreaSevice {
     private static final int OFFSET = 0;
     private static final int SIZE = 64;
-    private static final int BUFFER_SIZE = 8192; // 8KB缓冲区
+    private static final int BUFFER_SIZE = 1024; // 8KB缓冲区
 
     private final ESAreaQuery query = new ESAreaQuery();
     private final AreaRepository repository = new ESAreaRepository();
@@ -58,15 +59,25 @@ public class AreaSevice {
         ctx.whenRequestCancelled().thenAccept(stream::close);
         ctx.blockingTaskExecutor().execute(() -> {
             if (ctx.isCancelled() || ctx.isTimedOut()) return;
-            ByteBuf buffer = ctx.alloc().buffer(BUFFER_SIZE);
-            try (OutputStream os = new ByteBufOutputStream(buffer); JsonGenerator gen = JSON_FACTORY.createGenerator(os)) {
-                if (pretty) gen.useDefaultPrettyPrinter();
-                OutputStream source = query.query(code);
-                this.copyRaw(gen, source);
-                stream.write(ResponseHeaders.of(HttpStatus.OK, HttpHeaderNames.CONTENT_TYPE, MediaType.JSON_UTF_8));
-                stream.write(HttpData.wrap(buffer));
-                buffer = null;
-                stream.close();
+            InputStream is = null;
+            ByteBuf buffer = null;
+            try {
+                is = query.query(code);
+                if (is == null) {
+                    stream.write(ResponseHeaders.of(HttpStatus.NOT_FOUND));
+                    stream.close();
+                    return;
+                }
+                buffer = ctx.alloc().buffer(BUFFER_SIZE);
+                try (OutputStream os = new ByteBufOutputStream(buffer); JsonGenerator gen = JSON_FACTORY.createGenerator(os); JsonParser parser = JSON_FACTORY.createParser(is)) {
+                    if (pretty) gen.useDefaultPrettyPrinter();
+                    this.copyRaw(gen, parser);
+                    gen.flush();
+                    stream.write(ResponseHeaders.of(HttpStatus.OK, HttpHeaderNames.CONTENT_TYPE, MediaType.JSON_UTF_8));
+                    stream.write(HttpData.wrap(buffer));
+                    buffer = null;
+                    stream.close();
+                }
             } catch (IOException e) {
                 this.handleStreamError(stream, e);
             } finally {
@@ -76,14 +87,21 @@ public class AreaSevice {
         return HttpResponse.of(stream);
     }
 
+    private void copyRaw(JsonGenerator generator, JsonParser parser) throws IOException {
+        while (parser.nextToken() != null) {
+            generator.copyCurrentEvent(parser);
+        }
+    }
+
     @Get("/areas/{code}/juri")
-    public HttpResponse queryJurisdiction(ServiceRequestContext ctx, @Param("code") int code, @Param("pretty") @Default("false") boolean pretty) {
+    public HttpResponse queryJurisdiction(ServiceRequestContext ctx, @Param("code") int code,
+                                          @Param("pretty") @Default("false") boolean pretty) {
         StreamWriter<HttpObject> stream = StreamMessage.streaming();
         ctx.blockingTaskExecutor().execute(() -> {
             ByteBuf buffer = ctx.alloc().buffer(BUFFER_SIZE);
             try (OutputStream os = new ByteBufOutputStream(buffer); JsonGenerator gen = JSON_FACTORY.createGenerator(os)) {
                 if (pretty) gen.useDefaultPrettyPrinter();
-                this.copyRaw(gen, query.queryJurisdiction(code));
+                //this.copyRaw(gen, query.queryJurisdiction(code));
                 stream.write(ResponseHeaders.of(HttpStatus.OK, HttpHeaderNames.CONTENT_TYPE, MediaType.JSON_UTF_8));
                 stream.write(HttpData.wrap(buffer));
                 buffer = null;
@@ -98,7 +116,8 @@ public class AreaSevice {
     }
 
     @Get("/areas")
-    public HttpResponse search(ServiceRequestContext ctx, QueryParams params, @Param("pretty") @Default("false") boolean pretty) {
+    public HttpResponse search(ServiceRequestContext ctx, QueryParams params,
+                               @Param("pretty") @Default("false") boolean pretty) {
         int offset = params.getInt("offset", OFFSET);
         int size = params.getInt("size", SIZE);
         EnumSet<ESAreaQuery.Level> sets = EnumSet.noneOf(ESAreaQuery.Level.class);
@@ -116,7 +135,7 @@ public class AreaSevice {
                 ByteBuf buffer = ctx.alloc().buffer(BUFFER_SIZE);
                 try (OutputStream os = new ByteBufOutputStream(buffer); JsonGenerator gen = JSON_FACTORY.createGenerator(os)) {
                     if (pretty) gen.useDefaultPrettyPrinter();
-                    this.copyRaw(gen, this.query.query(q, sets, offset, size));
+                    //this.copyRaw(gen, this.query.query(q, sets, offset, size));
                     stream.write(ResponseHeaders.of(HttpStatus.OK, HttpHeaderNames.CONTENT_TYPE, MediaType.JSON_UTF_8));
                     stream.write(HttpData.wrap(buffer));
                     buffer = null;
@@ -132,7 +151,7 @@ public class AreaSevice {
             ctx.blockingTaskExecutor().execute(() -> {
                 ByteBuf buffer = ctx.alloc().buffer(BUFFER_SIZE);
                 try (OutputStream os = new ByteBufOutputStream(buffer); JsonGenerator gen = JSON_FACTORY.createGenerator(os)) {
-                    this.copyRaw(gen, this.query.query(sets, searchAfter, size));
+                    //this.copyRaw(gen, this.query.query(sets, searchAfter, size));
                     stream.write(ResponseHeaders.of(HttpStatus.OK, HttpHeaderNames.CONTENT_TYPE, MediaType.JSON_UTF_8));
                     stream.write(HttpData.wrap(buffer));
                     buffer = null;
@@ -147,13 +166,12 @@ public class AreaSevice {
         return HttpResponse.of(stream);
     }
 
-    private void copyRaw(JsonGenerator generator, OutputStream source) throws IOException {
-        InputStream is = new ByteArrayInputStream(((ByteArrayOutputStream) source).toByteArray());
-        JsonParser parser = JSON_FACTORY.createParser(is);
-        while (parser.nextToken() != null) {
-            generator.copyCurrentEvent(parser);
+    private void copyRaw(JsonGenerator generator, InputStream is) throws IOException {
+        try (JsonParser parser = JSON_FACTORY.createParser(is)) {
+            while (parser.nextToken() != null) {
+                generator.copyCurrentEvent(parser);
+            }
         }
-        generator.close();
     }
 
     private void handleStreamError(StreamWriter<HttpObject> stream, IOException e) {

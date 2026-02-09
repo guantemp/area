@@ -20,6 +20,7 @@ import salt.hoprxi.crypto.util.StoreKeyLoad;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.EnumSet;
@@ -39,26 +40,18 @@ public class ESAreaQueryTest {
 
     @Test
     public void testQuery() {
-        try (OutputStream os = query.query(510000)) {
-            if (os instanceof ByteArrayOutputStream) {
-                String content = ((ByteArrayOutputStream) os).toString(StandardCharsets.UTF_8);
-                System.out.println("查询四川：\n" + content);
-            } else {
-                System.err.println("错误：输出流不是ByteArrayOutputStream类型");
-            }
+        try (InputStream is = query.query(510000)) {
+            System.out.println("查询四川：\n" + new String(is.readAllBytes(), StandardCharsets.UTF_8));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        try (OutputStream os = query.query(156)) {
-            if (os instanceof ByteArrayOutputStream) {
-                String content = ((ByteArrayOutputStream) os).toString(StandardCharsets.UTF_8);
-                System.out.println("查询中国：\n" + content);
-            } else {
-                System.err.println("错误：输出流不是ByteArrayOutputStream类型");
-            }
+        try (InputStream is = query.query(156)) {
+            System.out.println("查询中国：\n" + new String(is.readAllBytes(), StandardCharsets.UTF_8));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+
         try (OutputStream os = query.query("四", EnumSet.of(ESAreaQuery.Level.PROVINCE, ESAreaQuery.Level.CITY), 0, 999)) {
             if (os instanceof ByteArrayOutputStream) {
                 String content = ((ByteArrayOutputStream) os).toString(StandardCharsets.UTF_8);
@@ -89,13 +82,9 @@ public class ESAreaQueryTest {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        try (OutputStream os = query.query(5100090)) {
-            if (os instanceof ByteArrayOutputStream) {
-                String content = ((ByteArrayOutputStream) os).toString(StandardCharsets.UTF_8);
-                System.out.println("查询四川：\n" + content);
-            } else {
-                System.err.println("错误：输出流不是ByteArrayOutputStream类型");
-            }
+
+        try (InputStream is = query.query(5100090)) {
+            System.out.println("查询四川：\n" + new String(is.readAllBytes(), StandardCharsets.UTF_8));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
