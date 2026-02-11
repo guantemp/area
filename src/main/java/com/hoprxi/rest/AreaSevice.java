@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.hoprxi.application.AreaSearchException;
 import com.hoprxi.domain.model.*;
 import com.hoprxi.domain.model.coordinate.WGS84;
 import com.hoprxi.infrastructure.persistence.ESAreaRepository;
@@ -53,31 +54,29 @@ public class AreaSevice {
     private final JsonFactory JSON_FACTORY = JsonFactory.builder().build();
 
     @Get("/areas/{code}")
-    @Description("Retrieves the user information by the given user ID.")
+    @Description("Retrieves the area information by the given area code.")
     public HttpResponse find(ServiceRequestContext ctx, @Param("code") int code, @Param("pretty") @Default("false") boolean pretty) {
         StreamWriter<HttpObject> stream = StreamMessage.streaming();
         ctx.whenRequestCancelled().thenAccept(stream::close);
         ctx.blockingTaskExecutor().execute(() -> {
             if (ctx.isCancelled() || ctx.isTimedOut()) return;
-            InputStream is = null;
-            ByteBuf buffer = null;
-            try {
-                is = query.query(code);
-                if (is == null) {
-                    stream.write(ResponseHeaders.of(HttpStatus.NOT_FOUND));
-                    stream.close();
-                    return;
+            ByteBuf buffer = ctx.alloc().buffer(BUFFER_SIZE);
+            try (OutputStream os = new ByteBufOutputStream(buffer); JsonGenerator gen = JSON_FACTORY.createGenerator(os);
+                 InputStream is = query.query(code); JsonParser parser = JSON_FACTORY.createParser(is)) {
+                if (pretty) gen.useDefaultPrettyPrinter();
+                while (parser.nextToken() != null) {
+                    gen.copyCurrentEvent(parser);
                 }
-                buffer = ctx.alloc().buffer(BUFFER_SIZE);
-                try (OutputStream os = new ByteBufOutputStream(buffer); JsonGenerator gen = JSON_FACTORY.createGenerator(os); JsonParser parser = JSON_FACTORY.createParser(is)) {
-                    if (pretty) gen.useDefaultPrettyPrinter();
-                    this.copyRaw(gen, parser);
-                    gen.flush();
-                    stream.write(ResponseHeaders.of(HttpStatus.OK, HttpHeaderNames.CONTENT_TYPE, MediaType.JSON_UTF_8));
-                    stream.write(HttpData.wrap(buffer));
-                    buffer = null;
-                    stream.close();
-                }
+                gen.flush();
+                stream.write(ResponseHeaders.of(HttpStatus.OK, HttpHeaderNames.CONTENT_TYPE, MediaType.JSON_UTF_8));
+                stream.write(HttpData.wrap(buffer));
+                buffer = null;
+                stream.close();
+
+            } catch (AreaSearchException e) {
+                stream.write(ResponseHeaders.of(HttpStatus.NOT_FOUND));
+                stream.write(HttpData.ofUtf8("{\"status\":\"not_found\",\"code\":404,\"message\":\"it's %s \"}", e.getMessage()));
+                stream.close();
             } catch (IOException e) {
                 this.handleStreamError(stream, e);
             } finally {

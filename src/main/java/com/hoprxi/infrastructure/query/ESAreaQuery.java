@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.hoprxi.application.AreaQuery;
+import com.hoprxi.application.AreaSearchException;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import io.netty.buffer.ByteBuf;
@@ -99,6 +100,7 @@ public class ESAreaQuery implements AreaQuery {
                             throw new IllegalStateException("_source is not an object");
                         }
                         generator.copyCurrentStructure(parser);
+                        break;
                     }
                 }
                 generator.flush();
@@ -108,12 +110,11 @@ public class ESAreaQuery implements AreaQuery {
         } catch (ResponseException e) {
             if (e.getResponse().getStatusLine().getStatusCode() == 404) {
                 LOGGER.warn("Area not found in Elasticsearch: id={}", code);
-                //throw new AreaSearchException(String.format("The item(id=%s) not found", code));
+                throw new AreaSearchException(String.format("The item(id=%s) not found", code));
             } else {
                 LOGGER.error("Elasticsearch error for id={}", code, e);
-                //throw new RuntimeException("Elasticsearch internal error", e);
+                throw new RuntimeException("Elasticsearch internal error", e);
             }
-            return null;
         } catch (IOException e) {
             LOGGER.error("I/O failed", e);
             throw new RuntimeException("Error: Elasticsearch timeout or no connection", e);
