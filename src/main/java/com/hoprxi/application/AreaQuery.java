@@ -3,7 +3,6 @@ package com.hoprxi.application;
 import com.hoprxi.infrastructure.query.ESAreaQuery;
 
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.EnumSet;
 
 /***

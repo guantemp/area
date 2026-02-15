@@ -34,7 +34,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import salt.hoprxi.crypto.application.DatabaseSpecDecrypt;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.EnumSet;
@@ -53,8 +56,8 @@ public class ESAreaQuery implements AreaQuery {
     private static final JsonFactory JSON_FACTORY = JsonFactory.builder().build();
 
     static {
-        Config config = ConfigFactory.load("area");
-        Config read = config.getConfigList("read").getFirst();
+        Config config = ConfigFactory.load("area").resolve();
+        Config read = config.getConfig("datasources.read.database");
         String host = read.getString("host");
         int port = read.getInt("port");
         String entry = host + ":" + port;
@@ -71,7 +74,7 @@ public class ESAreaQuery implements AreaQuery {
         COUNTRY, PROVINCE, CITY, COUNTY, TOWN;
 
         /**
-         * @param s
+         * @param s of level name
          * @return <code>NULL if no match</code>
          */
         public static Level of(String s) {
@@ -347,7 +350,7 @@ public class ESAreaQuery implements AreaQuery {
         try {
             Response response = CLIENT.performRequest(request);
             try (InputStream is = response.getEntity().getContent(); JsonParser parser = JSON_FACTORY.createParser(is);
-                 OutputStream os = new ByteBufOutputStream(buffer); JsonGenerator gen = JSON_FACTORY.createGenerator(os);) {
+                 OutputStream os = new ByteBufOutputStream(buffer); JsonGenerator gen = JSON_FACTORY.createGenerator(os)) {
                 gen.writeStartObject();
                 Integer total = null;
                 boolean inHitsArray = false;
@@ -387,7 +390,6 @@ public class ESAreaQuery implements AreaQuery {
                                     gen.writeNumberField("total", total != null ? total : 0);
                                     gen.writeArrayFieldStart("areas");
                                     inHitsArray = true;
-                                    state = 2;
                                     break; // exit to process array manually
                                 } else {
                                     parser.skipChildren();
@@ -412,7 +414,7 @@ public class ESAreaQuery implements AreaQuery {
 
                         while (parser.nextToken() != JsonToken.END_OBJECT) {
                             if (parser.currentToken() == JsonToken.FIELD_NAME) {
-                                String fieldName = parser.getCurrentName();
+                                String fieldName = parser.currentName();
                                 parser.nextToken();
 
                                 if ("_source".equals(fieldName)) {
@@ -422,7 +424,7 @@ public class ESAreaQuery implements AreaQuery {
                                     // Flatten _source
                                     while (parser.nextToken() != JsonToken.END_OBJECT) {
                                         if (parser.currentToken() == JsonToken.FIELD_NAME) {
-                                            String key = parser.getCurrentName();
+                                            String key = parser.currentName();
                                             gen.writeFieldName(key);
                                             parser.nextToken();
                                             gen.copyCurrentStructure(parser);
