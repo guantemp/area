@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.EnumSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -61,8 +62,8 @@ public class AreaSevice {
         ctx.blockingTaskExecutor().execute(() -> {
             if (ctx.isCancelled() || ctx.isTimedOut()) return;
             ByteBuf buffer = ctx.alloc().buffer(BUFFER_SIZE);
-            try (OutputStream os = new ByteBufOutputStream(buffer); JsonGenerator gen = JSON_FACTORY.createGenerator(os);
-                 InputStream is = query.query(code); JsonParser parser = JSON_FACTORY.createParser(is)) {
+            try (InputStream is = query.find(code); JsonParser parser = JSON_FACTORY.createParser(is);
+                 OutputStream os = new ByteBufOutputStream(buffer); JsonGenerator gen = JSON_FACTORY.createGenerator(os);) {
                 if (pretty) gen.useDefaultPrettyPrinter();
                 while (parser.nextToken() != null) {
                     gen.copyCurrentEvent(parser);
@@ -72,7 +73,6 @@ public class AreaSevice {
                 stream.write(HttpData.wrap(buffer));
                 buffer = null;
                 stream.close();
-
             } catch (AreaSearchException e) {
                 stream.write(ResponseHeaders.of(HttpStatus.NOT_FOUND));
                 stream.write(HttpData.ofUtf8("{\"status\":\"not_found\",\"code\":404,\"message\":\"it's %s \"}", e.getMessage()));
@@ -86,24 +86,27 @@ public class AreaSevice {
         return HttpResponse.of(stream);
     }
 
-    private void copyRaw(JsonGenerator generator, JsonParser parser) throws IOException {
-        while (parser.nextToken() != null) {
-            generator.copyCurrentEvent(parser);
-        }
-    }
-
     @Get("/areas/{code}/juri")
     public HttpResponse queryJurisdiction(ServiceRequestContext ctx, @Param("code") int code,
                                           @Param("pretty") @Default("false") boolean pretty) {
         StreamWriter<HttpObject> stream = StreamMessage.streaming();
         ctx.blockingTaskExecutor().execute(() -> {
+            if (ctx.isCancelled() || ctx.isTimedOut()) return;
             ByteBuf buffer = ctx.alloc().buffer(BUFFER_SIZE);
-            try (OutputStream os = new ByteBufOutputStream(buffer); JsonGenerator gen = JSON_FACTORY.createGenerator(os)) {
+            try (InputStream is = query.queryJurisdiction(code); JsonParser parser = JSON_FACTORY.createParser(is);
+                 OutputStream os = new ByteBufOutputStream(buffer); JsonGenerator gen = JSON_FACTORY.createGenerator(os);) {
                 if (pretty) gen.useDefaultPrettyPrinter();
-                //this.copyRaw(gen, query.queryJurisdiction(code));
+                while (parser.nextToken() != null) {
+                    gen.copyCurrentEvent(parser);
+                }
+                gen.flush();
                 stream.write(ResponseHeaders.of(HttpStatus.OK, HttpHeaderNames.CONTENT_TYPE, MediaType.JSON_UTF_8));
                 stream.write(HttpData.wrap(buffer));
                 buffer = null;
+                stream.close();
+            } catch (AreaSearchException e) {
+                stream.write(ResponseHeaders.of(HttpStatus.NOT_FOUND));
+                stream.write(HttpData.ofUtf8("{\"status\":\"not_found\",\"code\":404,\"message\":\"it's %s \"}", e.getMessage()));
                 stream.close();
             } catch (IOException e) {
                 this.handleStreamError(stream, e);
@@ -131,13 +134,22 @@ public class AreaSevice {
         StreamWriter<HttpObject> stream = StreamMessage.streaming();
         Optional.ofNullable(params.get("q")).filter(q -> !q.isBlank()).ifPresentOrElse(q -> {//key 查询
             ctx.blockingTaskExecutor().execute(() -> {
+                if (ctx.isCancelled() || ctx.isTimedOut()) return;
                 ByteBuf buffer = ctx.alloc().buffer(BUFFER_SIZE);
-                try (OutputStream os = new ByteBufOutputStream(buffer); JsonGenerator gen = JSON_FACTORY.createGenerator(os)) {
+                try (InputStream is = query.query(q, sets, offset, size); JsonParser parser = JSON_FACTORY.createParser(is);
+                     OutputStream os = new ByteBufOutputStream(buffer); JsonGenerator gen = JSON_FACTORY.createGenerator(os);) {
                     if (pretty) gen.useDefaultPrettyPrinter();
-                    //this.copyRaw(gen, this.query.query(q, sets, offset, size));
+                    while (parser.nextToken() != null) {
+                        gen.copyCurrentEvent(parser);
+                    }
+                    gen.flush();
                     stream.write(ResponseHeaders.of(HttpStatus.OK, HttpHeaderNames.CONTENT_TYPE, MediaType.JSON_UTF_8));
                     stream.write(HttpData.wrap(buffer));
                     buffer = null;
+                    stream.close();
+                } catch (AreaSearchException e) {
+                    stream.write(ResponseHeaders.of(HttpStatus.NOT_FOUND));
+                    stream.write(HttpData.ofUtf8("{\"status\":\"not_found\",\"code\":404,\"message\":\"it's %s \"}", e.getMessage()));
                     stream.close();
                 } catch (IOException e) {
                     this.handleStreamError(stream, e);
@@ -148,12 +160,22 @@ public class AreaSevice {
         }, () -> {//全局查询
             String searchAfter = params.get("searchAfter", "");
             ctx.blockingTaskExecutor().execute(() -> {
+                if (ctx.isCancelled() || ctx.isTimedOut()) return;
                 ByteBuf buffer = ctx.alloc().buffer(BUFFER_SIZE);
-                try (OutputStream os = new ByteBufOutputStream(buffer); JsonGenerator gen = JSON_FACTORY.createGenerator(os)) {
-                    //this.copyRaw(gen, this.query.query(sets, searchAfter, size));
+                try (InputStream is = query.query(sets, searchAfter, size); JsonParser parser = JSON_FACTORY.createParser(is);
+                     OutputStream os = new ByteBufOutputStream(buffer); JsonGenerator gen = JSON_FACTORY.createGenerator(os);) {
+                    if (pretty) gen.useDefaultPrettyPrinter();
+                    while (parser.nextToken() != null) {
+                        gen.copyCurrentEvent(parser);
+                    }
+                    gen.flush();
                     stream.write(ResponseHeaders.of(HttpStatus.OK, HttpHeaderNames.CONTENT_TYPE, MediaType.JSON_UTF_8));
                     stream.write(HttpData.wrap(buffer));
                     buffer = null;
+                    stream.close();
+                } catch (AreaSearchException e) {
+                    stream.write(ResponseHeaders.of(HttpStatus.NOT_FOUND));
+                    stream.write(HttpData.ofUtf8("{\"status\":\"not_found\",\"code\":404,\"message\":\"it's %s \"}", e.getMessage()));
                     stream.close();
                 } catch (IOException e) {
                     this.handleStreamError(stream, e);
@@ -163,14 +185,6 @@ public class AreaSevice {
             });
         });
         return HttpResponse.of(stream);
-    }
-
-    private void copyRaw(JsonGenerator generator, InputStream is) throws IOException {
-        try (JsonParser parser = JSON_FACTORY.createParser(is)) {
-            while (parser.nextToken() != null) {
-                generator.copyCurrentEvent(parser);
-            }
-        }
     }
 
     private void handleStreamError(StreamWriter<HttpObject> stream, IOException e) {
@@ -183,7 +197,7 @@ public class AreaSevice {
     @Post("/areas")
     public HttpResponse create(ServiceRequestContext ctx, HttpRequest req, HttpData body) {
         RequestHeaders headers = req.headers();
-        if (!(MediaType.JSON.is(headers.contentType()) || MediaType.JSON_UTF_8.is(headers.contentType())))
+        if (!(MediaType.JSON.is(Objects.requireNonNull(headers.contentType())) || MediaType.JSON_UTF_8.is(Objects.requireNonNull(headers.contentType()))))
             return HttpResponse.of(HttpStatus.UNSUPPORTED_MEDIA_TYPE,
                     MediaType.PLAIN_TEXT_UTF_8, "Expected JSON content");
         CompletableFuture<HttpResponse> future = new CompletableFuture<>();

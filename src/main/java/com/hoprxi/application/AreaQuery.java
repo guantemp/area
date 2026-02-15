@@ -18,13 +18,13 @@ public interface AreaQuery {
      * or null if the document does not exist or has no _source.
      * The returned InputStream MUST be closed by the caller to avoid memory leaks.
      */
-    InputStream query(int code);
+    InputStream find(int code);
 
-    OutputStream queryCountry();
+    InputStream queryCountry();
 
-    OutputStream query(String key, EnumSet<ESAreaQuery.Level> filters, int from, int size);
+    InputStream query(String key, EnumSet<ESAreaQuery.Level> filters, int from, int size);
 
-    OutputStream query(EnumSet<ESAreaQuery.Level> filters, String searchAfter, int size);
+    InputStream query(EnumSet<ESAreaQuery.Level> filters, String searchAfter, int size);
 
-    OutputStream queryJurisdiction(int code);
+    InputStream queryJurisdiction(int code);
 }
