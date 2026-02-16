@@ -4,13 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="06d15327-0203-4184-bc12-711a323ebadd" name="Changes" comment="202602151644">
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+    <list default="true" id="06d15327-0203-4184-bc12-711a323ebadd" name="Changes" comment="202602152118">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/query/ESAreaQuery.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/query/ESAreaQuery.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/persistence/ESAreaRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/persistence/ESAreaRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/area.conf" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/area.conf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/new_t.conf" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -149,7 +146,7 @@
       <recent name="com.hoprxi.infrastructure.persistence" />
     </key>
   </component>
-  <component name="RunManager" selected="TestNG.ESAreaQueryTest">
+  <component name="RunManager" selected="应用程序.Bootstrap">
     <configuration name="App" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="App" />
       <module name="core" />
@@ -445,7 +442,7 @@
       <workItem from="1770642440441" duration="10347000" />
       <workItem from="1771062303254" duration="9100000" />
       <workItem from="1771126097106" duration="2615000" />
-      <workItem from="1771133190807" duration="15482000" />
+      <workItem from="1771133190807" duration="17458000" />
     </task>
     <task id="LOCAL-00001" summary="202302131358">
       <created>1676267975047</created>
@@ -797,7 +794,15 @@
       <option name="project" value="LOCAL" />
       <updated>1771145140851</updated>
     </task>
-    <option name="localTasksCounter" value="47" />
+    <task id="LOCAL-00047" summary="202602152118">
+      <option name="closed" value="true" />
+      <created>1771161542356</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1771161542356</updated>
+    </task>
+    <option name="localTasksCounter" value="48" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -815,9 +820,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="202508081043" />
-    <MESSAGE value="202508101838" />
-    <MESSAGE value="202508161433" />
     <MESSAGE value="202508172128" />
     <MESSAGE value="202508191740" />
     <MESSAGE value="202508242158" />
@@ -840,7 +842,10 @@
     <MESSAGE value="202512232233" />
     <MESSAGE value="202602092316" />
     <MESSAGE value="202602151644" />
-    <option name="LAST_COMMIT_MESSAGE" value="202602151644" />
+    <MESSAGE value="202602152114" />
+    <MESSAGE value="202602152116" />
+    <MESSAGE value="202602152118" />
+    <option name="LAST_COMMIT_MESSAGE" value="202602152118" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/area$ESAreaQueryTest.ic" NAME="ESAreaQueryTest 覆盖结果" MODIFIED="1752756536654" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />

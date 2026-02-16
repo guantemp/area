@@ -52,12 +52,12 @@ public class ESAreaRepository implements AreaRepository {
 
     static {
         Config config = ConfigFactory.load("area");
-        Config read = config.getConfigList("read").getFirst();
-        String host = read.getString("host");
-        int port = read.getInt("port");
+        Config read = config.getConfigList("datasources.write.shards").getLast();
+        String host = read.getString("db.host");
+        int port = read.getInt("db.port");
         String entry = host + ":" + port;
-        String user = DatabaseSpecDecrypt.decrypt(entry, read.getString("user"));
-        String password = DatabaseSpecDecrypt.decrypt(entry, read.getString("password"));
+        String user = DatabaseSpecDecrypt.decrypt(entry, read.getString("db.user"));
+        String password = DatabaseSpecDecrypt.decrypt(entry, read.getString("db.password"));
 
         RequestOptions.Builder builder = RequestOptions.DEFAULT.toBuilder();
         builder.addHeader(HttpHeaders.AUTHORIZATION, "Basic " + Base64.getEncoder().encodeToString((user + ":" + password).getBytes(StandardCharsets.UTF_8))).addHeader(HttpHeaders.CONTENT_TYPE, "application/json;charset=utf-8");
