@@ -208,7 +208,7 @@ public class ESAreaBatchImport implements AreaBatchImport {
         String escapedName = escapeJson(name);
         String escapedAbbr = escapeJson(alias);
         String mnemonic = PinYin.toShortPinYing(alias); // 注意：abbreviation 不能为空
-        String escapedMnemonic = escapeJson(mnemonic != null ? mnemonic : "");
+        String escapedMnemonic = escapeJson(mnemonic);
 
         StringBuilder sb = new StringBuilder(512).append("{\"index\":{\"_id\":");
         sb.append(code).append("}}\n");
