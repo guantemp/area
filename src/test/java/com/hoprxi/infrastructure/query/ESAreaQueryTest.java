@@ -31,7 +31,7 @@ import java.util.EnumSet;
 public class ESAreaQueryTest {
     static {
         StoreKeyLoad.loadSecretKey("keystore.jks", "Qwe123465",
-                new String[]{"slave.tooo.top:9200", "slave.tooo.top:6543:P$Qwe123465Pg", "slave.tooo.top:6379:P$Qwe123465Re"});
+                new String[]{"slave.tooo.top:9200", "slave.tooo.top:6543:P$Qwe123465Pg"});
     }
 
     private static final ESAreaQuery query = new ESAreaQuery();
@@ -48,7 +48,7 @@ public class ESAreaQueryTest {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        try (InputStream is = query.query("四", EnumSet.of(ESAreaQuery.Level.PROVINCE, ESAreaQuery.Level.CITY), 0, 999)) {
+        try (InputStream is = query.query("四", EnumSet.of(ESAreaQuery.Level.PROVINCE, ESAreaQuery.Level.CITY, ESAreaQuery.Level.COUNTY), 0, 999)) {
             System.out.println("\"名字模糊查询（过滤）：\n" + new String(is.readAllBytes(), StandardCharsets.UTF_8));
         } catch (IOException e) {
             throw new RuntimeException(e);

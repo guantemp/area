@@ -27,6 +27,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.util.ReferenceCountUtil;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.*;
@@ -49,7 +50,7 @@ import java.util.EnumSet;
  */
 public class ESAreaQuery implements AreaQuery {
     private static final Logger LOGGER = LoggerFactory.getLogger(ESAreaQuery.class);
-    private static final int COUNTRY_SIZE = 333;
+    private static final int COUNTRY_SIZE = 299;
     private static final int BUFFER_SIZE = 2048;//2KB缓冲区
     private static final RequestOptions COMMON_OPTIONS;
     private static final RestClient CLIENT;
@@ -88,55 +89,68 @@ public class ESAreaQuery implements AreaQuery {
 
     @Override
     public InputStream find(int code) {
-        Request request = new Request("GET", "/area/_doc/" + code);
+        Request request = new Request("GET", "/area/_doc/" + code);//PREFIX+"/_doc/"
         request.setOptions(COMMON_OPTIONS);
         ByteBuf buffer = PooledByteBufAllocator.DEFAULT.buffer(BUFFER_SIZE);
         boolean success = false;
         try {
-            Response response = CLIENT.performRequest(request);
+          Response response = CLIENT.performRequest(request);;
             try (OutputStream os = new ByteBufOutputStream(buffer); JsonGenerator generator = JSON_FACTORY.createGenerator(os);
                  InputStream is = response.getEntity().getContent(); JsonParser parser = JSON_FACTORY.createParser(is)) {
-                while (parser.nextToken() != null) {
-                    if (parser.currentToken() == JsonToken.FIELD_NAME && "_source".equals(parser.currentName())) {
-                        parser.nextToken(); // move to value (START_OBJECT)
-                        if (parser.currentToken() != JsonToken.START_OBJECT) {
-                            throw new IllegalStateException("_source is not an object");
-                        }
-                        generator.copyCurrentStructure(parser);
-                        break;
-                    }
-                }
-                generator.flush();
+                ESAreaQuery.extractSourceSkipMeta(parser, generator);
                 success = true;
                 return new ByteBufInputStream(buffer, true);
             }
         } catch (ResponseException e) {
             if (e.getResponse().getStatusLine().getStatusCode() == 404) {
-                LOGGER.warn("Area not found in Elasticsearch: id={}", code);
+                LOGGER.warn("Item not found in Elasticsearch: id={}", code);
                 throw new AreaSearchException(String.format("The item(id=%s) not found", code));
-            } else {
-                LOGGER.error("Elasticsearch error for id={}", code, e);
-                throw new RuntimeException("Elasticsearch internal error", e);
             }
+            LOGGER.error("Elasticsearch error for id={}", code, e);
+            throw new RuntimeException("Elasticsearch internal error", e);
         } catch (IOException e) {
             LOGGER.error("I/O failed", e);
             throw new RuntimeException("Error: Elasticsearch timeout or no connection", e);
         } finally {
             if (!success && buffer.refCnt() > 0) {
-                buffer.release(); // 仅在未成功返回时释放
+                ReferenceCountUtil.safeRelease(buffer);
             }
         }
     }
 
+    private static void extractSourceSkipMeta(JsonParser parser, JsonGenerator generator) throws IOException {
+        while (parser.nextToken() != null) {
+            if (parser.currentToken() == JsonToken.FIELD_NAME && "_source".equals(parser.currentName())) {
+                parser.nextToken(); // move to value (START_OBJECT)
+                if (parser.currentToken() != JsonToken.START_OBJECT) {
+                    throw new IllegalStateException("_source is not an object");
+                }
+                generator.writeStartObject();
+                while (parser.nextToken() != JsonToken.END_OBJECT) {
+                    if (parser.currentToken() == JsonToken.FIELD_NAME && "_meta".equals(parser.currentName())) {
+                        parser.nextToken();
+                        parser.skipChildren(); // skip value of _meta
+                    } else {
+                        generator.copyCurrentEvent(parser); // copy field name
+                        parser.nextToken();
+                        generator.copyCurrentStructure(parser); // copy entire value (handles nested)
+                    }
+                }
+                generator.writeEndObject();
+            }
+        }
+        generator.flush();
+    }
+
+    @Override
     public InputStream queryCountry() {
         Request request = new Request("GET", "/area/_search");
         request.setOptions(COMMON_OPTIONS);
-        request.setJsonEntity(this.buildCountryQueryRequest());
-        return this.writeAreas(request);
+        request.setJsonEntity(ESAreaQuery.buildCountryQueryRequest());
+        return ESAreaQuery.extract(request);
     }
 
-
-    private String buildCountryQueryRequest() {
+    private static String buildCountryQueryRequest() {
         StringWriter writer = new StringWriter();
         try (JsonGenerator generator = JSON_FACTORY.createGenerator(writer)) {
             generator.writeStartObject();  // 开始生成整个JSON对象
@@ -175,11 +189,11 @@ public class ESAreaQuery implements AreaQuery {
     public InputStream query(String key, EnumSet<Level> filters, int from, int size) {
         Request request = new Request("GET", "/area/_search");
         request.setOptions(COMMON_OPTIONS);
-        request.setJsonEntity(this.buildkeyQueryRequest(key, filters, from, size));
-        return this.writeAreas(request);
+        request.setJsonEntity(ESAreaQuery.buildkeyQueryRequest(key, filters, from, size));
+        return ESAreaQuery.extract(request);
     }
 
-    private String buildkeyQueryRequest(String key, EnumSet<Level> filters, int from, int size) {
+    private static String buildkeyQueryRequest(String key, EnumSet<Level> filters, int from, int size) {
         StringWriter writer = new StringWriter();
         try (JsonGenerator generator = JSON_FACTORY.createGenerator(writer)) {
             generator.writeStartObject(); // 开始生成整个JSON对象
@@ -257,11 +271,11 @@ public class ESAreaQuery implements AreaQuery {
     public InputStream query(EnumSet<Level> filters, String searchAfter, int size) {
         Request request = new Request("GET", "/area/_search");
         request.setOptions(COMMON_OPTIONS);
-        request.setJsonEntity(this.buildQueryRequest(filters, searchAfter, size));
-        return this.writeAreas(request);
+        request.setJsonEntity(ESAreaQuery.buildQueryRequest(filters, searchAfter, size));
+        return ESAreaQuery.extract(request);
     }
 
-    private String buildQueryRequest(EnumSet<Level> filters, String searchAfter, int size) {
+    private static String buildQueryRequest(EnumSet<Level> filters, String searchAfter, int size) {
         StringWriter writer = new StringWriter();
         try (JsonGenerator generator = JSON_FACTORY.createGenerator(writer)) {
             generator.writeStartObject();
@@ -302,24 +316,21 @@ public class ESAreaQuery implements AreaQuery {
                 generator.writeNumber(searchAfter);
                 generator.writeEndArray(); // 结束 search_after 数组
             }
-
             generator.writeEndObject();
         } catch (IOException e) {
             LOGGER.error("Cannot assemble request JSON", e);
         }
-
         return writer.toString();
     }
 
     public InputStream queryJurisdiction(int code) {
         Request request = new Request("GET", "/area/_search");
         request.setOptions(COMMON_OPTIONS);
-        request.setJsonEntity(this.buildJurisdictionQueryRequest(code));
-        return this.writeAreas(request);
-
+        request.setJsonEntity(ESAreaQuery.buildJurisdictionQueryRequest(code));
+        return ESAreaQuery.extract(request);
     }
 
-    private String buildJurisdictionQueryRequest(int code) {
+    private static String buildJurisdictionQueryRequest(int code) {
         StringWriter writer = new StringWriter();
         try (JsonGenerator generator = JSON_FACTORY.createGenerator(writer)) {
             generator.writeStartObject();// 开始生成 JSON
@@ -344,7 +355,7 @@ public class ESAreaQuery implements AreaQuery {
         return writer.toString();
     }
 
-    private InputStream writeAreas(Request request) {
+    private static InputStream extract(Request request) {
         ByteBuf buffer = PooledByteBufAllocator.DEFAULT.buffer(BUFFER_SIZE);
         boolean success = false;
         try {
@@ -438,7 +449,6 @@ public class ESAreaQuery implements AreaQuery {
                                 }
                             }
                         }
-
                         gen.writeEndObject();
                     }
                     gen.writeEndArray();
@@ -453,7 +463,6 @@ public class ESAreaQuery implements AreaQuery {
                 gen.flush();
                 success = true;
                 return new ByteBufInputStream(buffer, true);
-
             }
         } catch (ResponseException e) {
             if (e.getResponse().getStatusLine().getStatusCode() == 404) {
@@ -468,7 +477,7 @@ public class ESAreaQuery implements AreaQuery {
             throw new RuntimeException("Error: Elasticsearch timeout or no connection", e);
         } finally {
             if (!success && buffer.refCnt() > 0) {
-                buffer.release();
+                ReferenceCountUtil.safeRelease(buffer);
             }
         }
     }
