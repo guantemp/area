@@ -11,8 +11,6 @@ import com.linecorp.armeria.server.ServerBuilder;
 import com.linecorp.armeria.server.docs.DocService;
 import com.linecorp.armeria.server.encoding.EncodingService;
 import com.linecorp.armeria.server.file.FileService;
-import com.linecorp.armeria.server.file.FileServiceBuilder;
-import com.linecorp.armeria.server.file.HttpFile;
 import com.linecorp.armeria.server.logging.LoggingService;
 import com.linecorp.armeria.server.throttling.ThrottlingService;
 import com.linecorp.armeria.server.throttling.ThrottlingStrategy;
@@ -20,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import salt.hoprxi.crypto.util.StoreKeyLoad;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
@@ -114,17 +113,16 @@ public final class Bootstrap {
         sb.decorator(ThrottlingService.newDecorator( // 速率限制
                 ThrottlingStrategy.rateLimiting(100) // 100请求/秒
         ));
-        FileServiceBuilder fsb =
-                FileService.builder(Paths.get(System.getProperty("user.dir"), "/html"));
-        fsb.autoIndex(true);
-        FileService fs = fsb.build();
-        sb.serviceUnder("/html", fs);
-        HttpFile index = HttpFile.of(Paths.get(System.getProperty("user.dir"), "/html/upload.html"));
-        sb.serviceUnder("/", index.asService());//相当于缺省index.html
+
+        Path htmlDir = Paths.get(System.getProperty("user.dir"), "html");
+        FileService fs = FileService.builder(htmlDir)
+                .autoIndex(true)      // 开启目录浏览（可选）
+                .build();
+        sb.serviceUnder("/", fs);
 
         //添加文档服务
         sb.serviceUnder("/docs", DocService.builder()
-                .exampleRequests("/v1/areas", "query")
+                .exampleRequests("/v1", "query")
                 .build());
         sb.http(PORT);
         //sb.https(PORT+1).tls(new File("certificate.crt"), new File("private.key"), "myPassphrase");

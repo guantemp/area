@@ -4,11 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="06d15327-0203-4184-bc12-711a323ebadd" name="Changes" comment="202602160926">
+    <list default="true" id="06d15327-0203-4184-bc12-711a323ebadd" name="Changes" comment="202602232126">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/application/AreaQuery.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/application/AreaQuery.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/query/ESAreaQuery.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/query/ESAreaQuery.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/hoprxi/infrastructure/query/ESAreaQueryTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/hoprxi/infrastructure/query/ESAreaQueryTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/Bootstrap.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/Bootstrap.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,11 +44,11 @@
   <component name="MavenImportPreferences">
     <option name="generalSettings">
       <MavenGeneralSettings>
-        <option name="customMavenHome" value="D:\Program Files\apache-maven-3.9.11" />
+        <option name="customMavenHome" value="D:\Program Files (x86)\apache-maven-3.9.11" />
         <option name="localRepository" value="D:\mvn" />
         <option name="mavenHomeTypeForPersistence" value="CUSTOM" />
         <option name="useMavenConfig" value="false" />
-        <option name="userSettingsFile" value="D:\Program Files\apache-maven-3.9.11\conf\settings.xml" />
+        <option name="userSettingsFile" value="D:\Program Files (x86)\apache-maven-3.9.11\conf\settings.xml" />
       </MavenGeneralSettings>
     </option>
   </component>
@@ -57,7 +56,7 @@
     <option name="skipTests" value="true" />
   </component>
   <component name="ProblemsViewState">
-    <option name="selectedTabId" value="CurrentFile" />
+    <option name="selectedTabId" value="DEPENDENCY_CHECKER_PROBLEMS_TAB" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 1
@@ -100,7 +99,7 @@
     &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
     &quot;project.structure.side.proportion&quot;: &quot;0.25632185&quot;,
     &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;editor.preferences.tabs&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;MavenSettings&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;,
     &quot;应用程序.App.executor&quot;: &quot;Run&quot;,
     &quot;应用程序.Bootstrap.executor&quot;: &quot;Run&quot;,
@@ -147,7 +146,7 @@
       <recent name="com.hoprxi.infrastructure.persistence" />
     </key>
   </component>
-  <component name="RunManager" selected="TestNG.ESAreaQueryTest">
+  <component name="RunManager" selected="应用程序.Bootstrap">
     <configuration name="App" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="App" />
       <module name="core" />
@@ -448,7 +447,9 @@
       <workItem from="1771227389265" duration="642000" />
       <workItem from="1771228330119" duration="1390000" />
       <workItem from="1771232195562" duration="663000" />
-      <workItem from="1771837424854" duration="6203000" />
+      <workItem from="1771837424854" duration="19909000" />
+      <workItem from="1771942337521" duration="18000" />
+      <workItem from="1771942624356" duration="815000" />
     </task>
     <task id="LOCAL-00001" summary="202302131358">
       <created>1676267975047</created>
@@ -575,14 +576,6 @@
       <option name="presentableId" value="LOCAL-00018" />
       <option name="project" value="LOCAL" />
       <updated>1752219857307</updated>
-    </task>
-    <task id="LOCAL-00019" summary="202507181654">
-      <option name="closed" value="true" />
-      <created>1752828908034</created>
-      <option name="number" value="00019" />
-      <option name="presentableId" value="LOCAL-00019" />
-      <option name="project" value="LOCAL" />
-      <updated>1752828908034</updated>
     </task>
     <task id="LOCAL-00020" summary="202507182101">
       <option name="closed" value="true" />
@@ -816,7 +809,23 @@
       <option name="project" value="LOCAL" />
       <updated>1771205183817</updated>
     </task>
-    <option name="localTasksCounter" value="49" />
+    <task id="LOCAL-00049" summary="202602232118">
+      <option name="closed" value="true" />
+      <created>1771852747154</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1771852747154</updated>
+    </task>
+    <task id="LOCAL-00050" summary="202602232126">
+      <option name="closed" value="true" />
+      <created>1771853198957</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1771853198958</updated>
+    </task>
+    <option name="localTasksCounter" value="51" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -834,8 +843,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="202508191740" />
-    <MESSAGE value="202508242158" />
     <MESSAGE value="20250830033" />
     <MESSAGE value="202509022241" />
     <MESSAGE value="202509022335" />
@@ -859,7 +866,13 @@
     <MESSAGE value="202602152116" />
     <MESSAGE value="202602152118" />
     <MESSAGE value="202602160926" />
-    <option name="LAST_COMMIT_MESSAGE" value="202602160926" />
+    <MESSAGE value="202602232118" />
+    <MESSAGE value="202602232126" />
+    <option name="LAST_COMMIT_MESSAGE" value="202602232126" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/area$ESAreaQueryTest.ic" NAME="ESAreaQueryTest 覆盖结果" MODIFIED="1752756536654" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />
