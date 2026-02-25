@@ -111,6 +111,7 @@
                     <exclude>**/*.xml</exclude>
                     <exclude>**/*.jks</exclude>
                     <exclude>**/*.pdf</exclude>
+                    <exclude>html/**</exclude>
                 </excludes>
             </resource>
         </resources>
@@ -138,14 +139,15 @@
                                 <resource>
                                     <directory>src/main/resources</directory>
                                     <includes>
-                                        <exclude>**/*.conf</exclude>
-                                        <exclude>**/*.xls</exclude>
-                                        <exclude>**/*.dat</exclude>
-                                        <exclude>**/*.xml</exclude>
-                                        <exclude>**/*.jks</exclude>
-                                        <exclude>**/*.pdf</exclude>
+                                        <include>**/*.conf</include>
+                                        <include>**/*.xls</include>
+                                        <include>**/*.dat</include>
+                                        <include>**/*.xml</include>
+                                        <include>**/*.jks</include>
+                                        <include>**/*.pdf</include>
+                                        <include>html/**</include>
                                     </includes>
-                                    <filtering>true</filtering>
+                                    <filtering>false</filtering>
                                 </resource>
                             </resources>
                             <encoding>UTF-8</encoding>

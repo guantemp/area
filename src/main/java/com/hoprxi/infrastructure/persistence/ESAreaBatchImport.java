@@ -43,8 +43,8 @@ public class ESAreaBatchImport implements AreaBatchImport {
     private static final ThreadLocal<Request> REQUEST_POOL;
 
     static {
-        Config config = ConfigFactory.load("area");
-        Config read = config.getConfigList("read").getFirst();
+        Config config = ConfigFactory.load("area").resolve();
+        Config read = config.getConfig("datasources.read.database");
         String host = read.getString("host");
         int port = read.getInt("port");
         String entry = host + ":" + port;

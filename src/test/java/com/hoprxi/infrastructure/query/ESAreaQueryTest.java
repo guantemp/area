@@ -30,8 +30,8 @@ import java.util.EnumSet;
  */
 public class ESAreaQueryTest {
     static {
-        StoreKeyLoad.loadSecretKey("keystore.jks", "Qwe123465",
-                new String[]{"slave.tooo.top:9200", "slave.tooo.top:6543:P$Qwe123465Pg"});
+        StoreKeyLoad.loadSecretKey("keystore.jks","Qwe123465",
+                new String[]{"slave.tooo.top:9200"});
     }
 
     private static final ESAreaQuery query = new ESAreaQuery();

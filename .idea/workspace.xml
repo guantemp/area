@@ -4,10 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="06d15327-0203-4184-bc12-711a323ebadd" name="Changes" comment="202602232126">
+    <list default="true" id="06d15327-0203-4184-bc12-711a323ebadd" name="Changes" comment="202602242230">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/Bootstrap.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/Bootstrap.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/persistence/ESAreaBatchImport.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/persistence/ESAreaBatchImport.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/area.conf" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/area.conf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/areas.xls" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/areas.xls" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/keystore.jks" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/keystore.jks" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/hoprxi/infrastructure/persistence/ESAreaBatchImportTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/hoprxi/infrastructure/persistence/ESAreaBatchImportTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/hoprxi/infrastructure/query/ESAreaQueryTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/hoprxi/infrastructure/query/ESAreaQueryTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -89,7 +93,7 @@
     &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.TestNG&quot;: &quot;&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;E:/workspace/area/target/classes&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/workspace/area/target/conf&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -120,13 +124,15 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\workspace\area\target\conf" />
+      <recent name="D:\workspace\area\target\classes" />
+      <recent name="D:\workspace\area\target\classes\com\hoprxi\infrastructure\persistence" />
+      <recent name="D:\workspace\area\src\main\resources" />
       <recent name="E:\workspace\area\target\classes" />
-      <recent name="E:\workspace\area\target" />
-      <recent name="E:\workspace\area\src\main\resources" />
-      <recent name="E:\workspace\area\target\classes\com\hoprxi\rest\html" />
-      <recent name="E:\workspace\area\target\classes\com" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\workspace\area\target\classes" />
+      <recent name="D:\workspace\area\target\classes\com" />
       <recent name="E:\workspace\area\src\main\resources" />
       <recent name="E:\workspace\area\target\classes" />
       <recent name="E:\workspace\area\src\main\java" />
@@ -146,7 +152,7 @@
       <recent name="com.hoprxi.infrastructure.persistence" />
     </key>
   </component>
-  <component name="RunManager" selected="应用程序.Bootstrap">
+  <component name="RunManager" selected="TestNG.ESAreaQueryTest">
     <configuration name="App" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="App" />
       <module name="core" />
@@ -159,7 +165,7 @@
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
       <option name="MAIN_CLASS_NAME" value="com.hoprxi.Bootstrap" />
       <module name="core" />
-      <option name="PROGRAM_PARAMETERS" value="-f keystore.jks Qwe123465 -e slave.tooo.top:9201" />
+      <option name="PROGRAM_PARAMETERS" value="-f keystore.jks Qwe123465 -e slave.tooo.top:9200" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -292,14 +298,14 @@
       </method>
     </configuration>
     <list>
-      <item itemvalue="TestNG.ESAreaQueryTest" />
-      <item itemvalue="TestNG.ESAreaBatchImportTest" />
       <item itemvalue="TestNG.AreaRepositoryTest" />
-      <item itemvalue="TestNG.ESAreaQueryTest.testFindJurisdiction" />
+      <item itemvalue="TestNG.ESAreaBatchImportTest" />
+      <item itemvalue="TestNG.ESAreaQueryTest" />
       <item itemvalue="TestNG.ESAreaQueryTest.testFindCountry" />
+      <item itemvalue="TestNG.ESAreaQueryTest.testFindJurisdiction" />
+      <item itemvalue="应用程序.App" />
       <item itemvalue="应用程序.Bootstrap" />
       <item itemvalue="应用程序.IPSeeker" />
-      <item itemvalue="应用程序.App" />
     </list>
     <recent_temporary>
       <list>
@@ -449,7 +455,9 @@
       <workItem from="1771232195562" duration="663000" />
       <workItem from="1771837424854" duration="19909000" />
       <workItem from="1771942337521" duration="18000" />
-      <workItem from="1771942624356" duration="815000" />
+      <workItem from="1771942624356" duration="1134000" />
+      <workItem from="1771995959538" duration="3005000" />
+      <workItem from="1772000447812" duration="5000" />
     </task>
     <task id="LOCAL-00001" summary="202302131358">
       <created>1676267975047</created>
@@ -576,14 +584,6 @@
       <option name="presentableId" value="LOCAL-00018" />
       <option name="project" value="LOCAL" />
       <updated>1752219857307</updated>
-    </task>
-    <task id="LOCAL-00020" summary="202507182101">
-      <option name="closed" value="true" />
-      <created>1752843686229</created>
-      <option name="number" value="00020" />
-      <option name="presentableId" value="LOCAL-00020" />
-      <option name="project" value="LOCAL" />
-      <updated>1752843686229</updated>
     </task>
     <task id="LOCAL-00021" summary="202507182154">
       <option name="closed" value="true" />
@@ -825,7 +825,15 @@
       <option name="project" value="LOCAL" />
       <updated>1771853198958</updated>
     </task>
-    <option name="localTasksCounter" value="51" />
+    <task id="LOCAL-00051" summary="202602242230">
+      <option name="closed" value="true" />
+      <created>1771943455901</created>
+      <option name="number" value="00051" />
+      <option name="presentableId" value="LOCAL-00051" />
+      <option name="project" value="LOCAL" />
+      <updated>1771943455901</updated>
+    </task>
+    <option name="localTasksCounter" value="52" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -843,7 +851,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="20250830033" />
     <MESSAGE value="202509022241" />
     <MESSAGE value="202509022335" />
     <MESSAGE value="202509032202" />
@@ -868,7 +875,8 @@
     <MESSAGE value="202602160926" />
     <MESSAGE value="202602232118" />
     <MESSAGE value="202602232126" />
-    <option name="LAST_COMMIT_MESSAGE" value="202602232126" />
+    <MESSAGE value="202602242230" />
+    <option name="LAST_COMMIT_MESSAGE" value="202602242230" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
