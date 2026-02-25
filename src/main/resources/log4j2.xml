@@ -35,7 +35,7 @@
         </console>
         <!--File :同步输出日志到本地文件-->
         <!--append="false" :根据其下日志策略,每次清空文件重新输入日志,可用于测试
-        <File name="log" fileName="${logFilePath}/${logFileName}" append="false">
+        <File name="log" fileName="${sys:user.home}/logs/console.log" append="false">
             <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %class{36} %L %M - %msg%xEx%n"/>
         </File>-->
         <!--SMTP :邮件发送日志-->
@@ -45,7 +45,7 @@
         </SMTP>
         -->
         <!-- ${sys:user.home} :项目路径 -->
-        <RollingFile name="RollingFileInfo" fileName="/logs/info.log"
+        <RollingFile name="RollingFileInfo" fileName="logs/info.log"
                      filePattern="${sys:user.home}/logs/$${date:yyyy-MM}/info-%d{yyyy-MM-dd}-%i.log">
             <!--ThresholdFilter :日志输出过滤-->
             <!--level="info" :日志级别,onMatch="ACCEPT" :级别在info之上则接受,onMismatch="DENY" :级别在info之下则拒绝-->
@@ -62,7 +62,7 @@
             <DefaultRolloverStrategy max="20"/>
         </RollingFile>
         <!--${sys:user.home}-->
-        <RollingFile name="RollingFileWarn" fileName="/logs/warn.log"
+        <RollingFile name="RollingFileWarn" fileName="logs/warn.log"
                      filePattern="${sys:user.home}/logs/$${date:yyyy-MM}/warn-%d{yyyy-MM-dd}-%i.log">
             <ThresholdFilter level="warn" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout pattern="[%d{HH:mm:ss:SSS}] [%p] - %l - %m%n"/>
@@ -90,7 +90,7 @@
         -->
         <!-- Root节点用来指定项目的根日志，如果没有单独指定Logger，那么就会默认使用该Root日志输出 -->
         <root level="all">
-            <!--<appender-ref ref="Console"/>-->
+            <appender-ref ref="Console"/>
             <appender-ref ref="RollingFileInfo"/>
             <appender-ref ref="RollingFileWarn"/>
             <appender-ref ref="RollingFileError"/>

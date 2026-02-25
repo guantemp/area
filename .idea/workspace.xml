@@ -4,9 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="06d15327-0203-4184-bc12-711a323ebadd" name="Changes" comment="202602251632">
+    <list default="true" id="06d15327-0203-4184-bc12-711a323ebadd" name="Changes" comment="202602251654">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/persistence/ESAreaRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/persistence/ESAreaRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/log4j2.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/log4j2.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -148,7 +147,7 @@
       <recent name="com.hoprxi.infrastructure.persistence" />
     </key>
   </component>
-  <component name="RunManager" selected="TestNG.ESAreaQueryTest">
+  <component name="RunManager" selected="应用程序.Bootstrap">
     <configuration name="App" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="App" />
       <module name="core" />
@@ -454,7 +453,7 @@
       <workItem from="1771942624356" duration="1134000" />
       <workItem from="1771995959538" duration="3005000" />
       <workItem from="1772000447812" duration="5000" />
-      <workItem from="1772005574835" duration="3872000" />
+      <workItem from="1772005574835" duration="4700000" />
     </task>
     <task id="LOCAL-00001" summary="202302131358">
       <created>1676267975047</created>
@@ -581,14 +580,6 @@
       <option name="presentableId" value="LOCAL-00018" />
       <option name="project" value="LOCAL" />
       <updated>1752219857307</updated>
-    </task>
-    <task id="LOCAL-00023" summary="202508081043">
-      <option name="closed" value="true" />
-      <created>1754621038031</created>
-      <option name="number" value="00023" />
-      <option name="presentableId" value="LOCAL-00023" />
-      <option name="project" value="LOCAL" />
-      <updated>1754621038031</updated>
     </task>
     <task id="LOCAL-00024" summary="202508101838">
       <option name="closed" value="true" />
@@ -830,7 +821,15 @@
       <option name="project" value="LOCAL" />
       <updated>1772008378594</updated>
     </task>
-    <option name="localTasksCounter" value="54" />
+    <task id="LOCAL-00054" summary="202602251654">
+      <option name="closed" value="true" />
+      <created>1772009663505</created>
+      <option name="number" value="00054" />
+      <option name="presentableId" value="LOCAL-00054" />
+      <option name="project" value="LOCAL" />
+      <updated>1772009663505</updated>
+    </task>
+    <option name="localTasksCounter" value="55" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -848,7 +847,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="202509032202" />
     <MESSAGE value="202509032306" />
     <MESSAGE value="202509041140" />
     <MESSAGE value="202509041142" />
@@ -873,7 +871,8 @@
     <MESSAGE value="202602242230" />
     <MESSAGE value="202602251550" />
     <MESSAGE value="202602251632" />
-    <option name="LAST_COMMIT_MESSAGE" value="202602251632" />
+    <MESSAGE value="202602251654" />
+    <option name="LAST_COMMIT_MESSAGE" value="202602251654" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
