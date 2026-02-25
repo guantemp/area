@@ -95,23 +95,12 @@
 
     <build>
         <resources>
-            <!--
-              策略 A: 定义默认的资源处理规则 (用于打包进 JAR)
-              这里我们显式指定哪些要打包，或者排除哪些不打包。
-              推荐方式：排除掉那些需要外置的文件/目录
-            -->
             <resource>
                 <directory>src/main/resources</directory>
-                <filtering>true</filtering> <!-- 是否开启变量替换 ${...} -->
+                <filtering>false</filtering> <!-- 是否开启变量替换文本，不要开启，缺省不知道是个啥 ${...} -->
                 <excludes>
                     <!-- 排除需要外置到 conf 目录的文件/文件夹 -->
-                    <exclude>**/*.conf</exclude>
-                    <exclude>**/*.xls</exclude>
-                    <exclude>**/*.dat</exclude>
-                    <exclude>**/*.xml</exclude>
-                    <exclude>**/*.jks</exclude>
-                    <exclude>**/*.pdf</exclude>
-                    <exclude>html/**</exclude>
+                    <exclude>**/**</exclude>
                 </excludes>
             </resource>
         </resources>
