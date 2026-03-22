@@ -52,13 +52,13 @@ public class ESAreaRepository implements AreaRepository {
     private static final JsonFactory JSON_FACTORY = JsonFactory.builder().build();
 
     static {
-        Config config = ConfigFactory.load("area");
-        Config read = config.getConfigList("datasources.write.shards").getLast();
-        String host = read.getString("db.host");
-        int port = read.getInt("db.port");
+        Config config = ConfigFactory.load("area").resolve();
+        Config read = config.getConfigList("databases").getFirst();
+        String host = read.getString("host");
+        int port = read.getInt("port");
         String entry = host + ":" + port;
-        String user = DatabaseSpecDecrypt.decrypt(entry, read.getString("db.user"));
-        String password = DatabaseSpecDecrypt.decrypt(entry, read.getString("db.password"));
+        String user = DatabaseSpecDecrypt.decrypt(entry, read.getString("user"));
+        String password = DatabaseSpecDecrypt.decrypt(entry, read.getString("password"));
 
         RequestOptions.Builder builder = RequestOptions.DEFAULT.toBuilder();
         builder.addHeader(HttpHeaders.AUTHORIZATION, "Basic " + Base64.getEncoder().encodeToString((user + ":" + password).getBytes(StandardCharsets.UTF_8))).addHeader(HttpHeaders.CONTENT_TYPE, "application/json;charset=utf-8");

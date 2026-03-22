@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~ Copyright (c) 2024. www.hoprxi.com All Rights Reserved.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~       http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License.
+  -->
+
+<!-- 在此未说明属性为非必须的，那就表示属性必须设置 -->
+<!-- *****************最小配置文件结构介绍******************************* -->
+<!--
+    <configuration>
+        <appender></appender>    //存在1或多个，功能指定记录输出目的地
+        <root></root>            //最多存在一个，根logger
+        <logger><logger>        //存在1或多个，普通logger
+    </configuration>
+ -->
+<!-- *************************各个标签详细介绍********************************** -->
+
+<!-- debug（非必须）属性：true表示输出logback内部的日志信息（不影响配置和级别） ;
+     scan（非必须）属性：默认为false，true表示扫描配置文件的变化并自动重新配置，默认每隔1分钟扫描一次；
+     scanPeriod（非必须）属性：搭配scan属性使用，设置扫描的间隔时间
+-->
+<configuration debug="false" scan="true" scanPeriod="5 seconds">
+    <!-- 用于指定logger上下文名称，默认为default -->
+    <contextName>catalog_logback</contextName>
+
+    <!-- 设置变量FILE_PATH，用于指定名为FILE的appender的目的文件存放的目录,勿在 LogBack 的配置中使用相对路径
+    <property name="FILE_PATH" value="D:/"></property>-->
+    <property name="FILE_PATH" value="logs"/>
+    <!--
+        **********************配置TurboFilter类型的过滤器**********************************
+        TurboFilter类型过滤器有三种：这里使用的是DuplicateMessageFilter
+            子标签<cacheSize>：表示内部缓存对旧消息引用的个数上限
+            子标签<allowedRepetitions>：表示允许消息出现的重复次数上限，超过次数上限的记录请求将被丢弃
+    -->
+    <!-- 使用自定义的TurboFilter -->
+    <!--
+    <turboFilter class="logback.SampleTurboFilter">
+    </turboFilter>
+    -->
+    <!-- 使用DuplicateTurboFilter -->
+    <turboFilter class="ch.qos.logback.classic.turbo.DuplicateMessageFilter">
+        <allowedRepetitions>1</allowedRepetitions>
+        <cacheSize>20</cacheSize>
+    </turboFilter>
+
+    <!-- ************************常用的Appender************************************** -->
+    <!--
+        <appender>标签包含2个属性：name、class
+        name属性：指定appender名称;class属性：指定目的地类型 （比如ConsoleAppender、FileAppender等）
+        class属性的值决定了<appender>标签包含的子标签的种类。
+        -->
+    <!-- 该appender的功能是将记录信息以特定格式写到控制台 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <!--encoder:将事件转换为字符串
+            默认配置为PatternLayoutEncoder类
+            encoder用于替代Layout，encoder扩展了Layout功能
+            Layout功能：只负责把事件转换为字符串，但是不能指定何时将记录写入到指定目的地
+            encoder功能：即负责把事件转换为字符串，也可以指定何时将记录写入到指定目的地
+         -->
+        <encoder charset="UTF-8">
+            <!-- 指定输出格式
+                %d{} :表示时间
+                %thread:请求记录所在的线程名
+                %-5level：用5位显示请求级别
+                %logger{36}：输出logger名，{36}表示logger名最大占用的字符位数，{0}表示最简短logger名（不包含包名）。
+                %msg：日志消息
+                %n是换行符
+             -->
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{0} -%msg%n</pattern>
+        </encoder>
+    </appender>
+    <!-- 该appender的功能是将记录信息以特定格式写到文件 -->
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <!-- $使用变量FILE_PATH的格式,类似Linux中使用的格式：${FILE_PATH} -->
+        <file>${FILE_PATH}/log.log</file>
+        <encoder>
+            <!-- 指定输出格式 -->
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{0} -%msg%n</pattern>
+            <charset>UTF-8</charset> <!-- 此处设置字符集 -->
+        </encoder>
+    </appender>
+    <!--
+    *****************************根据时间滚动 为滚动规则和条件的appender(最常用)***********************
+    -->
+    <!-- 该appender的功能：将记录信息以特定格式写到文件,当文件达到20MB时，创建以时间为特定规则新的 文件，之后的记录会写到新文件，
+    文件个数最多维持10个，文件达到10个 后删除旧的文件-->
+    <appender name="size_time_file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- TimeBasedRollingPolicy/SizeBasedRollingPolicy/SizeAndTimeBasedRollingPolicy实现了RollingPolicy与TriggeringPolicy，
+            因此只需要<rollingPolicy>标签，不需要<TriggeringPolicy>标签
+            <rollingPolicy>标签有两个子标签：<fileNamePattern>、<maxHistory>
+            <fileNamePattern>：用于指定文件名命名规则
+            <maxHistory>：保留文件的个数，超过了就删除创建时间最久的文件
+         -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- 文件名 -->
+            <fileNamePattern>${FILE_PATH}/%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!--日志文件保留天数-->
+            <maxHistory>45</maxHistory>
+            <!--日志文件最大的大小-->
+            <MaxFileSize>20MB</MaxFileSize>
+            <totalSizeCap>2GB</totalSizeCap>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+            <!-- <maxIndex>5</maxIndex> -->
+        </rollingPolicy>
+        <encoder charset="UTF-8">
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{0} -%msg%n</pattern>
+        </encoder>
+    </appender>
+    <!--
+        ***********************常规级别过滤器的使用****************************************
+        本配置功能：过滤并接受请求级别为debug的请求，对于其他级别请求一律丢弃。
+     -->
+    <appender name="level_console" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>debug</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{0} -%msg%n</pattern>
+        </encoder>
+    </appender>
+    <!--
+        ***********************常规临界值滤器的使用****************************************
+        本配置功能：请求级别高于或等于info的请求响应NEUTRAL（进入下一个环节），低于info的级别请求响应DENY(表示丢弃)。
+     -->
+    <appender name="threshold_console" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>info</level>
+        </filter>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{0} -%msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!--不同业务产生的日志打印到不同文件中-->
+    <appender name="API_HIS_INFO" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${FILE_PATH}/api_his_info.log</File>
+        <append>true</append>
+        <!-- 含义：接受 INFO 及更高级别 (INFO, WARN, ERROR)，拒绝 DEBUG -->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${FILE_PATH}/%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>15</maxHistory>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+        </rollingPolicy>
+        <encoder charset="UTF-8">
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] %level [%thread] %file:%line - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+    <appender name="API_HIS_ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${FILE_PATH}/error_api_his.log</File>
+        <append>true</append>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${FILE_PATH}/error_api_his.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <maxHistory>15</maxHistory>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+        </rollingPolicy>
+        <encoder charset="UTF-8">
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] %level [%thread] %file:%line - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+    <!-- level属性：指定根logger的分配级别 -->
+    <root level="info">
+        <appender-ref ref="STDOUT"></appender-ref>
+    </root>
+
+    <!-- name:指定logger名称；level：指定logger的分配级别；additivity(非必须，默认为true 冒泡到root)：设置appender叠加性 -->
+    <logger name="com.hoprxi" level="info" additivity="true">
+       <!-- <appender-ref ref="size_time_file"></appender-ref> -->
+        <appender-ref ref="API_HIS_INFO"></appender-ref>
+    </logger>
+
+</configuration>
