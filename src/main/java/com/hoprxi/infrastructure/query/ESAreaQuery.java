@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025. www.hoprxi.com All Rights Reserved.
+ * Copyright (c) 2026. www.hoprxi.com All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.util.ReferenceCountUtil;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.*;
@@ -34,7 +35,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import salt.hoprxi.crypto.application.DatabaseSpecDecrypt;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.EnumSet;
@@ -46,15 +50,15 @@ import java.util.EnumSet;
  */
 public class ESAreaQuery implements AreaQuery {
     private static final Logger LOGGER = LoggerFactory.getLogger(ESAreaQuery.class);
-    private static final int COUNTRY_SIZE = 333;
+    private static final int COUNTRY_SIZE = 299;
     private static final int BUFFER_SIZE = 2048;//2KB缓冲区
     private static final RequestOptions COMMON_OPTIONS;
     private static final RestClient CLIENT;
     private static final JsonFactory JSON_FACTORY = JsonFactory.builder().build();
 
     static {
-        Config config = ConfigFactory.load("area");
-        Config read = config.getConfigList("read").getFirst();
+        Config config = ConfigFactory.load("area").resolve();
+        Config read = config.getConfig("datasources.read.database");
         String host = read.getString("host");
         int port = read.getInt("port");
         String entry = host + ":" + port;
@@ -71,7 +75,7 @@ public class ESAreaQuery implements AreaQuery {
         COUNTRY, PROVINCE, CITY, COUNTY, TOWN;
 
         /**
-         * @param s
+         * @param s of level name
          * @return <code>NULL if no match</code>
          */
         public static Level of(String s) {
@@ -84,61 +88,70 @@ public class ESAreaQuery implements AreaQuery {
     }
 
     @Override
-    public InputStream query(int code) {
-        Request request = new Request("GET", "/area/_doc/" + code);
+    public InputStream find(int code) {
+        Request request = new Request("GET", "/area/_doc/" + code);//PREFIX+"/_doc/"
         request.setOptions(COMMON_OPTIONS);
         ByteBuf buffer = PooledByteBufAllocator.DEFAULT.buffer(BUFFER_SIZE);
         boolean success = false;
         try {
             Response response = CLIENT.performRequest(request);
+            ;
             try (OutputStream os = new ByteBufOutputStream(buffer); JsonGenerator generator = JSON_FACTORY.createGenerator(os);
                  InputStream is = response.getEntity().getContent(); JsonParser parser = JSON_FACTORY.createParser(is)) {
-                while (parser.nextToken() != null) {
-                    if (parser.currentToken() == JsonToken.FIELD_NAME && "_source".equals(parser.currentName())) {
-                        parser.nextToken(); // move to value (START_OBJECT)
-                        if (parser.currentToken() != JsonToken.START_OBJECT) {
-                            throw new IllegalStateException("_source is not an object");
-                        }
-                        generator.copyCurrentStructure(parser);
-                        break;
-                    }
-                }
-                generator.flush();
+                ESAreaQuery.extractSourceSkipMeta(parser, generator);
                 success = true;
                 return new ByteBufInputStream(buffer, true);
             }
         } catch (ResponseException e) {
             if (e.getResponse().getStatusLine().getStatusCode() == 404) {
-                LOGGER.warn("Area not found in Elasticsearch: id={}", code);
+                LOGGER.warn("Item not found in Elasticsearch: id={}", code);
                 throw new AreaSearchException(String.format("The item(id=%s) not found", code));
-            } else {
-                LOGGER.error("Elasticsearch error for id={}", code, e);
-                throw new RuntimeException("Elasticsearch internal error", e);
             }
+            LOGGER.error("Elasticsearch error for id={}", code, e);
+            throw new RuntimeException("Elasticsearch internal error", e);
         } catch (IOException e) {
             LOGGER.error("I/O failed", e);
             throw new RuntimeException("Error: Elasticsearch timeout or no connection", e);
         } finally {
             if (!success && buffer.refCnt() > 0) {
-                buffer.release(); // 仅在未成功返回时释放
+                ReferenceCountUtil.safeRelease(buffer);
             }
         }
     }
 
-    public OutputStream queryCountry() {
-        try {
-            Request request = new Request("GET", "/area/_search");
-            request.setOptions(COMMON_OPTIONS);
-            request.setJsonEntity(countryJsonEntity());
-            Response response = CLIENT.performRequest(request);
-            return writeAreas(response.getEntity().getContent());
-        } catch (IOException e) {
-            LOGGER.error("The area(country) can't retrieve", e);
+    private static void extractSourceSkipMeta(JsonParser parser, JsonGenerator generator) throws IOException {
+        while (parser.nextToken() != null) {
+            if (parser.currentToken() == JsonToken.FIELD_NAME && "_source".equals(parser.currentName())) {
+                parser.nextToken(); // move to value (START_OBJECT)
+                if (parser.currentToken() != JsonToken.START_OBJECT) {
+                    throw new IllegalStateException("_source is not an object");
+                }
+                generator.writeStartObject();
+                while (parser.nextToken() != JsonToken.END_OBJECT) {
+                    if (parser.currentToken() == JsonToken.FIELD_NAME && "_meta".equals(parser.currentName())) {
+                        parser.nextToken();
+                        parser.skipChildren(); // skip value of _meta
+                    } else {
+                        generator.copyCurrentEvent(parser); // copy field name
+                        parser.nextToken();
+                        generator.copyCurrentStructure(parser); // copy entire value (handles nested)
+                    }
+                }
+                generator.writeEndObject();
+            }
         }
-        return new ByteArrayOutputStream(0);
+        generator.flush();
     }
 
-    private String countryJsonEntity() {
+    @Override
+    public InputStream queryCountry() {
+        Request request = new Request("GET", "/area/_search");
+        request.setOptions(COMMON_OPTIONS);
+        request.setJsonEntity(ESAreaQuery.buildCountryQueryRequest());
+        return ESAreaQuery.extract(request);
+    }
+
+    private static String buildCountryQueryRequest() {
         StringWriter writer = new StringWriter();
         try (JsonGenerator generator = JSON_FACTORY.createGenerator(writer)) {
             generator.writeStartObject();  // 开始生成整个JSON对象
@@ -174,21 +187,14 @@ public class ESAreaQuery implements AreaQuery {
         return writer.toString();
     }
 
-    public OutputStream query(String key, EnumSet<Level> filters, int from, int size) {
-        try {
-            Request request = new Request("GET", "/area/_search");
-            request.setOptions(COMMON_OPTIONS);
-            //System.out.println(nameJsonEntity(name, filters, from, size));
-            request.setJsonEntity(keyJsonEntity(key, filters, from, size));
-            Response response = CLIENT.performRequest(request);
-            return writeAreas(response.getEntity().getContent());
-        } catch (IOException e) {
-            LOGGER.error("The area(country) can't retrieve", e);
-        }
-        return new ByteArrayOutputStream(0);
+    public InputStream query(String key, EnumSet<Level> filters, int from, int size) {
+        Request request = new Request("GET", "/area/_search");
+        request.setOptions(COMMON_OPTIONS);
+        request.setJsonEntity(ESAreaQuery.buildkeyQueryRequest(key, filters, from, size));
+        return ESAreaQuery.extract(request);
     }
 
-    private String keyJsonEntity(String key, EnumSet<Level> filters, int from, int size) {
+    private static String buildkeyQueryRequest(String key, EnumSet<Level> filters, int from, int size) {
         StringWriter writer = new StringWriter();
         try (JsonGenerator generator = JSON_FACTORY.createGenerator(writer)) {
             generator.writeStartObject(); // 开始生成整个JSON对象
@@ -263,20 +269,14 @@ public class ESAreaQuery implements AreaQuery {
         return writer.toString();
     }
 
-    public OutputStream query(EnumSet<Level> filters, String searchAfter, int size) {
-        try {
-            Request request = new Request("GET", "/area/_search");
-            request.setOptions(COMMON_OPTIONS);
-            request.setJsonEntity(jsonEntity(filters, searchAfter, size));
-            Response response = CLIENT.performRequest(request);
-            return writeAreas(response.getEntity().getContent());
-        } catch (IOException e) {
-            LOGGER.error("The area(country) can't retrieve", e);
-        }
-        return new ByteArrayOutputStream(0);
+    public InputStream query(EnumSet<Level> filters, String searchAfter, int size) {
+        Request request = new Request("GET", "/area/_search");
+        request.setOptions(COMMON_OPTIONS);
+        request.setJsonEntity(ESAreaQuery.buildQueryRequest(filters, searchAfter, size));
+        return ESAreaQuery.extract(request);
     }
 
-    private String jsonEntity(EnumSet<Level> filters, String searchAfter, int size) {
+    private static String buildQueryRequest(EnumSet<Level> filters, String searchAfter, int size) {
         StringWriter writer = new StringWriter();
         try (JsonGenerator generator = JSON_FACTORY.createGenerator(writer)) {
             generator.writeStartObject();
@@ -317,29 +317,21 @@ public class ESAreaQuery implements AreaQuery {
                 generator.writeNumber(searchAfter);
                 generator.writeEndArray(); // 结束 search_after 数组
             }
-
             generator.writeEndObject();
         } catch (IOException e) {
             LOGGER.error("Cannot assemble request JSON", e);
         }
-
         return writer.toString();
     }
 
-    public OutputStream queryJurisdiction(int code) {
-        try {
-            Request request = new Request("GET", "/area/_search");
-            request.setOptions(COMMON_OPTIONS);
-            request.setJsonEntity(jurisdictionJsonEntity(code));
-            Response response = CLIENT.performRequest(request);
-            return writeAreas(response.getEntity().getContent());
-        } catch (IOException e) {
-            LOGGER.error("The area(jurisdiction) can't retrieve", e);
-        }
-        return new ByteArrayOutputStream(0);
+    public InputStream queryJurisdiction(int code) {
+        Request request = new Request("GET", "/area/_search");
+        request.setOptions(COMMON_OPTIONS);
+        request.setJsonEntity(ESAreaQuery.buildJurisdictionQueryRequest(code));
+        return ESAreaQuery.extract(request);
     }
 
-    private String jurisdictionJsonEntity(int code) {
+    private static String buildJurisdictionQueryRequest(int code) {
         StringWriter writer = new StringWriter();
         try (JsonGenerator generator = JSON_FACTORY.createGenerator(writer)) {
             generator.writeStartObject();// 开始生成 JSON
@@ -364,67 +356,129 @@ public class ESAreaQuery implements AreaQuery {
         return writer.toString();
     }
 
+    private static InputStream extract(Request request) {
+        ByteBuf buffer = PooledByteBufAllocator.DEFAULT.buffer(BUFFER_SIZE);
+        boolean success = false;
+        try {
+            Response response = CLIENT.performRequest(request);
+            try (InputStream is = response.getEntity().getContent(); JsonParser parser = JSON_FACTORY.createParser(is);
+                 OutputStream os = new ByteBufOutputStream(buffer); JsonGenerator gen = JSON_FACTORY.createGenerator(os)) {
+                gen.writeStartObject();
+                Integer total = null;
+                boolean inHitsArray = false;
 
-    private OutputStream writeAreas(InputStream is) throws IOException {
-        OutputStream os = new ByteArrayOutputStream();
-        try (JsonParser parser = JSON_FACTORY.createParser(is); JsonGenerator generator = JSON_FACTORY.createGenerator(os)) {
-            while (parser.nextToken() != null) {
-                if (parser.currentToken() == JsonToken.FIELD_NAME && "hits".equals(parser.getCurrentName())) {
-                    generator.writeStartObject();
-                    while (parser.nextToken() != null) {
-                        if (parser.currentToken() == JsonToken.FIELD_NAME && "total".equals(parser.getCurrentName())) {
-                            while (parser.nextToken() != null) {
-                                if (parser.currentToken() == JsonToken.FIELD_NAME && "value".equals(parser.getCurrentName())) {
-                                    parser.nextToken();
-                                    generator.writeNumberField("total", parser.getValueAsInt());
-                                    break;
-                                }
+                // State: 0 = root, 1 = in top-level "hits" object, 2 = in "hits.hits" array
+                int state = 0;
+
+                while (parser.nextToken() != null) {
+                    if (parser.currentToken() == JsonToken.FIELD_NAME) {
+                        String name = parser.currentName();
+
+                        if (state == 0 && "hits".equals(name)) {
+                            parser.nextToken(); // consume value (should be START_OBJECT)
+                            if (parser.currentToken() == JsonToken.START_OBJECT) {
+                                state = 1; // entered top-level hits object
+                            } else {
+                                parser.skipChildren();
                             }
-                        }
-                        if (parser.currentToken() == JsonToken.START_ARRAY && "hits".equals(parser.getCurrentName())) {
-                            generator.writeArrayFieldStart("areas");
-                            while (parser.nextToken() != null) {
-                                if (parser.getCurrentToken() == JsonToken.START_OBJECT) {
-                                    generator.writeStartObject();
-                                    writeSource(parser, generator);
-                                    writeSort(parser, generator);
-                                    generator.writeEndObject();
+                        } else if (state == 1) {
+                            parser.nextToken(); // consume field value
+                            if ("total".equals(name)) {
+                                if (parser.currentToken() == JsonToken.VALUE_NUMBER_INT) {
+                                    total = parser.getValueAsInt();
+                                } else if (parser.currentToken() == JsonToken.START_OBJECT) {
+                                    while (parser.nextToken() != JsonToken.END_OBJECT) {
+                                        if (parser.currentToken() == JsonToken.FIELD_NAME && "value".equals(parser.currentName())) {
+                                            parser.nextToken();
+                                            total = parser.getValueAsInt();
+                                        } else {
+                                            parser.skipChildren();
+                                        }
+                                    }
                                 }
-                                if (parser.currentToken() == JsonToken.END_ARRAY && "hits".equals(parser.getCurrentName())) {
-                                    break;
+                            } else if ("hits".equals(name)) {
+                                if (parser.currentToken() == JsonToken.START_ARRAY) {
+                                    // Now we are at the start of hits.hits array
+                                    gen.writeNumberField("total", total != null ? total : 0);
+                                    gen.writeArrayFieldStart("areas");
+                                    inHitsArray = true;
+                                    break; // exit to process array manually
+                                } else {
+                                    parser.skipChildren();
                                 }
+                            } else {
+                                parser.skipChildren();
                             }
-                            generator.writeEndArray();
+                        } else {
+                            parser.skipChildren();
                         }
                     }
-                    generator.writeEndObject();
                 }
-            }
-        }
-        return os;
-    }
 
-    private void writeSource(JsonParser parser, JsonGenerator generator) throws IOException {
-        while (parser.nextToken() != null) {
-            if (parser.currentToken() == JsonToken.START_OBJECT && "_source".equals(parser.getCurrentName())) {
-                while (parser.nextToken() != null) {
-                    if (parser.currentToken() == JsonToken.END_OBJECT && "_source".equals(parser.getCurrentName()))
-                        break;
-                    generator.copyCurrentEvent(parser);
+                // If we broke out because we found hits array
+                if (inHitsArray) {
+                    while (parser.nextToken() != JsonToken.END_ARRAY) {
+                        if (parser.currentToken() != JsonToken.START_OBJECT) {
+                            throw new IllegalStateException("Expected hit object");
+                        }
+
+                        gen.writeStartObject();
+
+                        while (parser.nextToken() != JsonToken.END_OBJECT) {
+                            if (parser.currentToken() == JsonToken.FIELD_NAME) {
+                                String fieldName = parser.currentName();
+                                parser.nextToken();
+
+                                if ("_source".equals(fieldName)) {
+                                    if (parser.currentToken() != JsonToken.START_OBJECT) {
+                                        throw new IllegalStateException("_source must be object");
+                                    }
+                                    // Flatten _source
+                                    while (parser.nextToken() != JsonToken.END_OBJECT) {
+                                        if (parser.currentToken() == JsonToken.FIELD_NAME) {
+                                            String key = parser.currentName();
+                                            gen.writeFieldName(key);
+                                            parser.nextToken();
+                                            gen.copyCurrentStructure(parser);
+                                        }
+                                    }
+                                } else if ("sort".equals(fieldName)) {
+                                    gen.writeFieldName("sort");
+                                    gen.copyCurrentStructure(parser);
+                                } else {
+                                    parser.skipChildren();
+                                }
+                            }
+                        }
+                        gen.writeEndObject();
+                    }
+                    gen.writeEndArray();
+                } else {
+                    // No hits array found
+                    gen.writeNumberField("total", total != null ? total : 0);
+                    gen.writeArrayFieldStart("areas");
+                    gen.writeEndArray();
                 }
-            }
-            if (parser.currentToken() == JsonToken.END_OBJECT && "_source".equals(parser.getCurrentName()))
-                break;
-        }
-    }
 
-    private void writeSort(JsonParser parser, JsonGenerator generator) throws IOException {
-        if (parser.nextToken() == JsonToken.FIELD_NAME && "sort".equals(parser.getCurrentName())) {
-            generator.copyCurrentEvent(parser);
-            while (parser.nextToken() != null) {
-                generator.copyCurrentEvent(parser);
-                if (parser.currentToken() == JsonToken.END_ARRAY && "sort".equals(parser.getCurrentName()))
-                    break;
+                gen.writeEndObject();
+                gen.flush();
+                success = true;
+                return new ByteBufInputStream(buffer, true);
+            }
+        } catch (ResponseException e) {
+            if (e.getResponse().getStatusLine().getStatusCode() == 404) {
+                LOGGER.warn("Area not found in Elasticsearch");
+                throw new AreaSearchException("No country not found");
+            } else {
+                LOGGER.error("Elasticsearch internal error", e);
+                throw new RuntimeException("Elasticsearch internal error", e);
+            }
+        } catch (IOException e) {
+            LOGGER.error("I/O failed", e);
+            throw new RuntimeException("Error: Elasticsearch timeout or no connection", e);
+        } finally {
+            if (!success && buffer.refCnt() > 0) {
+                ReferenceCountUtil.safeRelease(buffer);
             }
         }
     }

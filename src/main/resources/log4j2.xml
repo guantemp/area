@@ -34,10 +34,10 @@
             <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
         </console>
         <!--File :同步输出日志到本地文件-->
-        <!--append="false" :根据其下日志策略,每次清空文件重新输入日志,可用于测试-->
-        <File name="log" fileName="${logFilePath}/${logFileName}" append="false">
+        <!--append="false" :根据其下日志策略,每次清空文件重新输入日志,可用于测试
+        <File name="log" fileName="${sys:user.home}/logs/console.log" append="false">
             <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %class{36} %L %M - %msg%xEx%n"/>
-        </File>
+        </File>-->
         <!--SMTP :邮件发送日志-->
         <!--
         <SMTP name="Mail" subject="****SaaS系统正式版异常信息" to="327885095@11.com" from="message@lengjing.info" smtpUsername="message@message.info" smtpPassword="LENG****1234" smtpHost="mail.lengjing.info" smtpDebug="false" smtpPort="25" bufferSize="10">
@@ -45,7 +45,7 @@
         </SMTP>
         -->
         <!-- ${sys:user.home} :项目路径 -->
-        <RollingFile name="RollingFileInfo" fileName="${logFilePath}/logs/info.log"
+        <RollingFile name="RollingFileInfo" fileName="logs/info.log"
                      filePattern="${sys:user.home}/logs/$${date:yyyy-MM}/info-%d{yyyy-MM-dd}-%i.log">
             <!--ThresholdFilter :日志输出过滤-->
             <!--level="info" :日志级别,onMatch="ACCEPT" :级别在info之上则接受,onMismatch="DENY" :级别在info之下则拒绝-->
@@ -62,8 +62,8 @@
             <DefaultRolloverStrategy max="20"/>
         </RollingFile>
         <!--${sys:user.home}-->
-        <RollingFile name="RollingFileWarn" fileName="${logFilePath}/logs/warn.log"
-                     filePattern="${logFilePath}/logs/$${date:yyyy-MM}/warn-%d{yyyy-MM-dd}-%i.log">
+        <RollingFile name="RollingFileWarn" fileName="logs/warn.log"
+                     filePattern="${sys:user.home}/logs/$${date:yyyy-MM}/warn-%d{yyyy-MM-dd}-%i.log">
             <ThresholdFilter level="warn" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout pattern="[%d{HH:mm:ss:SSS}] [%p] - %l - %m%n"/>
             <Policies>
@@ -71,8 +71,8 @@
                 <SizeBasedTriggeringPolicy size="100 MB"/>
             </Policies>
         </RollingFile>
-        <RollingFile name="RollingFileError" fileName="${logFilePath}/logs/error.log"
-                     filePattern="${logFilePath}/logs/$${date:yyyy-MM}/error-%d{yyyy-MM-dd}-%i.log">
+        <RollingFile name="RollingFileError" fileName="logs/error.log"
+                     filePattern="${sys:user.home}/logs/$${date:yyyy-MM}/error-%d{yyyy-MM-dd}-%i.log">
             <ThresholdFilter level="error" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout pattern="[%d{HH:mm:ss:SSS}] [%p] - %l - %m%n"/>
             <Policies>

@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.hoprxi.application.AreaSearchException;
 import com.hoprxi.domain.model.*;
 import com.hoprxi.domain.model.coordinate.WGS84;
 import com.typesafe.config.Config;
@@ -52,12 +53,12 @@ public class ESAreaRepository implements AreaRepository {
 
     static {
         Config config = ConfigFactory.load("area");
-        Config read = config.getConfigList("read").getFirst();
-        String host = read.getString("host");
-        int port = read.getInt("port");
+        Config read = config.getConfigList("datasources.write.shards").getLast();
+        String host = read.getString("db.host");
+        int port = read.getInt("db.port");
         String entry = host + ":" + port;
-        String user = DatabaseSpecDecrypt.decrypt(entry, read.getString("user"));
-        String password = DatabaseSpecDecrypt.decrypt(entry, read.getString("password"));
+        String user = DatabaseSpecDecrypt.decrypt(entry, read.getString("db.user"));
+        String password = DatabaseSpecDecrypt.decrypt(entry, read.getString("db.password"));
 
         RequestOptions.Builder builder = RequestOptions.DEFAULT.toBuilder();
         builder.addHeader(HttpHeaders.AUTHORIZATION, "Basic " + Base64.getEncoder().encodeToString((user + ":" + password).getBytes(StandardCharsets.UTF_8))).addHeader(HttpHeaders.CONTENT_TYPE, "application/json;charset=utf-8");
@@ -67,9 +68,9 @@ public class ESAreaRepository implements AreaRepository {
 
     @Override
     public Area find(int code) {
+        Request request = new Request("GET", "/area/_doc/" + code);
+        request.setOptions(COMMON_OPTIONS);
         try {
-            Request request = new Request("GET", "/area/_doc/" + code);
-            request.setOptions(COMMON_OPTIONS);
             Response response = CLIENT.performRequest(request);
             try (InputStream is = response.getEntity().getContent();
                  JsonParser parser = JSON_FACTORY.createParser(is)) {
@@ -85,7 +86,8 @@ public class ESAreaRepository implements AreaRepository {
             }
         } catch (ResponseException e) {
             if (e.getResponse().getStatusLine().getStatusCode() == 404) {
-                return null; // 确实不存在
+                LOGGER.warn("Item not found in Elasticsearch: id={}", code);
+                throw new AreaSearchException(String.format("The item(id=%s) not found", code));
             } else {
                 LOGGER.error("ES server error for area(code={})", code, e);
                 throw new RuntimeException("Failed to retrieve area", e); // 或其他处理

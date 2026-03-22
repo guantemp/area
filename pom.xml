@@ -18,7 +18,7 @@
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>7.3.0</version>
+            <version>7.7.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -39,7 +39,7 @@
         <dependency>
             <groupId>com.typesafe</groupId>
             <artifactId>config</artifactId>
-            <version>1.4.2</version>
+            <version>1.4.5</version>
         </dependency>
         <dependency>
             <groupId>org.elasticsearch.client</groupId>
@@ -94,6 +94,16 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering> <!-- 是否开启变量替换文本，不要开启，缺省不知道是个啥 ${...} -->
+                <excludes>
+                    <!-- 排除需要外置到 conf 目录的文件/文件夹 -->
+                    <exclude>**/**</exclude>
+                </excludes>
+            </resource>
+        </resources>
         <plugins>
             <!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
             <plugin>
@@ -118,12 +128,15 @@
                                 <resource>
                                     <directory>src/main/resources</directory>
                                     <includes>
-                                        <exclude>**/*.conf</exclude>
-                                        <exclude>**/*.xls</exclude>
-                                        <exclude>**/*.dat</exclude>
-                                        <exclude>**/*.xml</exclude>
+                                        <include>**/*.conf</include>
+                                        <include>**/*.xls</include>
+                                        <include>**/*.dat</include>
+                                        <include>**/*.xml</include>
+                                        <include>**/*.jks</include>
+                                        <include>**/*.pdf</include>
+                                        <include>html/**</include>
                                     </includes>
-                                    <filtering>true</filtering>
+                                    <filtering>false</filtering>
                                 </resource>
                             </resources>
                             <encoding>UTF-8</encoding>

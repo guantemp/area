@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2026. www.hoprxi.com All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package com.hoprxi;
 
 import com.hoprxi.rest.AreaSevice;
@@ -11,8 +26,6 @@ import com.linecorp.armeria.server.ServerBuilder;
 import com.linecorp.armeria.server.docs.DocService;
 import com.linecorp.armeria.server.encoding.EncodingService;
 import com.linecorp.armeria.server.file.FileService;
-import com.linecorp.armeria.server.file.FileServiceBuilder;
-import com.linecorp.armeria.server.file.HttpFile;
 import com.linecorp.armeria.server.logging.LoggingService;
 import com.linecorp.armeria.server.throttling.ThrottlingService;
 import com.linecorp.armeria.server.throttling.ThrottlingStrategy;
@@ -20,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import salt.hoprxi.crypto.util.StoreKeyLoad;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
@@ -28,8 +42,8 @@ import java.util.regex.Pattern;
 
 /***
  * @author <a href="www.hoprxi.com/authors/guan xiangHuan">guan xiangHuang</a>
- * @since JDK8.0
- * @version 0.0.1 builder 2023-02-13
+ * @since JDK21
+ * @version 0.0.2 builder 2026-02-25
  */
 public final class Bootstrap {
     private static final Logger LOGGER = LoggerFactory.getLogger(Bootstrap.class);
@@ -114,17 +128,16 @@ public final class Bootstrap {
         sb.decorator(ThrottlingService.newDecorator( // 速率限制
                 ThrottlingStrategy.rateLimiting(100) // 100请求/秒
         ));
-        FileServiceBuilder fsb =
-                FileService.builder(Paths.get(System.getProperty("user.dir"), "/html"));
-        fsb.autoIndex(true);
-        FileService fs = fsb.build();
-        sb.serviceUnder("/html", fs);
-        HttpFile index = HttpFile.of(Paths.get(System.getProperty("user.dir"), "/html/upload.html"));
-        sb.serviceUnder("/", index.asService());//相当于缺省index.html
+
+        Path htmlDir = Paths.get(System.getProperty("user.dir"), "html");
+        FileService fs = FileService.builder(htmlDir)
+                .autoIndex(true)      // 开启目录浏览（可选）
+                .build();
+        sb.serviceUnder("/", fs);
 
         //添加文档服务
         sb.serviceUnder("/docs", DocService.builder()
-                .exampleRequests("/v1/areas", "query")
+                .exampleRequests("/v1", "query")
                 .build());
         sb.http(PORT);
         //sb.https(PORT+1).tls(new File("certificate.crt"), new File("private.key"), "myPassphrase");

@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.Locale;
 
 /***
  * @author <a href="www.hoprxi.com/authors/guan xiangHuan">guan xiangHuang</a>
@@ -44,8 +43,8 @@ public class ESAreaBatchImport implements AreaBatchImport {
     private static final ThreadLocal<Request> REQUEST_POOL;
 
     static {
-        Config config = ConfigFactory.load("area");
-        Config read = config.getConfigList("read").getFirst();
+        Config config = ConfigFactory.load("area").resolve();
+        Config read = config.getConfig("datasources.read.database");
         String host = read.getString("host");
         int port = read.getInt("port");
         String entry = host + ":" + port;
@@ -209,7 +208,7 @@ public class ESAreaBatchImport implements AreaBatchImport {
         String escapedName = escapeJson(name);
         String escapedAbbr = escapeJson(alias);
         String mnemonic = PinYin.toShortPinYing(alias); // 注意：abbreviation 不能为空
-        String escapedMnemonic = escapeJson(mnemonic != null ? mnemonic : "");
+        String escapedMnemonic = escapeJson(mnemonic);
 
         StringBuilder sb = new StringBuilder(512).append("{\"index\":{\"_id\":");
         sb.append(code).append("}}\n");
