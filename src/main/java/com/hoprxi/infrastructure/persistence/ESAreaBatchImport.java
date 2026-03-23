@@ -44,7 +44,7 @@ public class ESAreaBatchImport implements AreaBatchImport {
 
     static {
         Config config = ConfigFactory.load("area").resolve();
-        Config read = config.getConfig("datasources.read.database");
+        Config read = config.getConfigList("databases").getFirst();
         String host = read.getString("host");
         int port = read.getInt("port");
         String entry = host + ":" + port;

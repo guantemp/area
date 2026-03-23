@@ -250,15 +250,14 @@ public class ESAreaQuery implements AreaQuery {
             generator.writeEndObject(); // 结束 query
 
             // sort 结构
-            generator.writeFieldName("sort");
-            generator.writeStartArray();
+            generator.writeArrayFieldStart("sort");
             // 第一级排序：level.order
             generator.writeStartObject();
             generator.writeStringField("level.order", "asc");
             generator.writeEndObject();
             // 第二级排序：parent_code
             generator.writeStartObject();
-            generator.writeStringField("parent_code", "asc");
+            generator.writeStringField("code", "asc");
             generator.writeEndObject();
             generator.writeEndArray();
 
