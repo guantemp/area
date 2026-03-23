@@ -14,6 +14,21 @@ import java.util.EnumSet;
  */
 
 public interface AreaQuery {
+    public enum Level {
+        COUNTRY, PROVINCE, CITY, COUNTY, TOWN;
+
+        /**
+         * @param s of level name
+         * @return <code>NULL if no match</code>
+         */
+        public static Level of(String s) {
+            for (Level Level : values()) {
+                if (Level.name().equalsIgnoreCase(s))
+                    return Level;
+            }
+            return null;
+        }
+    }
     /**
      * Returns a {@link ByteBuf} that wraps the _source content (with _meta removed).
      * <p>

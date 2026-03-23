@@ -71,21 +71,6 @@ public class ESAreaQuery implements AreaQuery {
         CLIENT = RestClient.builder(new HttpHost(host, port, "https")).build();
     }
 
-    public enum Level {
-        COUNTRY, PROVINCE, CITY, COUNTY, TOWN;
-
-        /**
-         * @param s of level name
-         * @return <code>NULL if no match</code>
-         */
-        public static Level of(String s) {
-            for (Level Level : values()) {
-                if (Level.name().equalsIgnoreCase(s))
-                    return Level;
-            }
-            return null;
-        }
-    }
 
     @Override
     public InputStream find(int code) {
