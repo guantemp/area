@@ -123,7 +123,7 @@
      -->
     <appender name="level_console" class="ch.qos.logback.core.ConsoleAppender">
         <filter class="ch.qos.logback.classic.filter.LevelFilter">
-            <level>debug</level>
+            <level>info</level>
             <onMatch>ACCEPT</onMatch>
             <onMismatch>DENY</onMismatch>
         </filter>
@@ -190,5 +190,8 @@
        <!-- <appender-ref ref="size_time_file"></appender-ref> -->
         <appender-ref ref="API_HIS_INFO"></appender-ref>
     </logger>
+    <logger name="org.apache.hc" level="WARN"/>
+    <!-- 或者针对具体的客户端 -->
+    <logger name="org.apache.hc.client5" level="WARN"/>
 
 </configuration>
