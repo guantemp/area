@@ -130,7 +130,29 @@
                                         <include>**/*.xml</include>
                                         <include>**/*.jks</include>
                                         <include>**/*.pdf</include>
-                                        <!-- <include>html/**</include>-->
+                                    </includes>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                            <encoding>UTF-8</encoding>
+                        </configuration>
+                    </execution>
+                    <!-- === 新增部分开始：专门拷贝 html 到 target 根目录 === -->
+                    <execution>
+                        <id>copy-html-to-root</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <!-- 目标目录：-->
+                            <outputDirectory>${project.build.directory}/html</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <!-- 源目录 -->
+                                    <directory>src/main/resources/html</directory>
+                                    <includes>
+                                        <include>**/*</include>
                                     </includes>
                                     <filtering>false</filtering>
                                 </resource>
