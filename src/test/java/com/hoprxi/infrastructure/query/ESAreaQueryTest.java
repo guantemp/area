@@ -15,6 +15,7 @@
  */
 package com.hoprxi.infrastructure.query;
 
+import com.hoprxi.application.AreaSearchException;
 import org.testng.annotations.Test;
 import salt.hoprxi.crypto.util.StoreKeyLoad;
 
@@ -36,7 +37,7 @@ public class ESAreaQueryTest {
 
     private static final ESAreaQuery query = new ESAreaQuery();
 
-    @Test
+    @Test(expectedExceptions = AreaSearchException.class, expectedExceptionsMessageRegExp = ".*not found.*")
     public void testFind() {
         try (InputStream is = query.find(510000)) {
             System.out.println("查询四川：\n" + new String(is.readAllBytes(), StandardCharsets.UTF_8));

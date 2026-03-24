@@ -100,6 +100,20 @@
                 </excludes>
             </resource>
         </resources>
+        <!-- 【关键】测试资源配置：合并 main 和 test 的资源 -->
+        <testResources>
+            <!-- 1. 优先加载 src/test/resources (用于覆盖特定测试配置) -->
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>false</filtering>
+            </testResource>
+
+            <!-- 2. 自动包含 src/main/resources 的所有文件 (解决找不到文件的问题) -->
+            <testResource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+            </testResource>
+        </testResources>
         <plugins>
             <!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
             <plugin>
@@ -147,6 +161,7 @@
                         <configuration>
                             <!-- 目标目录：-->
                             <outputDirectory>${project.build.directory}/html</outputDirectory>
+                            <!--<outputDirectory>${project.basedir}/html</outputDirectory>-->
                             <resources>
                                 <resource>
                                     <!-- 源目录 -->
