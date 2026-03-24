@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>区域详情 | Area Details</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+            --accent-color: #3b82f6;
+            --text-main: #0f172a;
+            --text-secondary: #64748b;
+            --text-light: #94a3b8;
+            --bg-body: #f8fafc;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --danger-color: #ef4444;
+            --row-odd-bg: #ffffff;
+            --row-even-bg: #f8fafc;
+            --row-hover-bg: #eff6ff;
+            --current-row-bg: #dbeafe;
+            --current-row-border: #3b82f6;
+            --child-indent-px: 24px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-body); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
+        header { background: var(--primary-gradient); color: white; padding: 3rem 1rem 4rem; text-align: center; position: relative; overflow: hidden; transition: opacity 0.2s; }
+        header::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.1) 0%, transparent 70%); pointer-events: none; }
+        header h1 { font-size: 2rem; font-weight: 800; position: relative; z-index: 2; margin-bottom: 0.5rem; word-break: break-word; padding: 0 1rem; }
+        header p { font-size: 1rem; opacity: 0.9; position: relative; z-index: 2; font-weight: 300; }
+
+        .back-home-btn { position: absolute; top: 20px; left: 20px; background: rgba(255,255,255,0.15); backdrop-filter: blur(4px); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 0.9rem; font-weight: 600; transition: all 0.2s; z-index: 10; display: flex; align-items: center; gap: 6px; }
+        .back-home-btn:hover { background: white; color: var(--text-main); transform: translateX(-2px); }
+
+        .container { max-width: 1400px; margin: -3rem auto 3rem; padding: 0 1.5rem; flex: 1; position: relative; z-index: 10; width: 100%; }
+        .table-card { background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border-color); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); overflow: hidden; display: flex; flex-direction: column; transition: opacity 0.2s; }
+        .table-header { padding: 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; background: #fff; }
+        .header-left { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+        .table-title h2 { font-size: 1.25rem; font-weight: 700; color: var(--text-main); }
+        .table-title span { font-size: 0.9rem; color: var(--text-light); font-family: 'JetBrains Mono'; margin-top: 4px; display: block; }
+        .count-badge { background: #eff6ff; color: var(--accent-color); padding: 4px 12px; border-radius: 99px; font-size: 0.85rem; font-weight: 600; }
+
+        .btn-up {
+            background: white; color: var(--text-main); border: 1px solid var(--border-color);
+            padding: 8px 16px; border-radius: 8px; font-size: 0.9rem; font-weight: 600;
+            display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: all 0.2s; user-select: none;
+        }
+        .btn-up:hover { background: var(--bg-body); border-color: var(--text-secondary); transform: translateY(-1px); }
+        .btn-up:active { transform: translateY(0); }
+        .btn-up:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        .table-wrapper { overflow-x: auto; width: 100%; }
+        table { width: 100%; border-collapse: collapse; text-align: left; min-width: 900px; }
+        th { background: #f1f5f9; padding: 12px 16px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); border-bottom: 2px solid var(--border-color); white-space: nowrap; }
+        td { padding: 16px 16px; border-bottom: 1px solid var(--border-color); font-size: 0.9rem; color: var(--text-main); vertical-align: middle; height: 64px; text-align: left; }
+        tr:last-child td { border-bottom: none; }
+        tbody tr:nth-child(odd) { background-color: var(--row-odd-bg); }
+        tbody tr:nth-child(even) { background-color: var(--row-even-bg); }
+        tbody tr:hover { background-color: var(--row-hover-bg) !important; cursor: pointer; }
+
+        tr.current-node-row { background-color: var(--current-row-bg) !important; border-left: 4px solid var(--current-row-border); }
+        tr.current-node-row td { font-weight: 600; color: #1e3a8a; }
+        tr.current-node-row .badge-current::after { content: " (当前根节点)"; font-size: 0.75em; color: var(--accent-color); font-weight: 700; margin-left: 6px; background: rgba(59, 130, 246, 0.1); padding: 2px 6px; border-radius: 4px; vertical-align: middle; }
+
+        tr.is-child-row td { padding-left: calc(16px + var(--child-indent-px)); }
+        tr.is-child-row td.col-icon { padding-left: 16px; padding-right: 0; text-align: center; color: var(--text-light); font-size: 1.2rem; font-weight: bold; }
+        tr.is-child-row td.col-icon::before { content: '↳'; display: block; }
+        tr.current-node-row td.col-icon::before { content: ''; }
+        tr.current-node-row td.col-icon { padding-left: 16px; text-align: center; }
+
+        .col-name-wrapper { display: flex; flex-direction: column; justify-content: center; height: 100%; gap: 4px; }
+        .col-name-main { font-weight: 600; color: var(--text-main); font-size: 1rem; line-height: 1.2; display: flex; align-items: center; gap: 8px; }
+        .col-name-mnemonic { font-size: 0.75rem; color: var(--text-light); font-family: 'JetBrains Mono'; text-transform: uppercase; letter-spacing: 0.05em; line-height: 1; }
+        tr.current-node-row .col-name-mnemonic { color: #60a5fa; }
+        .col-code { font-family: 'JetBrains Mono'; color: var(--text-secondary); font-size: 0.85rem; font-weight: 600; }
+        .col-alias { color: var(--text-secondary); }
+        .col-contact { font-family: 'JetBrains Mono'; color: var(--text-secondary); font-size: 0.85rem; white-space: nowrap; text-align: left; }
+        .col-coord { font-family: 'JetBrains Mono'; color: var(--text-light); font-size: 0.85rem; white-space: nowrap; text-align: left; }
+        .col-icon { width: 40px; text-align: center; font-size: 1.2rem; }
+
+        .empty-state { text-align: center; padding: 5rem 0; color: var(--text-secondary); background: white; border-radius: 16px; border: 1px solid var(--border-color); }
+        .spinner { width: 48px; height: 48px; border: 4px solid #e2e8f0; border-top-color: var(--accent-color); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1.5rem; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .error-msg { color: var(--danger-color); font-weight: 600; margin-bottom: 1rem; white-space: pre-wrap; text-align: left; display: inline-block; max-width: 600px;}
+        .retry-btn { background: var(--accent-color); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: opacity 0.2s; }
+        .retry-btn:hover { opacity: 0.9; }
+        footer { text-align: center; padding: 2rem; color: #94a3b8; font-size: 0.85rem; border-top: 1px solid var(--border-color); background: white; margin-top: auto; }
+        @media (max-width: 768px) {
+            header h1 { font-size: 1.5rem; } .container { padding: 0 1rem; } .back-home-btn { padding: 6px 12px; font-size: 0.8rem; }
+            .table-header { flex-direction: column; align-items: flex-start; } .header-left { width: 100%; justify-content: space-between; }
+            .hide-mobile { display: none; } td { padding: 12px 10px; height: auto; } tr.is-child-row td { padding-left: calc(10px + 16px); }
+        }
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <header>
+        <a href="index.html" class="back-home-btn">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            主页
+        </a>
+        <h1>{{ currentName }}</h1>
+        <p v-if="loading">正在加载...</p>
+        <p v-else-if="!isRoot && parentName">上级：{{ parentName }}</p>
+        <p v-else>顶层节点</p>
+    </header>
+
+    <div class="container">
+        <div v-if="loading" class="empty-state">
+            <div class="spinner"></div>
+            <p>正在获取 {{ currentName }} 的下级...</p>
+        </div>
+
+        <div v-else-if="error" class="empty-state">
+            <p class="error-msg">{{ error }}</p>
+            <button class="retry-btn" @click="loadDataFromUrl">重试</button>
+        </div>
+
+        <div v-else-if="listData.length === 0" class="empty-state">
+            <p style="font-size: 1.1rem; font-weight: 600;">暂无下级辖区</p>
+            <p style="font-size: 0.9rem; margin-top: 0.5rem; color: var(--text-light)">当前节点已是最低层级</p>
+        </div>
+
+        <div v-else class="table-card" :style="{ opacity: loading ? 0.5 : 1 }">
+            <div class="table-header">
+                <div class="header-left">
+                    <div class="table-title">
+                        <h2>辖区列表</h2>
+                        <span>点击行进入下一级 (无刷新)</span>
+                    </div>
+
+                    <!-- 只有当有明确的父级名字时才显示按钮 -->
+                    <button
+                            v-if="!isRoot && parentName"
+                            @click="loadParent"
+                            class="btn-up"
+                            :disabled="loading"
+                    >
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5m7 7l-7-7 7-7"/></svg>
+                        返回上级 ({{ parentName }})
+                    </button>
+                </div>
+                <div class="count-badge">共 {{ listData.length }} 条</div>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                    <tr>
+                        <th class="col-icon"></th>
+                        <th style="width: 12%">代码</th>
+                        <th style="width: 25%">名称</th>
+                        <th style="width: 15%">别名</th>
+                        <th style="width: 18%">坐标 (WGS84)</th>
+                        <th class="hide-mobile">区号</th>
+                        <th class="hide-mobile">邮编</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr
+                            v-for="item in listData"
+                            :key="item.code"
+                            :class="{
+                                'current-node-row': String(item.code) === String(currentCode),
+                                'is-child-row': String(item.code) !== String(currentCode)
+                            }"
+                            @click="goToChild(item)"
+                    >
+                        <td class="col-icon">
+                            <span v-if="String(item.code) === String(currentCode)">📍</span>
+                            <span v-else style="opacity:0">.</span>
+                        </td>
+                        <td class="col-code">{{ item.code }}</td>
+                        <td>
+                            <div class="col-name-wrapper">
+                                    <span class="col-name-main">
+                                        {{ item.name?.name || 'Unnamed' }}
+                                        <span v-if="String(item.code) === String(currentCode)" class="badge-current"></span>
+                                    </span>
+                                <span class="col-name-mnemonic" v-if="item.name?.mnemonic">{{ item.name.mnemonic }}</span>
+                                <span class="col-name-mnemonic" v-else style="visibility:hidden">-</span>
+                            </div>
+                        </td>
+                        <td class="col-alias">{{ item.name?.alias || '-' }}</td>
+                        <td class="col-coord">{{ formatCoord(item.location) }}</td>
+                        <td class="col-contact hide-mobile">{{ item.telephone_code || '-' }}</td>
+                        <td class="col-contact hide-mobile">{{ item.zipcode || '-' }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <footer><p>Area Service &copy; 2026 (Chain Logic)</p></footer>
+</div>
+
+<script>
+    const { createApp, ref, onMounted } = Vue;
+
+    createApp({
+        setup() {
+            const BASE_URL = "https://slave.tooo.top/area/v1/areas";
+
+            // 状态变量
+            const currentCode = ref('');
+            const currentName = ref('');
+
+            // 核心修复：使用链式父级参数
+            // p1 = 直接父级, p2 = 爷爷级, p3 = 太爷爷级...
+            const parentCode = ref('');
+            const parentName = ref('');
+            const grandParentCode = ref('');
+            const grandParentName = ref('');
+
+            const isRoot = ref(true);
+
+            const listData = ref([]);
+            const loading = ref(false);
+            const error = ref('');
+
+            onMounted(() => {
+                loadDataFromUrl();
+                window.addEventListener('popstate', loadDataFromUrl);
+            });
+
+            const loadDataFromUrl = () => {
+                const params = new URLSearchParams(window.location.search);
+                const code = params.get('code');
+                const name = params.get('name');
+
+                // 读取父级链
+                const pCode = params.get('parentCode');
+                const pName = params.get('parentName');
+                const gpCode = params.get('grandParentCode');
+                const gpName = params.get('grandParentName');
+
+                if (!code) {
+                    error.value = '缺少 code 参数';
+                    loading.value = false;
+                    return;
+                }
+
+                currentCode.value = code;
+                currentName.value = name ? decodeURIComponent(name) : '未知区域';
+
+                // 重置状态
+                isRoot.value = true;
+                parentCode.value = '';
+                parentName.value = '';
+                grandParentCode.value = '';
+                grandParentName.value = '';
+
+                // 如果有父级参数，说明不是根节点
+                if (pCode && pName) {
+                    parentCode.value = pCode;
+                    parentName.value = decodeURIComponent(pName);
+                    isRoot.value = false;
+
+                    // 如果有爷爷级参数，也存起来，以便下次返回时使用
+                    if (gpCode && gpName) {
+                        grandParentCode.value = gpCode;
+                        grandParentName.value = decodeURIComponent(gpName);
+                    }
+                }
+
+                fetchChildren(code);
+            };
+
+            const fetchChildren = async (code) => {
+                loading.value = true;
+                error.value = '';
+                listData.value = [];
+
+                try {
+                    const res = await fetch(`${BASE_URL}/${code}/children`);
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+                    const data = await res.json();
+                    let list = [];
+                    if (Array.isArray(data)) list = data;
+                    else if (data.list) list = data.list;
+                    else if (data.data) list = data.data;
+                    else if (data.areas) list = data.areas;
+
+                    listData.value = list;
+
+                    // 容错：如果 URL 没传父级，但数据里有，且我们没有父级名字，尝试补救
+                    // 但这通常不会发生，因为我们的逻辑保证了 URL 永远带名字
+                    if (isRoot.value && list.length > 0) {
+                        const self = list.find(i => String(i.code) === String(code));
+                        if (self && self.parent_code && String(self.parent_code) !== String(code)) {
+                            // 仅在完全没有名字时 fallback，优先保证显示名字
+                            if (!parentName.value) {
+                                parentCode.value = self.parent_code;
+                                parentName.value = self.parent_name || `Code: ${self.parent_code}`;
+                                isRoot.value = false;
+                            }
+                        }
+                    }
+
+                } catch (e) {
+                    error.value = '加载失败: ' + e.message;
+                } finally {
+                    loading.value = false;
+                }
+            };
+
+            const goToChild = (item) => {
+                if (String(item.code) === String(currentCode.value)) return;
+
+                const childCode = item.code;
+                const childName = item.name?.name || 'Unknown';
+
+                const params = new URLSearchParams();
+                params.set('code', childCode);
+                params.set('name', childName);
+
+                // 【关键逻辑】链条后移
+                // 新的 parent = 当前的 current
+                params.set('parentCode', currentCode.value);
+                params.set('parentName', currentName.value);
+
+                // 新的 grandParent = 当前的 parent
+                if (parentCode.value && parentName.value) {
+                    params.set('grandParentCode', parentCode.value);
+                    params.set('grandParentName', parentName.value);
+                }
+                // 如果有更上层，可以继续移，但两层通常够用了（返回两次）
+                // 如果需要无限返回，可以在此处继续读取更深层的参数并后移
+
+                const newUrl = `${window.location.pathname}?${params.toString()}`;
+                window.history.pushState({}, '', newUrl);
+                loadDataFromUrl();
+            };
+
+            const loadParent = () => {
+                if (!parentCode.value || !parentName.value) {
+                    alert("无法返回：未知上级信息");
+                    return;
+                }
+
+                const params = new URLSearchParams();
+                // 新的 current = 当前的 parent
+                params.set('code', parentCode.value);
+                params.set('name', parentName.value);
+
+                // 新的 parent = 当前的 grandParent
+                if (grandParentCode.value && grandParentName.value) {
+                    params.set('parentCode', grandParentCode.value);
+                    params.set('parentName', grandParentName.value);
+                }
+                // 如果没有 grandParent，说明返回后就是根节点了，不传 parent 参数即可，isRoot 会自动变 true
+
+                const newUrl = `${window.location.pathname}?${params.toString()}`;
+                window.history.pushState({}, '', newUrl);
+                loadDataFromUrl();
+            };
+
+            const formatCoord = (loc) => {
+                if (!loc || loc.lat === undefined || loc.lon === undefined) return '-';
+                if (loc.lat === 0 && loc.lon === 0) return '-';
+                return `${Number(loc.lat).toFixed(4)}, ${Number(loc.lon).toFixed(4)}`;
+            };
+
+            return {
+                currentCode, currentName, parentName, isRoot,
+                listData, loading, error,
+                loadDataFromUrl, goToChild, loadParent, formatCoord
+            };
+        }
+    }).mount('#app');
+</script>
+</body>
+</html>

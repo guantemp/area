@@ -308,23 +308,41 @@ public class ESAreaQuery implements AreaQuery {
         return writer.toString();
     }
 
-    public InputStream queryJurisdiction(int code) {
+    public InputStream queryChildren(int code) {
         Request request = new Request("GET", "/area/_search");
         request.setOptions(COMMON_OPTIONS);
-        request.setJsonEntity(ESAreaQuery.buildJurisdictionQueryRequest(code));
+        request.setJsonEntity(ESAreaQuery.buildChildrenQueryRequest(code));
         return ESAreaQuery.extract(request);
     }
 
-    private static String buildJurisdictionQueryRequest(int code) {
+    private static String buildChildrenQueryRequest(int code) {
         StringWriter writer = new StringWriter();
         try (JsonGenerator generator = JSON_FACTORY.createGenerator(writer)) {
             generator.writeStartObject();// 开始生成 JSON
             generator.writeNumberField("size", 199);
             // query 部分
             generator.writeObjectFieldStart("query");
-            generator.writeObjectFieldStart("term");
-            generator.writeNumberField("parent_code", code);
-            generator.writeEndObject(); // 结束 term
+
+            generator.writeObjectFieldStart("bool"); // "bool": {
+            // 开始 "should" 数组 (对应 OR 关系)
+            generator.writeArrayFieldStart("should");
+            // --- 条件 1: code = 1001 (自己) ---
+            generator.writeStartObject(); // {
+            generator.writeObjectFieldStart("term"); // "term": {
+            generator.writeNumberField("code", code); // "code": 1001
+            generator.writeEndObject(); // } 结束 term
+            generator.writeEndObject(); // } 结束第一个条件对象
+            // --- 条件 2: parent_code = 1001 (子辖区) ---
+            generator.writeStartObject(); // {
+            generator.writeObjectFieldStart("term"); // "term": {
+            generator.writeNumberField("parent_code", code); // "parent_code": 1001
+            generator.writeEndObject(); // } 结束 term
+            generator.writeEndObject(); // } 结束第二个条件对象
+            generator.writeEndArray(); // ] 结束 should 数组
+            // (可选) 显式指定至少匹配一个，虽然默认就是 1
+            // generator.writeNumberField("minimum_should_match", 1);
+            generator.writeEndObject(); // } 结束 bool
+
             generator.writeEndObject(); // 结束 query
             // sort 部分
             generator.writeArrayFieldStart("sort");

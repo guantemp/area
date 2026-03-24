@@ -56,7 +56,7 @@ public class AreaSevice {
 
     @Get("/areas/{code}")
     @Description("Retrieves the area information by the given area code.")
-    public HttpResponse find(ServiceRequestContext ctx, @Param("code") int code, @Param("pretty") @Default("false") boolean pretty) {
+    public HttpResponse find(ServiceRequestContext ctx, @Param("code") int code) {
         StreamWriter<HttpObject> stream = StreamMessage.streaming();
         ctx.whenRequestCancelled().thenAccept(stream::close);
         ctx.blockingTaskExecutor().execute(() -> {
@@ -64,7 +64,6 @@ public class AreaSevice {
             ByteBuf buffer = ctx.alloc().buffer(BUFFER_SIZE);
             try (InputStream is = query.find(code); JsonParser parser = JSON_FACTORY.createParser(is);
                  OutputStream os = new ByteBufOutputStream(buffer); JsonGenerator gen = JSON_FACTORY.createGenerator(os);) {
-                if (pretty) gen.useDefaultPrettyPrinter();
                 while (parser.nextToken() != null) {
                     gen.copyCurrentEvent(parser);
                 }
@@ -86,16 +85,14 @@ public class AreaSevice {
         return HttpResponse.of(stream);
     }
 
-    @Get("/areas/{code}/juri")
-    public HttpResponse queryJurisdiction(ServiceRequestContext ctx, @Param("code") int code,
-                                          @Param("pretty") @Default("false") boolean pretty) {
+    @Get("/areas/{code}/children")
+    public HttpResponse queryChildren(ServiceRequestContext ctx, @Param("code") int code) {
         StreamWriter<HttpObject> stream = StreamMessage.streaming();
         ctx.blockingTaskExecutor().execute(() -> {
             if (ctx.isCancelled() || ctx.isTimedOut()) return;
             ByteBuf buffer = ctx.alloc().buffer(BUFFER_SIZE);
-            try (InputStream is = query.queryJurisdiction(code); JsonParser parser = JSON_FACTORY.createParser(is);
+            try (InputStream is = query.queryChildren(code); JsonParser parser = JSON_FACTORY.createParser(is);
                  OutputStream os = new ByteBufOutputStream(buffer); JsonGenerator gen = JSON_FACTORY.createGenerator(os);) {
-                if (pretty) gen.useDefaultPrettyPrinter();
                 while (parser.nextToken() != null) {
                     gen.copyCurrentEvent(parser);
                 }
@@ -118,8 +115,7 @@ public class AreaSevice {
     }
 
     @Get("/areas")
-    public HttpResponse search(ServiceRequestContext ctx, QueryParams params,
-                               @Param("pretty") @Default("false") boolean pretty) {
+    public HttpResponse search(ServiceRequestContext ctx, QueryParams params) {
         int offset = params.getInt("offset", OFFSET);
         int size = params.getInt("size", SIZE);
         EnumSet<ESAreaQuery.Level> sets = EnumSet.noneOf(ESAreaQuery.Level.class);
@@ -135,10 +131,10 @@ public class AreaSevice {
         Optional.ofNullable(params.get("q")).filter(q -> !q.isBlank()).ifPresentOrElse(q -> {//key 查询
             ctx.blockingTaskExecutor().execute(() -> {
                 if (ctx.isCancelled() || ctx.isTimedOut()) return;
+                String searchAfter = params.get("searchAfter", "");
                 ByteBuf buffer = ctx.alloc().buffer(BUFFER_SIZE);
                 try (InputStream is = query.query(q, sets, offset, size); JsonParser parser = JSON_FACTORY.createParser(is);
                      OutputStream os = new ByteBufOutputStream(buffer); JsonGenerator gen = JSON_FACTORY.createGenerator(os);) {
-                    if (pretty) gen.useDefaultPrettyPrinter();
                     while (parser.nextToken() != null) {
                         gen.copyCurrentEvent(parser);
                     }
@@ -157,14 +153,13 @@ public class AreaSevice {
                     if (buffer != null) buffer.release(); // 只释放未被转移的缓冲区
                 }
             });
-        }, () -> {//全局查询
-            String searchAfter = params.get("searchAfter", "");
+        }, () -> {//全局查询,无关键字
+
             ctx.blockingTaskExecutor().execute(() -> {
                 if (ctx.isCancelled() || ctx.isTimedOut()) return;
                 ByteBuf buffer = ctx.alloc().buffer(BUFFER_SIZE);
-                try (InputStream is = query.query(sets, searchAfter, size); JsonParser parser = JSON_FACTORY.createParser(is);
+                try (InputStream is = query.queryCountry(); JsonParser parser = JSON_FACTORY.createParser(is);
                      OutputStream os = new ByteBufOutputStream(buffer); JsonGenerator gen = JSON_FACTORY.createGenerator(os);) {
-                    if (pretty) gen.useDefaultPrettyPrinter();
                     while (parser.nextToken() != null) {
                         gen.copyCurrentEvent(parser);
                     }

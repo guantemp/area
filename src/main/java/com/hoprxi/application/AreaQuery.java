@@ -2,7 +2,6 @@ package com.hoprxi.application;
 
 import com.hoprxi.infrastructure.query.ESAreaQuery;
 import io.netty.buffer.ByteBuf;
-import reactor.core.publisher.Flux;
 
 import java.io.InputStream;
 import java.util.EnumSet;
@@ -44,5 +43,5 @@ public interface AreaQuery {
 
     InputStream query(EnumSet<ESAreaQuery.Level> filters, String searchAfter, int size);
 
-    InputStream queryJurisdiction(int code);
+    InputStream queryChildren(int code);
 }

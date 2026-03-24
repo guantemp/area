@@ -1,0 +1,787 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Area Service | 云原生高性能行政区划 API</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+            --accent-color: #3b82f6;
+            --accent-glow: rgba(59, 130, 246, 0.15);
+            --text-main: #0f172a;
+            --text-secondary: #475569;
+            --bg-body: #f8fafc;
+            --card-bg: #ffffff;
+            --success-color: #10b981;
+            --code-bg: #1e293b;
+            --border-color: #e2e8f0;
+            --metric-value: #dc2626;
+
+            --json-key: #7dd3fc;
+            --json-string: #86efac;
+            --json-number: #fca5a5;
+            --json-bracket: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+            scroll-behavior: smooth;
+        }
+
+        /* Header */
+        header {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 5rem 1rem 6.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.12) 0%, transparent 75%);
+            pointer-events: none;
+        }
+
+        header h1 {
+            font-size: 3.2rem;
+            margin-bottom: 0.8rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            text-shadow: 0 2px 12px rgba(0,0,0,0.25);
+        }
+
+        header p {
+            font-size: 1.25rem;
+            opacity: 0.92;
+            max-width: 680px;
+            margin: 0 auto;
+            font-weight: 300;
+        }
+
+        .badge-container {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 28px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(6px);
+            padding: 8px 16px;
+            border-radius: 99px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .badge:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
+        .badge-prod {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: rgba(239, 68, 68, 0.4);
+            color: #fca5a5;
+        }
+
+        .badge-tech {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: rgba(59, 130, 246, 0.4);
+            color: #93c5fd;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1140px;
+            margin: -5rem auto 3rem;
+            padding: 0 1.5rem;
+            position: relative;
+            z-index: 20;
+        }
+
+        /* 3-Column Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            padding: 2.2rem;
+            border-radius: 18px;
+            box-shadow: 0 4px 10px -2px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--border-color);
+            transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.3s;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-7px);
+            box-shadow: 0 22px 32px -8px rgba(0, 0, 0, 0.12);
+            border-color: var(--accent-color);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 1.4rem;
+            display: inline-block;
+            background: var(--accent-glow);
+            padding: 14px;
+            border-radius: 14px;
+            color: var(--accent-color);
+            width: fit-content;
+        }
+
+        .feature-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.8rem;
+        }
+
+        .feature-desc {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            flex-grow: 1;
+        }
+
+        .feature-tag {
+            display: inline-block;
+            margin-top: 1.6rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            background: #eff6ff;
+            padding: 5px 10px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Benchmark */
+        .benchmark-section {
+            background: var(--card-bg);
+            border-radius: 22px;
+            padding: 2.6rem;
+            margin-bottom: 4rem;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.06);
+        }
+
+        .benchmark-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 2.2rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1.4rem;
+        }
+
+        .benchmark-title {
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .benchmark-subtitle {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 2rem;
+        }
+
+        .metric-item {
+            background: #f8fafc;
+            padding: 1.8rem 1.4rem;
+            border-radius: 14px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: 0.3s;
+        }
+
+        .metric-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 18px rgba(0,0,0,0.06);
+        }
+
+        .metric-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--accent-color);
+        }
+
+        .metric-value {
+            display: block;
+            font-size: 2.3rem;
+            font-weight: 800;
+            color: var(--metric-value);
+            margin-bottom: 0.7rem;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: -1px;
+        }
+
+        .metric-label {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .metric-note {
+            display: block;
+            margin-top: 0.7rem;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            font-weight: 400;
+        }
+
+        .jvm-flags {
+            grid-column: 1 / -1;
+            background: #1e293b;
+            color: #cbd5e1;
+            padding: 1.2rem;
+            border-radius: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            white-space: nowrap;
+            border: 1px solid #334155;
+            margin-top: 1rem;
+        }
+
+        .flag-highlight {
+            color: #4ade80;
+            font-weight: bold;
+        }
+
+        /* API Section */
+        .api-section {
+            background: var(--card-bg);
+            border-radius: 22px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            margin-bottom: 4rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .api-header {
+            background: #f8fafc;
+            padding: 2rem 2.4rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1.2rem;
+        }
+
+        .api-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .api-base-url {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: #dc2626;
+            background: #fef2f2;
+            padding: 10px 16px;
+            border-radius: 10px;
+            border: 1px solid #fecaca;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.25s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .api-base-url:hover {
+            background: #fee2e2;
+            border-color: #ef4444;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.12);
+        }
+
+        .api-base-url::after {
+            content: '↗';
+            font-size: 0.75em;
+            opacity: 0.7;
+        }
+
+        .api-body {
+            padding: 2.6rem;
+        }
+
+        .endpoint {
+            margin-bottom: 3rem;
+            padding-left: 2rem;
+            border-left: 4px solid var(--accent-color);
+            position: relative;
+        }
+
+        .method-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 1rem;
+        }
+
+        .method-badge {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .m-get { background: #dbeafe; color: #1e40af; }
+        .m-post { background: #d1fae5; color: #065f46; }
+        .m-put { background: #fef3c7; color: #92400e; }
+        .m-root { background: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; }
+
+        .path {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.4rem;
+            color: var(--text-main);
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .desc {
+            margin: 1rem 0 1.5rem;
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            max-width: 850px;
+        }
+
+        .params-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 1rem;
+            margin-top: 1.4rem;
+            background: #f8fafc;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .params-table th {
+            text-align: left;
+            color: #64748b;
+            font-weight: 600;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e2e8f0;
+            background: #f1f5f9;
+        }
+
+        .params-table td {
+            padding: 15px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+        }
+
+        .params-table tr:last-child td { border-bottom: none; }
+
+        .params-table code {
+            background: white;
+            padding: 4px 8px;
+            border-radius: 5px;
+            border: 1px solid #e2e8f0;
+            font-family: 'JetBrains Mono', monospace;
+            color: #db2777;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .info-box {
+            background: #f0f9ff;
+            border-left: 4px solid #0ea5e9;
+            padding: 1.4rem;
+            border-radius: 0 10px 10px 0;
+            margin: 1.4rem 0;
+            font-size: 1rem;
+            color: #0c4a6e;
+            line-height: 1.7;
+        }
+
+        .info-box strong { color: #0369a1; }
+
+        .code-block {
+            background: var(--code-bg);
+            color: #e2e8f0;
+            padding: 2rem;
+            border-radius: 14px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            overflow-x: auto;
+            margin-top: 1.4rem;
+            border: 1px solid #334155;
+            box-shadow: inset 0 2px 12px rgba(0,0,0,0.35);
+            line-height: 1.7;
+            position: relative;
+        }
+
+        .code-title {
+            color: #94a3b8;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+            display: block;
+            font-weight: 700;
+        }
+
+        .cmd { color: #4ade80; font-weight: bold; }
+        .url { color: #60a5fa; text-decoration: none; border-bottom: 1px dashed #60a5fa; }
+
+        .k { color: var(--json-key); }
+        .s { color: var(--json-string); }
+        .n { color: var(--json-number); }
+        .o { color: var(--json-bracket); }
+        .comment { color: #64748b; font-style: italic; }
+
+        .actions {
+            text-align: center;
+            margin: 4rem 0;
+            display: flex;
+            justify-content: center;
+            gap: 1.4rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 1.1rem 2.6rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 1.05rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary { background: var(--accent-color); color: white; box-shadow: 0 4px 16px var(--accent-glow); }
+        .btn-primary:hover { background: #2563eb; transform: translateY(-3px); box-shadow: 0 10px 24px var(--accent-glow); }
+        .btn-outline { border: 1.5px solid #cbd5e1; color: var(--text-secondary); background: white; }
+        .btn-outline:hover { border-color: var(--text-main); color: var(--text-main); transform: translateY(-3px); }
+        .btn-prod { background: #dc2626; color: white; box-shadow: 0 4px 16px rgba(220, 38, 38, 0.25); }
+        .btn-prod:hover { background: #b91c1c; transform: translateY(-3px); }
+
+        .warning-text {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #dc2626;
+            margin-top: 1.4rem;
+            font-weight: 600;
+            background: #fef2f2;
+            padding: 12px 24px;
+            border-radius: 24px;
+            display: inline-block;
+        }
+
+        footer {
+            text-align: center;
+            padding: 4rem 1rem;
+            color: #94a3b8;
+            font-size: 0.95rem;
+            border-top: 1px solid var(--border-color);
+            background: white;
+        }
+
+        footer strong { color: var(--text-main); }
+        footer p { max-width: 750px; margin: 0 auto; line-height: 1.6; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header h1 { font-size: 2.6rem; }
+            .api-header { flex-direction: column; align-items: flex-start; }
+            .features-grid { grid-template-columns: 1fr; }
+            .metrics-grid { grid-template-columns: 1fr 1fr; }
+            .api-body, .benchmark-section { padding: 2rem 1.6rem; }
+            .code-block { padding: 1.6rem; }
+        }
+
+        @media (max-width: 480px) {
+            .metrics-grid { grid-template-columns: 1fr; }
+            .btn { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Area Service</h1>
+    <p>云原生高性能行政区划数据服务</p>
+    <div class="badge-container">
+        <div class="badge badge-tech">⚡ JDK 21 虚拟线程</div>
+        <div class="badge badge-tech">🚀 Zero-Copy Stream</div>
+        <div class="badge badge-prod">🌐 生产环境实测</div>
+    </div>
+</header>
+
+<div class="container">
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">🔍</div>
+            <div class="feature-title">ES 智能分词模糊检索</div>
+            <div class="feature-desc">
+                基于 Elasticsearch 深度集成，支持<strong>中文分词、拼音首字母及多级地名模糊匹配</strong>。
+                <br>输入 <code>bj</code> 定位北京，输入 <code>四川泸州</code> 亦可精准命中，提供极致的搜索体验。
+            </div>
+            <span class="feature-tag">Full-Text Search</span>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <div class="feature-title">堆外内存零拷贝流</div>
+            <div class="feature-desc">
+                采用 <strong>InputStream → ByteBuf → Network</strong> 直传架构，数据全程驻留堆外内存。
+                仅需 <strong>8KB 微缓冲</strong> 即可处理百万级数据导出，<strong>零 GC 压力</strong>。
+                在 1GB 内存限制下仍可高密度部署多实例。
+            </div>
+            <span class="feature-tag">Zero-Copy & Cloud Native</span>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">🛡️</div>
+            <div class="feature-title">高并发与极致稳定</div>
+            <div class="feature-desc">
+                基于 <strong>JDK 21 虚拟线程</strong> 重构并发模型，轻松应对流量洪峰。
+                <br>配合 <strong>Serial GC</strong> 深度调优与小堆策略，实现毫秒级延迟与低 CPU 占用，确保服务长期稳定运行。
+            </div>
+            <span class="feature-tag">High Concurrency</span>
+        </div>
+    </div>
+
+    <div class="benchmark-section">
+        <div class="benchmark-header">
+            <span style="font-size: 1.8rem;">🚀</span>
+            <div>
+                <div class="benchmark-title">性能基准 (生产环境实时监测)</div>
+                <div class="benchmark-subtitle">基于 JVM 深度调优与依赖治理，实现资源占用最小化</div>
+            </div>
+        </div>
+        <div class="metrics-grid">
+            <div class="metric-item">
+                <span class="metric-value">~182 MB</span>
+                <span class="metric-label">稳定内存占用 (RSS)</span>
+                <span class="metric-note">含堆/非堆/线程栈</span>
+            </div>
+            <div class="metric-item">
+                <span class="metric-value">0.2%</span>
+                <span class="metric-label">空闲 CPU 使用率</span>
+                <span class="metric-note">极低背景噪声</span>
+            </div>
+            <div class="metric-item">
+                <span class="metric-value">Serial GC</span>
+                <span class="metric-label">低延迟回收策略</span>
+                <span class="metric-note">小堆内存最优解</span>
+            </div>
+            <div class="metric-item">
+                <span class="metric-value">5+ 实例</span>
+                <span class="metric-label">单台 1GB 服务器承载</span>
+                <span class="metric-note">超高密度部署</span>
+            </div>
+
+            <div class="jvm-flags">
+                <span style="color: #64748b; margin-right: 10px;"># 生产启动参数:</span>
+                <span class="flag-highlight">-Xms32m -Xmx128m</span>
+                <span style="color: #64748b; margin: 0 5px;">|</span>
+                <span class="flag-highlight">-XX:MaxDirectMemorySize=32m</span>
+                <span style="color: #64748b; margin: 0 5px;">|</span>
+                <span class="flag-highlight">-XX:+UseSerialGC</span>
+                <span style="color: #64748b; margin: 0 5px;">|</span>
+                <span class="flag-highlight">-Dio.netty.allocator.type=pooled</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="api-section">
+        <div class="api-header">
+            <div class="api-title">
+                <span>📡 API 规范文档</span>
+            </div>
+            <a href="https://slave.tooo.top/area/areas.html" target="_blank" class="api-base-url" title="点击在新标签页打开">
+                https://slave.tooo.top/areas
+            </a>
+        </div>
+        <div class="api-body">
+            <p style="margin-bottom: 2.4rem; color: var(--text-secondary); font-size: 1.1rem;">
+                本服务提供标准化的 RESTful 接口，所有响应均采用<strong>流式 JSON 输出</strong>，确保大数据量下的低延迟与高稳定性。
+            </p>
+
+            <div class="endpoint">
+                <div class="method-row">
+                    <span class="method-badge m-get">GET</span>
+                    <span class="path">/areas/{code}</span>
+                </div>
+                <p class="desc">查询指定行政区划的完整元数据。</p>
+                <table class="params-table">
+                    <tr><th>参数</th><th>类型</th><th>说明</th></tr>
+                    <tr><td><code>code</code></td><td>Path</td><td>标准行政区划代码 (如：<code>110000</code>)</td></tr>
+                </table>
+            </div>
+
+            <div class="endpoint">
+                <div class="method-row">
+                    <span class="method-badge m-get">GET</span>
+                    <span class="path">/areas/{code}/children</span>
+                </div>
+                <p class="desc">流式获取指定行政区划的直接子节点列表。</p>
+                <div class="info-box">
+                    💡 <strong>性能提示：</strong> 采用零拷贝流式输出，数据直接从 ES 流向客户端，无堆内存占用。
+                </div>
+                <table class="params-table">
+                    <tr><th>参数</th><th>类型</th><th>说明</th></tr>
+                    <tr><td><code>code</code></td><td>Path</td><td>父级行政区划代码</td></tr>
+                </table>
+            </div>
+
+            <div class="endpoint">
+                <div class="method-row">
+                    <span class="method-badge m-get">GET</span>
+                    <span class="path">/areas</span>
+                </div>
+                <p class="desc">全局检索引擎，不传参数默认查询所有国家（根节点），支持多维度过滤与分页。offset 与 size 成对使用，searchAfter 用于 ES 深度分页。</p>
+                <div class="info-box">
+                    <strong>🧠 匹配规则：</strong> 基于 ES 分词器，支持<strong>拼音首字母</strong>、<strong>中文模糊</strong>及<strong>多级地名组合</strong>。<br>
+                    示例：q = <code>bj</code> (北京), q = <code>sc lz</code> (四川泸州), q = <code>朝阳</code> (朝阳区)。
+                </div>
+                <table class="params-table">
+                    <tr><th>参数</th><th>类型</th><th>说明</th></tr>
+                    <tr><td><code>q</code></td><td>Query</td><td>搜索关键字（非必传，不传默认查所有国家）</td></tr>
+                    <tr><td><code>filter</code></td><td>Query</td><td>层级过滤器，逗号分隔：country,province,city,county,town</td></tr>
+                    <tr><td><code>offset</code></td><td>Int</td><td>分页起始偏移量，默认 0，与 size 成对使用</td></tr>
+                    <tr><td><code>size</code></td><td>Int</td><td>分页大小，默认 64</td></tr>
+                    <tr><td><code>searchAfter</code></td><td>String</td><td>深层分页游标，结果超过  10000 条后使用</td></tr>
+                </table>
+            </div>
+
+            <div class="endpoint">
+                <div class="method-row">
+                    <span class="method-badge m-post">POST</span>
+                    <span class="path">/areas</span>
+                </div>
+                <p class="desc">创建新的行政区划记录。</p>
+                <div class="info-box">
+                    <strong>⚠️ 约束条件：</strong> 创建国家 (<code>level: 0</code>) 时，必须满足 <code>parent_code == code</code>。
+                </div>
+                <div class="code-block">
+                    <span class="code-title">请求示例：创建主权国家</span>
+                    <span class="o">{</span>
+                    <span class="k">"code"</span><span class="o">:</span> <span class="n">408</span><span class="o">,</span>
+                    <span class="k">"parent_code"</span><span class="o">:</span> <span class="n">408</span><span class="o">,</span> <span class="comment">// 自引用约束</span>
+                    <span class="k">"name"</span><span class="o">:</span> <span class="s">"朝鲜民主主义人民共和国"</span><span class="o">,</span>
+                    <span class="k">"abbreviation"</span><span class="o">:</span> <span class="s">"朝鲜"</span><span class="o">,</span>
+                    <span class="k">"location"</span><span class="o">:</span> <span class="o">{</span> <span class="k">"lat"</span><span class="o">:</span> <span class="n">39.03</span><span class="o">,</span> <span class="k">"lon"</span><span class="o">:</span> <span class="n">125.75</span> <span class="o">},</span>
+                    <span class="k">"level"</span><span class="o">:</span> <span class="n">0</span>
+                    <span class="o">}</span>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <div class="method-row">
+                    <span class="method-badge m-put">PUT</span>
+                    <span class="path">/areas/{code}</span>
+                </div>
+                <p class="desc">全量更新指定实体的属性信息。</p>
+            </div>
+        </div>
+    </div>
+
+    <div style="background: white; padding: 2.4rem; border-radius: 22px; box-shadow: 0 12px 32px rgba(0,0,0,0.06); border: 1px solid var(--border-color);">
+        <h3 style="margin-bottom: 2rem; color: var(--text-main); font-size: 1.4rem; display: flex; align-items: center; gap: 10px;">
+            <span>💻</span> 集成调用示例
+        </h3>
+
+        <div class="code-block">
+            <span class="code-title"># 1. 获取所有国家（根节点）</span>
+            <span class="cmd">curl</span> <span class="url">"https://slave.tooo.top/area/v1/areas"</span> | jq .
+        </div>
+        <br>
+        <div class="code-block">
+            <span class="code-title"># 2. 查询指定代码的子节点</span>
+            <span class="cmd">curl</span> <span class="url">"https://slave.tooo.top/area/v1/areas/110000/children"</span> | jq .
+        </div>
+        <br>
+        <div class="code-block">
+            <span class="code-title"># 3. 模糊搜索 + 分页</span>
+            <span class="cmd">curl</span> <span class="url">"https://slave.tooo.top/area/v1/areas?q=四川泸州&offset=0&size=20"</span> | jq .
+        </div>
+    </div>
+
+    <div class="actions">
+        <a href="https://slave.tooo.top/area/v1/areas" target="_blank" class="btn btn-prod">
+            <span>🌍</span> 测试国家列表
+        </a>
+        <a href="https://slave.tooo.top/area/v1/areas?q=四川" target="_blank" class="btn btn-outline">
+            <span>🔍</span> 测试模糊搜索
+        </a>
+    </div>
+
+    <div style="text-align: center;">
+        <div class="warning-text">
+            ⚠️ 生产环境警告：写入操作将永久生效，请谨慎执行。
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>&copy; 2026 <strong>Area Service</strong>. Designed by guan xiangHuan.</p>
+    <p style="margin-top: 0.6rem; opacity: 0.8;">Powered by JDK 21, Armeria & Elasticsearch | Endpoint: https://slave.tooo.top/area/v1/areas</p>
+</footer>
+</body>
+</html>

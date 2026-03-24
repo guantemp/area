@@ -37,7 +37,6 @@
             <version>2.0.17</version>
             <scope>compile</scope>
         </dependency>
-        <!-- Source: https://mvnrepository.com/artifact/ch.qos.logback/logback-classic -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
@@ -95,10 +94,9 @@
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
-                <filtering>false</filtering> <!-- 是否开启变量替换文本，不要开启，缺省不知道是个啥 ${...} -->
+                <filtering>false</filtering>
                 <excludes>
-                    <!-- 排除需要外置到 conf 目录的文件/文件夹 -->
-                    <exclude>**/**</exclude>
+                    <exclude>**/*</exclude>
                 </excludes>
             </resource>
         </resources>
@@ -132,7 +130,7 @@
                                         <include>**/*.xml</include>
                                         <include>**/*.jks</include>
                                         <include>**/*.pdf</include>
-                                        <include>html/**</include>
+                                        <!-- <include>html/**</include>-->
                                     </includes>
                                     <filtering>false</filtering>
                                 </resource>
