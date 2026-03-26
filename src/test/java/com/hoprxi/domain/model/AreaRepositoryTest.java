@@ -28,11 +28,11 @@ public class AreaRepositoryTest {
         Country china = new Country(156, 156, name, wgs84);
         repository.save(china);
 
-        name = new Name("四川省", "川", "蜀");
+        name = new Name("四川省", "四川", "蜀");
         wgs84 = new WGS84(104.065735, 30.659462);
         Province sichuan = new Province(510000, 156, name, wgs84);
         repository.save(sichuan);
-        name = new Name("乐山市", "乐山", PinYin.toPinYing("乐山市"));
+        name = new Name("乐山市", "乐山","嘉州");
         wgs84 = new WGS84(105.435226, 28.897572);
         City leshan = new City(511100, 510000, name, wgs84, "614000", "0833");
         repository.save(leshan);
@@ -41,7 +41,7 @@ public class AreaRepositoryTest {
         City nanchong = new City(511300, 510000, name, wgs84, "646000", "0830");
         repository.save(nanchong);
 
-        name = new Name("泸州市", "泸");
+        name = new Name("泸州市", "泸州");
         wgs84 = new WGS84(105.443352, 28.889137);
         City luzhou = new City(510500, 510000, name, wgs84, "637000", "0817");
         repository.save(luzhou);
@@ -57,7 +57,7 @@ public class AreaRepositoryTest {
         wgs84 = new WGS84(105.453644, 28.993362);
         Town sidong = new Town(510504102, 510504, name, wgs84);
         repository.save(sidong);
-        name = new Name("江阳区", "江阳",PinYin.toPinYing("江阳区"));
+        name = new Name("江阳区", "江阳");
         wgs84 = new WGS84(105.445129, 28.882889);
         County jiangyan = new County(510502, 510500, name, wgs84);
         repository.save(jiangyan);
@@ -66,7 +66,7 @@ public class AreaRepositoryTest {
         County xuyong = new County(510524, 510500, name, wgs84);
         repository.save(xuyong);
 
-        name = new Name("云南省", "滇", "云");
+        name = new Name("云南省", "云南", "滇");
         wgs84 = new WGS84(102.71225, 25.040609);
         Province yunnan = new Province(530000, 156, name, wgs84);
         repository.save(yunnan);

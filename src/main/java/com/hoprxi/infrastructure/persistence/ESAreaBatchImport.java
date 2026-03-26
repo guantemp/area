@@ -194,21 +194,19 @@ public class ESAreaBatchImport implements AreaBatchImport {
         Integer code = (Integer) values[0];
         String name = (String) values[1];
         Integer parentCode = (Integer) values[2];
-        String alias = (String) values[3];
+        String abbreviation = (String) values[3];
         Double longitude = (Double) values[4];
         Double latitude = (Double) values[5];
         Integer level = (Integer) values[6];
 
         // 必填字段校验
         if (code == null || name == null || parentCode == null || level == null ||
-            longitude == null || latitude == null || alias == null) {
+            longitude == null || latitude == null || abbreviation == null) {
             return null; // 跳过无效行
         }
         // 转义字符串（防止 JSON 注入）
         String escapedName = escapeJson(name);
-        String escapedAbbr = escapeJson(alias);
-        String mnemonic = PinYin.toShortPinYing(alias); // 注意：abbreviation 不能为空
-        String escapedMnemonic = escapeJson(mnemonic);
+        String escapedAbbr = escapeJson(abbreviation);
 
         StringBuilder sb = new StringBuilder(512).append("{\"index\":{\"_id\":");
         sb.append(code).append("}}\n");
@@ -216,8 +214,7 @@ public class ESAreaBatchImport implements AreaBatchImport {
                 .append(",\"parent_code\":").append(parentCode)
                 .append(",\"name\":{")
                 .append("\"name\":\"").append(escapedName)
-                .append("\",\"alias\":\"").append(escapedAbbr)
-                .append("\",\"mnemonic\":\"").append(escapedMnemonic)
+                .append("\",\"abbreviation\":\"").append(escapedAbbr)
                 .append("\"},\"zipcode\":\"\",\"telephone_code\":\"\"")
                 .append(",\"location\":{\"lat\":").append( latitude)//小数6位，精度约为 10 厘米
                 .append(",\"lon\":").append(longitude)

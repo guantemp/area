@@ -103,18 +103,20 @@ public final class Bootstrap {
 
         ServerBuilder sb = Server.builder();
         // Configure a filter which evaluates whether an address of a remote endpoint is
-// trusted. If unspecified, no remote endpoint is trusted.
-// e.g. servers who have an IP address in 10.0.0.0/8.
+        // trusted. If unspecified, no remote endpoint is trusted.
+        // e.g. servers who have an IP address in 10.0.0.0/8.
         //sb.clientAddressTrustedProxyFilter(InetAddressPredicates.ofCidr("10.0.0.0/8"));
 
-// Configure a filter which evaluates whether an address can be used as
-// a client address. If unspecified, any address would be accepted.
-// e.g. public addresses
+        // Configure a filter which evaluates whether an address can be used as
+        // a client address. If unspecified, any address would be accepted.
+        // e.g. public addresses
+
         sb.clientAddressFilter(address -> !address.isSiteLocalAddress());
 
-// Configure a list of sources which are used to determine where to look for
-// the client address, in the order of preference. If unspecified, 'Forwarded',
-// 'X-Forwarded-For' and the source address of a PROXY protocol header would be used.
+        // Configure a list of sources which are used to determine where to look for
+        // the client address, in the order of preference. If unspecified, 'Forwarded',
+        // 'X-Forwarded-For' and the source address of a PROXY protocol header would be used.
+
         sb.clientAddressSources(ClientAddressSource.ofHeader(HttpHeaderNames.FORWARDED),
                 ClientAddressSource.ofHeader(HttpHeaderNames.X_FORWARDED_FOR),
                 ClientAddressSource.ofProxyProtocol());
@@ -140,6 +142,7 @@ public final class Bootstrap {
                 .exampleRequests("/v1", "query")
                 .build());
         sb.http(PORT);
+
         //sb.https(PORT+1).tls(new File("certificate.crt"), new File("private.key"), "myPassphrase");
 
         Server server = sb.annotatedService("/", new AreaSevice())
@@ -148,7 +151,8 @@ public final class Bootstrap {
                 .build();
         server.closeOnJvmShutdown();
         server.start().join();
-        LOGGER.info("Server has been started. Serving dummy service at http://127.0.0.1:{} and https://127.0.0.1:{}", server.activeLocalPort(SessionProtocol.HTTP), server.activeLocalPort(SessionProtocol.HTTP));
+        LOGGER.info("Server has been started. Serving dummy service at http://127.0.0.1:{} and https://127.0.0.1:{}",
+                server.activeLocalPort(SessionProtocol.HTTP), server.activeLocalPort(SessionProtocol.HTTP));
         System.out.printf("Server has been started. Serving dummy service at http://127.0.0.1:%d and https://127.0.0.1:%d%n",
                 server.activeLocalPort(SessionProtocol.HTTP), server.activeLocalPort(SessionProtocol.HTTP));
 

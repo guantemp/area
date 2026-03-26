@@ -32,12 +32,14 @@ import org.elasticsearch.client.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import salt.hoprxi.crypto.application.DatabaseSpecDecrypt;
+import salt.hoprxi.to.PinYin;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.StringJoiner;
 
 /***
  * @author <a href="www.hoprxi.com/authors/guan xiangHuan">guan xiangHuang</a>
@@ -80,7 +82,7 @@ public class ESAreaRepository implements AreaRepository {
                         if (parser.currentToken() != JsonToken.START_OBJECT) {
                             throw new IllegalStateException("_source is not an object");
                         }
-                        return rebuild(parser);
+                        return ESAreaRepository.rebuild(parser);
                     }
                 }
             }
@@ -99,7 +101,7 @@ public class ESAreaRepository implements AreaRepository {
         return null;
     }
 
-    private Area rebuild(JsonParser parser) throws IOException {
+    private static Area rebuild(JsonParser parser) throws IOException {
         int code = 0, parentCode = 0;
         Name name = null;
         String zipcode = null, telephoneCode = null;
@@ -132,47 +134,34 @@ public class ESAreaRepository implements AreaRepository {
         };
     }
 
-    private Name nameOf(JsonParser parser) throws IOException {
+    private static Name nameOf(JsonParser parser) throws IOException {
         String name = "", abbreviation = "", alias = "", mnemonic = "";
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             String fieldName = parser.currentName();
             parser.nextToken();
             switch (fieldName) {
-                case "name":
-                    name = parser.getValueAsString();
-                    break;
-                case "mnemonic":
-                    mnemonic = parser.getValueAsString();
-                    break;
-                case "abbreviation":
-                    abbreviation = parser.getValueAsString();
-                    break;
-                case "alias":
-                    alias = parser.getValueAsString();
-                    break;
+                case "name" -> name = parser.getValueAsString();
+                case "abbreviation" -> abbreviation = parser.getValueAsString();
+                case "alias" -> alias = parser.getValueAsString();
             }
         }
-        return new Name(name, abbreviation, mnemonic, alias);
+        return new Name(name, abbreviation, alias);
     }
 
-    private WGS84 wgs84Of(JsonParser parser) throws IOException {
+    private static WGS84 wgs84Of(JsonParser parser) throws IOException {
         double longitude = 0.0, latitude = 0.0;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             String fieldName = parser.currentName();
             parser.nextToken();
             switch (fieldName) {
-                case "lon":
-                    longitude = parser.getValueAsDouble(0.0);
-                    break;
-                case "lat":
-                    latitude = parser.getValueAsDouble(0.0);
-                    break;
+                case "lon" -> longitude = parser.getValueAsDouble(0.0);
+                case "lat" -> latitude = parser.getValueAsDouble(0.0);
             }
         }
         return new WGS84(longitude, latitude);
     }
 
-    private Area.Level levelOf(JsonParser parser) throws IOException {
+    private static Area.Level levelOf(JsonParser parser) throws IOException {
         String name = "";
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             String fieldName = parser.currentName();
@@ -188,7 +177,7 @@ public class ESAreaRepository implements AreaRepository {
         try {
             Request request = new Request("POST", "/area/_update/" + area.code());
             request.setOptions(COMMON_OPTIONS);
-            request.setJsonEntity(jsonEntity(area));
+            request.setJsonEntity(ESAreaRepository.requestJsonEntity(area));
             CLIENT.performRequest(request);
         } catch (IOException e) {
             //System.out.println(((ResponseException)e).getResponse().getStatusLine().getStatusCode());
@@ -196,7 +185,7 @@ public class ESAreaRepository implements AreaRepository {
         }
     }
 
-    private String jsonEntity(Area area) {
+    private static String requestJsonEntity(Area area) {
         StringWriter writer = new StringWriter();
         try (JsonGenerator gen = JSON_FACTORY.createGenerator(writer)) {
             gen.writeStartObject();
@@ -205,9 +194,13 @@ public class ESAreaRepository implements AreaRepository {
             gen.writeNumberField("parent_code", area.parentCode());
             gen.writeObjectFieldStart("name");
             gen.writeStringField("name", area.name().name());
-            gen.writeStringField("mnemonic", area.name().mnemonic());
             gen.writeStringField("abbreviation", area.name().abbreviation());
             gen.writeStringField("alias", area.name().alias());
+            StringJoiner sj = new StringJoiner(" ");
+            sj.add(PinYin.toPinYing(area.name().name())).add(PinYin.toShortPinYing(area.name().name()))
+                    .add(PinYin.toPinYing(area.name().abbreviation())).add(PinYin.toShortPinYing(area.name().abbreviation()))
+                    .add(PinYin.toPinYing(area.name().alias())).add(PinYin.toShortPinYing(area.name().alias()));
+            gen.writeStringField("search_mix", sj.toString());
             gen.writeEndObject();//end name
             gen.writeStringField("zipcode", area.zipcode());
             gen.writeStringField("telephone_code", area.telephoneCode());

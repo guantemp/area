@@ -20,57 +20,27 @@ package com.hoprxi.domain.model;
 import salt.hoprxi.to.PinYin;
 
 import java.util.Objects;
-import java.util.StringJoiner;
 
 /***
  * @author <a href="www.hoprxi.com/authors/guan xiangHuan">guan xiangHuang</a>
  * @since JDK21
  * @version 0.0.3 builder 2025-09-02
  */
-public class Name {
-    private final String abbreviation;
-    private final String alias;
-    private final String name;
-    private final String mnemonic;
+public record Name(String name, String pinyin, String abbreviation, String mnemonic, String alias) {
 
-    public Name(String name,  String abbreviation, String mnemonic, String alias) {
-        this.name = Objects.requireNonNull(name, "name required").trim();
-        this.mnemonic = Objects.requireNonNull(mnemonic, "pinyin required").trim();
-        this.abbreviation = abbreviation;
-        this.alias = alias;
+    public Name {
+        Objects.requireNonNull(name, "name required").trim();
     }
 
     public Name(String name, String abbreviation, String alias) {
-        this(name,  abbreviation, PinYin.toShortPinYing(name), alias);
+        this(name, PinYin.toPinYing(name), abbreviation, PinYin.toShortPinYing(abbreviation), alias);
     }
 
     public Name(String name, String abbreviation) {
-        this(name, abbreviation, PinYin.toPinYing(abbreviation));
+        this(name, PinYin.toPinYing(name), abbreviation, PinYin.toShortPinYing(abbreviation), "");
     }
 
-    @Override
-    public String toString() {
-        return new StringJoiner(", ", Name.class.getSimpleName() + "[", "]")
-                .add("name='" + name + "'")
-                .add("mnemonic='" + mnemonic + "'")
-                .add("abbreviation='" + abbreviation + "'")
-                .add("alias='" + alias + "'")
-                .toString();
-    }
-
-    public String abbreviation() {
-        return abbreviation;
-    }
-
-    public String alias() {
-        return alias;
-    }
-
-    public String name() {
-        return name;
-    }
-
-    public String mnemonic() {
-        return mnemonic;
+    public Name(String name) {
+        this(name, PinYin.toPinYing(name), "", "", "");
     }
 }
