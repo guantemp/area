@@ -15,6 +15,7 @@
  */
 package com.hoprxi.infrastructure.query;
 
+import com.hoprxi.application.AreaQuery;
 import com.hoprxi.application.AreaSearchException;
 import org.testng.annotations.Test;
 import salt.hoprxi.crypto.util.StoreKeyLoad;
@@ -49,9 +50,15 @@ public class ESAreaQueryTest {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        try (InputStream is = query.query("泸州小市", EnumSet.of(ESAreaQuery.Level.COUNTRY, ESAreaQuery.Level.CITY, ESAreaQuery.Level.COUNTY, ESAreaQuery.Level.TOWN),
+        try (InputStream is = query.query("泸州小市 bj", EnumSet.of(ESAreaQuery.Level.COUNTRY, ESAreaQuery.Level.CITY, ESAreaQuery.Level.COUNTY, ESAreaQuery.Level.TOWN),
                 0, 999)) {
-            System.out.println("\"名字模糊查询（过滤）：泸州小市\n" + new String(is.readAllBytes(), StandardCharsets.UTF_8));
+            System.out.println("\"名字模糊查询（过滤）：泸州小市 bj\n" + new String(is.readAllBytes(), StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        try (InputStream is = query.query("510", EnumSet.of(ESAreaQuery.Level.PROVINCE, ESAreaQuery.Level.CITY,  ESAreaQuery.Level.TOWN),
+                0, 200)) {
+            System.out.println("\"code模糊查询（过滤）：510\n" + new String(is.readAllBytes(), StandardCharsets.UTF_8));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

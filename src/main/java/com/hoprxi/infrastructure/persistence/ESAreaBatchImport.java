@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.StringJoiner;
 
 /***
  * @author <a href="www.hoprxi.com/authors/guan xiangHuan">guan xiangHuang</a>
@@ -138,7 +139,6 @@ public class ESAreaBatchImport implements AreaBatchImport {
                 case 6 -> level = (int) cell.getNumericCellValue();
             }
         }
-
          */
         // 辅助方法：安全获取单元格值
         Object[] values = new Object[expectedColumns];
@@ -214,12 +214,21 @@ public class ESAreaBatchImport implements AreaBatchImport {
                 .append(",\"parent_code\":").append(parentCode)
                 .append(",\"name\":{")
                 .append("\"name\":\"").append(escapedName)
-                .append("\",\"abbreviation\":\"").append(escapedAbbr)
+                .append("\",\"abbreviation\":\"").append(escapedAbbr);
+        StringJoiner sj = new StringJoiner(" ");
+        sj.add(PinYin.toPinYing(name)).add(PinYin.toShortPinYing(name))
+                .add(PinYin.toPinYing(abbreviation)).add(PinYin.toShortPinYing(abbreviation));
+        /*
+        if (!PinYin.toPinYing(area.name().alias()).isBlank())
+            sj.add(PinYin.toPinYing(area.name().alias()));
+        if (!PinYin.toShortPinYing(area.name().alias()).isBlank())
+            sj.add(PinYin.toShortPinYing(area.name().alias()));
+         */
+        sb.append("\",\"pinyin_vector\":\"").append(sj.toString())
                 .append("\"},\"zipcode\":\"\",\"telephone_code\":\"\"")
-                .append(",\"location\":{\"lat\":").append( latitude)//小数6位，精度约为 10 厘米
+                .append(",\"location\":{\"lat\":").append(latitude)//小数6位，精度约为 10 厘米
                 .append(",\"lon\":").append(longitude)
                 .append("},\"level\":");
-
         // level 映射
         switch (level) {
             case 0 -> sb.append("{\"name\":\"COUNTRY\",\"order\":0}");
@@ -231,7 +240,6 @@ public class ESAreaBatchImport implements AreaBatchImport {
                 return null; // 无效 level
             }
         }
-
         sb.append("}\n");
         return sb;
     }

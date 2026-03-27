@@ -26,21 +26,18 @@ import java.util.Objects;
  * @since JDK21
  * @version 0.0.3 builder 2025-09-02
  */
-public record Name(String name, String pinyin, String abbreviation, String mnemonic, String alias) {
+public record Name(String name,  String abbreviation,  String alias) {
 
     public Name {
         Objects.requireNonNull(name, "name required").trim();
     }
 
-    public Name(String name, String abbreviation, String alias) {
-        this(name, PinYin.toPinYing(name), abbreviation, PinYin.toShortPinYing(abbreviation), alias);
-    }
 
     public Name(String name, String abbreviation) {
-        this(name, PinYin.toPinYing(name), abbreviation, PinYin.toShortPinYing(abbreviation), "");
+        this(name,  abbreviation,  "");
     }
 
     public Name(String name) {
-        this(name, PinYin.toPinYing(name), "", "", "");
+        this(name,  "", "");
     }
 }

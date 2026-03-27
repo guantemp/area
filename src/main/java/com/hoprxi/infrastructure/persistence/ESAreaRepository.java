@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025. www.hoprxi.com All Rights Reserved.
+ * Copyright (c) 2026. www.hoprxi.com All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ import java.util.StringJoiner;
 /***
  * @author <a href="www.hoprxi.com/authors/guan xiangHuan">guan xiangHuang</a>
  * @since JDK21
- * @version 0.0.1 builder 2025/8/18
+ * @version 0.0.2 builder 2026/03/27
  */
 
 public class ESAreaRepository implements AreaRepository {
@@ -177,7 +177,7 @@ public class ESAreaRepository implements AreaRepository {
         try {
             Request request = new Request("POST", "/area/_update/" + area.code());
             request.setOptions(COMMON_OPTIONS);
-            request.setJsonEntity(ESAreaRepository.requestJsonEntity(area));
+            request.setJsonEntity(ESAreaRepository.saveJsonEntity(area));
             CLIENT.performRequest(request);
         } catch (IOException e) {
             //System.out.println(((ResponseException)e).getResponse().getStatusLine().getStatusCode());
@@ -185,7 +185,7 @@ public class ESAreaRepository implements AreaRepository {
         }
     }
 
-    private static String requestJsonEntity(Area area) {
+    private static String saveJsonEntity(Area area) {
         StringWriter writer = new StringWriter();
         try (JsonGenerator gen = JSON_FACTORY.createGenerator(writer)) {
             gen.writeStartObject();
@@ -198,9 +198,12 @@ public class ESAreaRepository implements AreaRepository {
             gen.writeStringField("alias", area.name().alias());
             StringJoiner sj = new StringJoiner(" ");
             sj.add(PinYin.toPinYing(area.name().name())).add(PinYin.toShortPinYing(area.name().name()))
-                    .add(PinYin.toPinYing(area.name().abbreviation())).add(PinYin.toShortPinYing(area.name().abbreviation()))
-                    .add(PinYin.toPinYing(area.name().alias())).add(PinYin.toShortPinYing(area.name().alias()));
-            gen.writeStringField("search_mix", sj.toString());
+                    .add(PinYin.toPinYing(area.name().abbreviation())).add(PinYin.toShortPinYing(area.name().abbreviation()));
+            if (!PinYin.toPinYing(area.name().alias()).isBlank())
+                sj.add(PinYin.toPinYing(area.name().alias()));
+            if (!PinYin.toShortPinYing(area.name().alias()).isBlank())
+                sj.add(PinYin.toShortPinYing(area.name().alias()));
+            gen.writeStringField("pinyin_vector", sj.toString());
             gen.writeEndObject();//end name
             gen.writeStringField("zipcode", area.zipcode());
             gen.writeStringField("telephone_code", area.telephoneCode());
@@ -232,8 +235,8 @@ public class ESAreaRepository implements AreaRepository {
                 LOGGER.info("The area(code={}) is deleted", code);
             }
         } catch (IOException e) {
-            //System.out.println(((ResponseException)e).getResponse().getStatusLine().getStatusCode());
             LOGGER.error("The area(code={}) can't delete", code, e);
+            throw new RuntimeException(String.format("The area(code=%d) can't delete", code), e);
         }
     }
 }

@@ -152,14 +152,9 @@
                             <resources>
                                 <resource>
                                     <directory>src/main/resources</directory>
-                                    <includes>
-                                        <include>**/*.conf</include>
-                                        <include>**/*.xls</include>
-                                        <include>**/*.dat</include>
-                                        <include>**/*.xml</include>
-                                        <include>**/*.jks</include>
-                                        <include>**/*.pdf</include>
-                                    </includes>
+                                    <excludes>
+                                        <exclude>html/**</exclude>
+                                    </excludes>
                                     <filtering>false</filtering>
                                 </resource>
                             </resources>
@@ -179,8 +174,7 @@
                             <!--<outputDirectory>${project.basedir}/html</outputDirectory>-->
                             <resources>
                                 <resource>
-                                    <!-- 源目录 -->
-                                    <directory>src/main/resources/html</directory>
+                                    <directory>src/main/resources/html</directory> <!-- 源目录 -->
                                     <includes>
                                         <include>**/*</include>
                                     </includes>

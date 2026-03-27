@@ -50,7 +50,8 @@ import java.util.EnumSet;
  */
 public class ESAreaQuery implements AreaQuery {
     private static final Logger LOGGER = LoggerFactory.getLogger(ESAreaQuery.class);
-    private static final int COUNTRY_SIZE = 299;
+    private static final int COUNTRY_SIZE = 399;
+    private static final int CHILREN_SIZE = 199;
     private static final int BUFFER_SIZE = 2048;//2KB缓冲区
     private static final RequestOptions COMMON_OPTIONS;
     private static final RestClient CLIENT;
@@ -168,6 +169,7 @@ public class ESAreaQuery implements AreaQuery {
             generator.writeEndObject(); // 结束整个JSON对象
         } catch (IOException e) {
             LOGGER.error("Cannot assemble request JSON", e);
+            throw new RuntimeException("Cannot assemble request JSON", e);
         }
         return writer.toString();
     }
@@ -183,43 +185,15 @@ public class ESAreaQuery implements AreaQuery {
         StringWriter writer = new StringWriter();
         try (JsonGenerator generator = JSON_FACTORY.createGenerator(writer)) {
             generator.writeStartObject(); // 开始生成整个JSON对象
-            // 分页参数
+            // 分页
             generator.writeNumberField("from", from);
             generator.writeNumberField("size", size);
-            // query 结构
-            generator.writeObjectFieldStart("query");
-            if (filters != null && !filters.isEmpty()) {//有过滤要求
-                generator.writeObjectFieldStart("bool");
-                generator.writeArrayFieldStart("must");             // must 数组
-                generator.writeStartObject();//有must需要包装一个bool查询到对象
-            }
-            // 必须有的 bool 查询
-            generator.writeObjectFieldStart("bool");
-            generator.writeFieldName("should");
-            generator.writeStartArray();
-            // 第一个 should 条件：multi_match
-            generator.writeStartObject();
-            generator.writeObjectFieldStart("multi_match");
-            generator.writeStringField("query", key);
-            generator.writeFieldName("fields");
-            generator.writeStartArray();
-            generator.writeString("name.name");
-            generator.writeString("name.abbreviation");
-            generator.writeEndArray();
-            generator.writeEndObject();
-            generator.writeEndObject();
-            // 第二个 should 条件：term
-            generator.writeStartObject();
-            generator.writeObjectFieldStart("term");
-            generator.writeStringField("name.mnemonic", key);
-            generator.writeEndObject();
-            generator.writeEndObject();
 
-            generator.writeEndArray(); // 结束 should 数组
-            generator.writeEndObject(); // 结束 bool
+            generator.writeObjectFieldStart("query"); // 写入query对象
+            generator.writeObjectFieldStart("bool"); // 写入bool对象
 
-            if (filters != null && !filters.isEmpty()) {
-                generator.writeEndObject();//结束第一个must的bool外包
+            if (filters != null && !filters.isEmpty()) {// 写入must数组
+                generator.writeArrayFieldStart("must");
                 generator.writeStartObject();
                 generator.writeObjectFieldStart("terms");
                 generator.writeArrayFieldStart("level.name");
@@ -228,27 +202,55 @@ public class ESAreaQuery implements AreaQuery {
                 }
                 generator.writeEndArray(); // 结束 level.name 数组
                 generator.writeEndObject(); // 结束 terms
-                generator.writeEndObject(); // 结束 terms 对象
+                generator.writeEndObject();
                 generator.writeEndArray(); // 结束 must 数组
-                generator.writeEndObject(); // 结束 bool
             }
-            generator.writeEndObject(); // 结束 query
 
+            generator.writeArrayFieldStart("should");  // 写入should数组
+            generator.writeStartObject();
+            generator.writeObjectFieldStart("multi_match");// 写入multi_match对象
+            generator.writeStringField("query", key);
+            generator.writeArrayFieldStart("fields");// 写入fields数组
+            generator.writeString("name.name^3");
+            generator.writeString("name.abbreviation^2");
+            generator.writeString("name.alias");
+            generator.writeEndArray();//end fields
+            generator.writeStringField("type", "best_fields");
+            generator.writeNumberField("boost", 2.0);
+            generator.writeEndObject(); // 结束multi_match对象
+            generator.writeEndObject(); // 结束should数组中的第一个对象
+
+            generator.writeStartObject();//开始should数组中的第二个对象
+            generator.writeObjectFieldStart("match");    // 写入match对象
+            generator.writeStringField("name.pinyin_vector", key);
+            generator.writeEndObject(); // 结束match对象
+            generator.writeEndObject();
+
+            generator.writeStartObject();//开始should数组中的第三个对象
+            generator.writeObjectFieldStart("prefix");// 写入prefix对象
+            generator.writeObjectFieldStart("code.search");
+            generator.writeStringField("value", key);
+            generator.writeNumberField("boost", 2.0);
+            generator.writeEndObject(); // 结束code.search对象
+            generator.writeEndObject(); // 结束prefix对象
+            generator.writeEndObject();
+
+            // 结束should数组中的第二个对象
+            generator.writeEndArray(); // 结束should数组
+            generator.writeNumberField("minimum_should_match", 1);// 写入minimum_should_match字段
+            generator.writeEndObject(); // 结束bool对象
+            generator.writeEndObject(); // 结束query对象
             // sort 结构
             generator.writeArrayFieldStart("sort");
-            // 第一级排序：level.order
-            generator.writeStartObject();
-            generator.writeStringField("level.order", "asc");
-            generator.writeEndObject();
-            // 第二级排序：parent_code
-            generator.writeStartObject();
+            generator.writeStartObject(); // 排序：code
             generator.writeStringField("code", "asc");
             generator.writeEndObject();
-            generator.writeEndArray();
+            generator.writeEndArray();//end sort
 
             generator.writeEndObject(); // 结束整个JSON对象
         } catch (IOException e) {
             LOGGER.error("Cannot assemble request JSON", e);
+            throw new RuntimeException("Cannot assemble request JSON", e);
         }
         return writer.toString();
     }
@@ -319,7 +321,7 @@ public class ESAreaQuery implements AreaQuery {
         StringWriter writer = new StringWriter();
         try (JsonGenerator generator = JSON_FACTORY.createGenerator(writer)) {
             generator.writeStartObject();// 开始生成 JSON
-            generator.writeNumberField("size", 199);
+            generator.writeNumberField("size", CHILREN_SIZE);
             // query 部分
             generator.writeObjectFieldStart("query");
 
@@ -435,14 +437,10 @@ public class ESAreaQuery implements AreaQuery {
                                     if (parser.currentToken() != JsonToken.START_OBJECT) {
                                         throw new IllegalStateException("_source must be object");
                                     }
-                                    // Flatten _source
-                                    while (parser.nextToken() != JsonToken.END_OBJECT) {
-                                        if (parser.currentToken() == JsonToken.FIELD_NAME) {
-                                            String key = parser.currentName();
-                                            gen.writeFieldName(key);
-                                            parser.nextToken();
-                                            gen.copyCurrentStructure(parser);
-                                        }
+                                    while (parser.nextToken() != JsonToken.END_OBJECT) { // Flatten _source
+                                        gen.copyCurrentEvent(parser); // copy field name
+                                        parser.nextToken();
+                                        gen.copyCurrentStructure(parser); // copy entire value (handles nested)
                                     }
                                 } else if ("sort".equals(fieldName)) {
                                     gen.writeFieldName("sort");
