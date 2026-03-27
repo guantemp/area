@@ -48,7 +48,8 @@ import java.util.concurrent.CompletableFuture;
 public class AreaSevice {
     private static final int OFFSET = 0;
     private static final int SIZE = 64;
-    private static final int BUFFER_SIZE = 1024; // 8KB缓冲区
+    private static final int SINGLE_BUFFER_SIZE = 1024; // 1KB缓冲区
+    private static final int BATCH_BUFFER_SIZE = 8 * 1024; // 8KB缓冲区
 
     private final ESAreaQuery query = new ESAreaQuery();
     private final AreaRepository repository = new ESAreaRepository();
@@ -61,7 +62,7 @@ public class AreaSevice {
         ctx.whenRequestCancelled().thenAccept(stream::close);
         ctx.blockingTaskExecutor().execute(() -> {
             if (ctx.isCancelled() || ctx.isTimedOut()) return;
-            ByteBuf buffer = ctx.alloc().buffer(BUFFER_SIZE);
+            ByteBuf buffer = ctx.alloc().buffer(SINGLE_BUFFER_SIZE);
             try (InputStream is = query.find(code); JsonParser parser = JSON_FACTORY.createParser(is);
                  OutputStream os = new ByteBufOutputStream(buffer); JsonGenerator gen = JSON_FACTORY.createGenerator(os);) {
                 while (parser.nextToken() != null) {
@@ -90,7 +91,7 @@ public class AreaSevice {
         StreamWriter<HttpObject> stream = StreamMessage.streaming();
         ctx.blockingTaskExecutor().execute(() -> {
             if (ctx.isCancelled() || ctx.isTimedOut()) return;
-            ByteBuf buffer = ctx.alloc().buffer(BUFFER_SIZE);
+            ByteBuf buffer = ctx.alloc().buffer(BATCH_BUFFER_SIZE);
             try (InputStream is = query.queryChildren(code); JsonParser parser = JSON_FACTORY.createParser(is);
                  OutputStream os = new ByteBufOutputStream(buffer); JsonGenerator gen = JSON_FACTORY.createGenerator(os);) {
                 while (parser.nextToken() != null) {
@@ -132,7 +133,7 @@ public class AreaSevice {
             ctx.blockingTaskExecutor().execute(() -> {
                 if (ctx.isCancelled() || ctx.isTimedOut()) return;
                 String searchAfter = params.get("searchAfter", "");
-                ByteBuf buffer = ctx.alloc().buffer(BUFFER_SIZE);
+                ByteBuf buffer = ctx.alloc().buffer(BATCH_BUFFER_SIZE);
                 try (InputStream is = query.query(q, sets, offset, size); JsonParser parser = JSON_FACTORY.createParser(is);
                      OutputStream os = new ByteBufOutputStream(buffer); JsonGenerator gen = JSON_FACTORY.createGenerator(os);) {
                     while (parser.nextToken() != null) {
@@ -156,7 +157,7 @@ public class AreaSevice {
         }, () -> {//全局查询,无关键字
             ctx.blockingTaskExecutor().execute(() -> {
                 if (ctx.isCancelled() || ctx.isTimedOut()) return;
-                ByteBuf buffer = ctx.alloc().buffer(BUFFER_SIZE);
+                ByteBuf buffer = ctx.alloc().buffer(BATCH_BUFFER_SIZE);
                 try (InputStream is = query.queryCountry(); JsonParser parser = JSON_FACTORY.createParser(is);
                      OutputStream os = new ByteBufOutputStream(buffer); JsonGenerator gen = JSON_FACTORY.createGenerator(os);) {
                     while (parser.nextToken() != null) {
