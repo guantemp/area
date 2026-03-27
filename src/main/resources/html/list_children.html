@@ -162,7 +162,7 @@
                         <th class="col-icon"></th>
                         <th style="width: 12%">代码</th>
                         <th style="width: 25%">名称</th>
-                        <th style="width: 15%">别名</th>
+                        <th style="width: 15%">简称</th>
                         <th style="width: 18%">坐标 (WGS84)</th>
                         <th class="hide-mobile">区号</th>
                         <th class="hide-mobile">邮编</th>
@@ -193,7 +193,7 @@
                                 <span class="col-name-mnemonic" v-else style="visibility:hidden">-</span>
                             </div>
                         </td>
-                        <td class="col-alias">{{ item.alias || '-' }}</td>
+                        <td class="col-alias">{{ item.abbreviation || '-' }}</td>
                         <td class="col-coord">{{ formatCoord(item.location) }}</td>
                         <td class="col-contact hide-mobile">{{ item.tel || '-' }}</td>
                         <td class="col-contact hide-mobile">{{ item.zip || '-' }}</td>

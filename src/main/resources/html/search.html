@@ -1,0 +1,342 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>搜索结果 - 区域数据查询</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <style>
+        /* --- 配色变量 --- */
+        :root {
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --bg-header: #0f172a;
+            --bg-row-odd: #1e293b;
+            --bg-row-even: #334155;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --border: #334155;
+            --accent: #3b82f6;
+            --error-color: #ef4444;
+
+            /* 级别颜色 */
+            --level-province-color: #3b82f6;
+            --level-city-color: #10b981;
+            --level-county-color: #f59e0b;
+            --level-town-color: #ec4899;
+            --level-street-color: #6366f1;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 4rem;
+        }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+
+        /* --- 头部样式 --- */
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);
+        }
+        .back-link { color: var(--text-sub); text-decoration: none; display: flex; align-items: center; gap: 6px; }
+        .back-link:hover { color: var(--accent); }
+        h2 { font-size: 1.5rem; font-weight: 700; }
+
+        /* --- 表格样式 --- */
+        .data-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            overflow-x: auto;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+
+        thead {
+            background-color: var(--bg-header);
+            border-bottom: 2px solid var(--border);
+        }
+        th {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-sub);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            border-right: 1px solid var(--border);
+        }
+        th:last-child { border-right: none; }
+
+        /* --- 行样式 (左侧颜色条) --- */
+        tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: all 0.2s;
+            border-left: 4px solid transparent;
+        }
+        tbody tr:nth-child(odd) { background-color: var(--bg-row-odd); }
+        tbody tr:nth-child(even) { background-color: var(--bg-row-even); }
+        tbody tr:hover { background-color: #475569; }
+
+        /* --- 级别颜色类 --- */
+        .level-province { border-left-color: var(--level-province-color) !important; }
+        .level-city     { border-left-color: var(--level-city-color) !important; }
+        .level-county   { border-left-color: var(--level-county-color) !important; }
+        .level-town     { border-left-color: var(--level-town-color) !important; }
+        .level-street   { border-left-color: var(--level-street-color) !important; }
+
+        td { padding: 1rem 1.5rem; color: var(--text-main); vertical-align: middle; }
+        td:first-child { padding-left: 1.8rem; }
+
+        .col-code { font-family: 'JetBrains Mono', monospace; color: var(--accent); font-weight: 600; }
+        .col-coord { font-family: 'JetBrains Mono', monospace; color: var(--text-sub); font-size: 0.85rem; }
+
+        /* --- 状态提示 --- */
+        .status-msg { text-align: center; padding: 4rem 0; color: var(--text-sub); }
+        .error-msg {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: var(--error-color);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 2rem;
+            font-size: 0.9rem;
+        }
+
+        /* --- 分页样式 (恢复) --- */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 2rem;
+        }
+        .page-btn {
+            padding: 8px 14px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-sub);
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .page-btn:hover:not(:disabled) {
+            background: var(--bg-row-even);
+            color: var(--text-main);
+            border-color: var(--accent);
+        }
+        .page-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+        .page-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            background: var(--bg-card);
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <div class="container">
+        <div class="header">
+            <a href="index.html" class="back-link">← 返回首页</a>
+            <h2>查询结果 <span style="font-size: 0.9rem; color: var(--text-sub); font-weight: 400;">(共 {{ total }} 条)</span></h2>
+        </div>
+
+        <!-- 错误提示 -->
+        <div v-if="errorMsg" class="error-msg">
+            <strong>出错了：</strong> {{ errorMsg }}
+        </div>
+
+        <!-- 加载状态 -->
+        <div v-else-if="loading" class="status-msg">
+            <div class="spinner"></div>
+            <p>正在连接服务器...</p>
+        </div>
+
+        <!-- 数据表格 -->
+        <div v-else-if="list.length > 0" class="data-card">
+            <table>
+                <thead>
+                <tr>
+                    <th>代码</th>
+                    <th>名称</th>
+                    <th>简称</th>
+                    <th>坐标 (WGS84)</th>
+                    <th>区号</th>
+                    <th>邮编</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="item in list" :key="item.code" :class="getLevelClass(item.level)">
+                    <td class="col-code">{{ item.code }}</td>
+                    <td>{{ item.name?.name || '-' }}</td>
+                    <td>{{ item.name?.abbreviation || '-' }}</td>
+                    <td class="col-coord">{{ formatCoord(item.location) }}</td>
+                    <td>{{ item.telephone_code || '-' }}</td>
+                    <td>{{ item.zipcode || '-' }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 空状态 -->
+        <div v-else class="status-msg">
+            <p>暂无数据</p>
+        </div>
+
+        <!-- 分页控件 (恢复) -->
+        <div class="pagination" v-if="totalPages > 1">
+            <button class="page-btn" :disabled="currentPage === 1" @click="goPage(1)">首页</button>
+            <button class="page-btn" :disabled="currentPage === 1" @click="goPage(currentPage - 1)">上一页</button>
+
+            <!-- 简单的页码显示逻辑：只显示当前页和前后几页 -->
+            <button
+                    v-for="p in visiblePages"
+                    :key="p"
+                    class="page-btn"
+                    :class="{ active: p === currentPage }"
+                    @click="goPage(p)"
+            >
+                {{ p }}
+            </button>
+
+            <button class="page-btn" :disabled="currentPage === totalPages" @click="goPage(currentPage + 1)">下一页</button>
+            <button class="page-btn" :disabled="currentPage === totalPages" @click="goPage(totalPages)">末页</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const { createApp, ref, computed } = Vue;
+
+        createApp({
+            setup() {
+                const API_URL = "https://slave.tooo.top/area/v1/areas";
+                const PAGE_SIZE = 50; // 每页数量
+
+                const list = ref([]);
+                const loading = ref(false);
+                const errorMsg = ref('');
+                const keyword = ref('');
+                const total = ref(0);
+                const currentPage = ref(1);
+
+                // 计算总页数
+                const totalPages = computed(() => Math.ceil(total.value / PAGE_SIZE) || 1);
+
+                // 计算可见的页码 (简化版：显示当前页附近的页码)
+                const visiblePages = computed(() => {
+                    const pages = [];
+                    const delta = 2; // 当前页前后显示几个
+                    let start = Math.max(1, currentPage.value - delta);
+                    let end = Math.min(totalPages.value, currentPage.value + delta);
+
+                    // 确保至少显示几个页码
+                    if (end - start < delta * 2) {
+                        if (start === 1) end = Math.min(totalPages.value, delta * 2 + 1);
+                        if (end === totalPages.value) start = Math.max(1, totalPages.value - delta * 2);
+                    }
+
+                    for (let i = start; i <= end; i++) {
+                        pages.push(i);
+                    }
+                    return pages;
+                });
+
+                const getLevelClass = (level) => {
+                    if (!level) return '';
+                    const levelName = typeof level === 'object' ? level.name : level;
+                    switch (levelName) {
+                        case 'PROVINCE': return 'level-province';
+                        case 'CITY': return 'level-city';
+                        case 'DISTRICT': return 'level-county';
+                        case 'TOWN': return 'level-town';
+                        case 'VILLAGE': return 'level-street';
+                        default: return '';
+                    }
+                };
+
+                const formatCoord = (loc) => {
+                    if (!loc) return '-';
+                    if (typeof loc === 'object') return `${loc.lat?.toFixed(4) || '-'}, ${loc.lon?.toFixed(4) || '-'}`;
+                    return loc;
+                };
+
+                const fetchData = async (page) => {
+                    loading.value = true;
+                    errorMsg.value = '';
+                    list.value = [];
+
+                    try {
+                        const offset = (page - 1) * PAGE_SIZE;
+                        const url = new URL(API_URL);
+
+                        // 关键修改：使用 offset 和 size
+                        url.searchParams.set('offset', offset);
+                        url.searchParams.set('size', PAGE_SIZE);
+
+                        if (keyword.value) url.searchParams.set('q', keyword.value);
+
+                        const res = await fetch(url);
+                        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+                        const data = await res.json();
+
+                        if (data && typeof data === 'object' && 'total' in data && 'areas' in data && Array.isArray(data.areas)) {
+                            list.value = data.areas;
+                            total.value = data.total;
+                        } else if (Array.isArray(data)) {
+                            list.value = data;
+                            total.value = data.length; // 如果是数组，总数就是长度
+                        } else {
+                            throw new Error("数据格式错误");
+                        }
+
+                    } catch (err) {
+                        errorMsg.value = err.message;
+                    } finally {
+                        loading.value = false;
+                    }
+                };
+
+                const goPage = (page) => {
+                    if (page < 1 || page > totalPages.value) return;
+                    currentPage.value = page;
+                    fetchData(page);
+                    // 翻页后滚动到顶部
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                };
+
+                // 初始加载
+                const params = new URLSearchParams(window.location.search);
+                keyword.value = params.get('q') || '';
+                fetchData(1);
+
+                return {
+                    list,
+                    loading,
+                    errorMsg,
+                    total,
+                    currentPage,
+                    totalPages,
+                    visiblePages,
+                    formatCoord,
+                    getLevelClass,
+                    goPage
+                };
+            }
+        }).mount('#app');
+    });
+</script>
+</body>
+</html>

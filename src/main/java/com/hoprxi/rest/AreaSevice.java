@@ -154,7 +154,6 @@ public class AreaSevice {
                 }
             });
         }, () -> {//全局查询,无关键字
-
             ctx.blockingTaskExecutor().execute(() -> {
                 if (ctx.isCancelled() || ctx.isTimedOut()) return;
                 ByteBuf buffer = ctx.alloc().buffer(BUFFER_SIZE);
