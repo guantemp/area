@@ -27,22 +27,16 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 
-/***
+/**
+ * 区域信息服务类，提供对地理区域数据（国家、省、市、县、乡镇等）的查询、创建与更新能力。
+ * <p>
+ * 所有读取操作均通过 Elasticsearch 后端实现，并以流式方式返回 JSON 响应，避免大对象全量加载到内存。
+ * 写入操作（创建/更新）在阻塞任务线程池中执行，确保不阻塞 Armeria 的事件循环线程。
+ *
+ *
  * @author <a href="www.hoprxi.com/authors/guan xiangHuan">guan xiangHuang</a>
  * @since JDK21
- * @version 0.0.1 builder 2025/8/13
- *          <p>
- *          restful http<br/>
- *          areas return all <br/>
- *          areas/code return area where key=area.code,such as:areas/51000
- *          areas/code/juri(jurisdiction) return jurisdiction area where area code,such as:areas/51000/juri
- *          <br/>
- *          <ul>
- *          parameter:
- *          <li>query=name、abbreviation、mnemonic and filters=country,province,city,county,town</li>
- *          <li>fields=name,pinyin,abbreviation, initials,alias, wgs84, zipcode,telephoneCode</li>
- *          </ul>
- *          </p>
+ * @version 0.0.2 builder 2026/3/29
  */
 @PathPrefix("/v1")
 public class AreaSevice {
@@ -55,6 +49,20 @@ public class AreaSevice {
     private final AreaRepository repository = new ESAreaRepository();
     private final JsonFactory JSON_FACTORY = JsonFactory.builder().build();
 
+    /**
+     * 根据区域编码查询单个区域信息。
+     *
+     * @param ctx  当前服务请求上下文，用于资源管理、取消检测和线程调度
+     * @param code 区域唯一编码（如：100000 表示中国）
+     * @return {@link HttpResponse} 流式响应：
+     *         <ul>
+     *           <li>成功：HTTP 200 + JSON 格式的区域对象</li>
+     *           <li>未找到：HTTP 404 + 错误 JSON</li>
+     *           <li>IO 异常：HTTP 500 + 错误 JSON</li>
+     *         </ul>
+     *
+     * @see ESAreaQuery#find(int)
+     */
     @Get("/areas/{code}")
     @Description("Retrieves the area information by the given area code.")
     public HttpResponse find(ServiceRequestContext ctx, @Param("code") int code) {
@@ -86,6 +94,20 @@ public class AreaSevice {
         return HttpResponse.of(stream);
     }
 
+    /**
+     * 查询指定区域的所有直接子区域（如查询北京市的下辖区县）。
+     *
+     * @param ctx  当前服务请求上下文
+     * @param code 父区域编码
+     * @return {@link HttpResponse} 流式响应：
+     *         <ul>
+     *           <li>成功：HTTP 200 + JSON 数组（子区域列表）</li>
+     *           <li>父区域不存在：HTTP 404</li>
+     *           <li>IO 或解析失败：HTTP 500</li>
+     *         </ul>
+     *
+     * @see ESAreaQuery#queryChildren(int)
+     */
     @Get("/areas/{code}/children")
     public HttpResponse queryChildren(ServiceRequestContext ctx, @Param("code") int code) {
         StreamWriter<HttpObject> stream = StreamMessage.streaming();
@@ -115,6 +137,28 @@ public class AreaSevice {
         return HttpResponse.of(stream);
     }
 
+    /**
+     * 按条件搜索区域数据，支持关键字全文检索或全局枚举查询。
+     *
+     * <h3>请求参数</h3>
+     * <ul>
+     *   <li>{@code q}（可选）：搜索关键字。若提供，则执行全文检索；否则返回全球顶级区域（如国家列表）。</li>
+     *   <li>{@code filter}（可选）：按行政级别过滤，多个值用逗号分隔（如：{@code "country,province"}）。
+     *       支持级别：{@code country(0), province(1), city(2), county(3), town(4)}。</li>
+     *   <li>{@code offset}（可选，默认 0）：分页偏移量。</li>
+     *   <li>{@code size}（可选，默认 64）：每页大小，最大建议不超过 100。</li>
+     *   <li>{@code searchAfter}（可选）：用于深度分页的游标（当前未使用，保留扩展）。</li>
+     * </ul>
+     *
+     * @param ctx    当前服务请求上下文
+     * @param params HTTP 查询参数集合
+     * @return {@link HttpResponse} 流式响应：
+     *         <ul>
+     *           <li>成功：HTTP 200 + JSON 搜索结果（含 hits 和 metadata）</li>
+     *           <li>查询无效或无结果：HTTP 404</li>
+     *           <li>系统错误：HTTP 500</li>
+     *         </ul>
+     */
     @Get("/areas")
     public HttpResponse search(ServiceRequestContext ctx, QueryParams params) {
         int offset = params.getInt("offset", OFFSET);
@@ -188,6 +232,26 @@ public class AreaSevice {
         stream.close();
     }
 
+    /**
+     * 创建一个新的区域记录。
+     *
+     * <h3>请求要求</h3>
+     * <ul>
+     *   <li>Content-Type 必须为 {@code application/json}</li>
+     *   <li>请求体必须包含有效的区域 JSON 对象，字段包括：
+     *       {@code code, parent_code, name, level} 等（详见 {@link #parserJson(JsonParser, int)}）</li>
+     * </ul>
+     *
+     * @param ctx   当前服务请求上下文
+     * @param req   完整的 HTTP 请求（用于校验 Content-Type）
+     * @param body  请求体的原始字节数据（JSON）
+     * @return {@link HttpResponse}：
+     *         <ul>
+     *           <li>成功：HTTP 201 Created + 成功消息 JSON</li>
+     *           <li>无效媒体类型：HTTP 415</li>
+     *           <li>JSON 解析或保存失败：HTTP 500</li>
+     *         </ul>
+     */
     @StatusCode(201)
     @Post("/areas")
     public HttpResponse create(ServiceRequestContext ctx, HttpRequest req, HttpData body) {
@@ -209,6 +273,21 @@ public class AreaSevice {
         return HttpResponse.of(future);
     }
 
+    /**
+     * 更新现有区域信息（通过区域编码匹配）。
+     *
+     * <h3>说明</h3>
+     * 若区域不存在，Elasticsearch 会自动创建新文档（upsert 行为）。
+     *
+     * @param ctx   当前服务请求上下文
+     * @param code  要更新的区域编码（路径参数）
+     * @param body  更新的 JSON 数据（必须包含完整或部分字段）
+     * @return {@link HttpResponse}：
+     *         <ul>
+     *           <li>成功：HTTP 201 + 更新成功消息</li>
+     *           <li>解析或存储失败：HTTP 500</li>
+     *         </ul>
+     */
     @StatusCode(201)
     @Put("/areas/{code}")
     public HttpResponse update(ServiceRequestContext ctx, @Param("code") @Default("-1") int code, HttpData body) {
@@ -226,6 +305,15 @@ public class AreaSevice {
         return HttpResponse.of(future);
     }
 
+    /**
+     * 从 JSON 流中解析出 {@link Area} 对象。
+     *
+     * @param parser JSON 解析器，当前位置应在对象起始处
+     * @param code   若为更新操作，此参数为路径中的区域编码；若为创建，应为 -1（由 JSON 中的 code 字段覆盖）
+     * @return 构建完成的 {@link Area} 子类实例（Country/Province/City 等）
+     * @throws IOException        JSON 解析失败
+     * @throws IllegalStateException 区域级别（level）非法
+     */
     private Area parserJson(JsonParser parser, int code) throws IOException {
         int parentCode = 0, level = -1;
         String name = "", abbreviation = "";
