@@ -600,7 +600,7 @@
             <div class="feature-title">高并发与极致稳定</div>
             <div class="feature-desc">
                 基于 <strong>JDK 21 虚拟线程</strong> 重构并发模型，轻松应对流量洪峰。
-                <br>配合 <strong>Serial GC</strong> 深度调优与小堆策略，实现毫秒级延迟与低 CPU 占用，确保服务长期稳定运行。
+                <br>配合 <strong>ZGC</strong> 可伸缩的低延迟垃圾收集器，实现毫秒级延迟与低 CPU 占用，确保服务长期稳定运行。
             </div>
             <span class="feature-tag">High Concurrency</span>
         </div>
@@ -616,7 +616,7 @@
         </div>
         <div class="metrics-grid">
             <div class="metric-item">
-                <span class="metric-value">~182 MB</span>
+                <span class="metric-value">~280 MB</span>
                 <span class="metric-label">稳定内存占用 (RSS)</span>
                 <span class="metric-note">含堆/非堆/线程栈</span>
             </div>
@@ -626,25 +626,25 @@
                 <span class="metric-note">极低背景噪声</span>
             </div>
             <div class="metric-item">
-                <span class="metric-value">Serial GC</span>
+                <span class="metric-value">ZGC</span>
                 <span class="metric-label">低延迟回收策略</span>
-                <span class="metric-note">小堆内存最优解</span>
+                <span class="metric-note">自适应且需要最少的手动配置</span>
             </div>
             <div class="metric-item">
-                <span class="metric-value">4+ 实例</span>
+                <span class="metric-value">3+ 实例</span>
                 <span class="metric-label">单台 1GB 服务器承载</span>
                 <span class="metric-note">超高密度部署</span>
             </div>
 
             <div class="jvm-flags">
                 <span style="color: #64748b; margin-right: 10px;"># 生产启动参数:</span>
-                <span class="flag-highlight">-Xms32m -Xmx128m</span>
+                <span class="flag-highlight">-Xms256m -Xmx256m</span>
                 <span style="color: #64748b; margin: 0 5px;">|</span>
                 <span class="flag-highlight">-Xss256k</span>
                 <span style="color: #64748b; margin: 0 5px;">|</span>
-                <span class="flag-highlight">-XX:MaxDirectMemorySize=32m</span>
+                <span class="flag-highlight">-XX:MaxDirectMemorySize=64m</span>
                 <span style="color: #64748b; margin: 0 5px;">|</span>
-                <span class="flag-highlight">-XX:+UseSerialGC</span>
+                <span class="flag-highlight">-XX:+UseZGC</span>
                 <span style="color: #64748b; margin: 0 5px;">|</span>
                 <span class="flag-highlight">-Dio.netty.allocator.type=pooled</span>
             </div>
@@ -728,6 +728,7 @@
                     <span class="k">"parent_code"</span><span class="o">:</span> <span class="n">408</span><span class="o">,</span> <span class="comment">// 自引用约束</span>
                     <span class="k">"name"</span><span class="o">:</span> <span class="s">"朝鲜民主主义人民共和国"</span><span class="o">,</span>
                     <span class="k">"abbreviation"</span><span class="o">:</span> <span class="s">"朝鲜"</span><span class="o">,</span>
+                    <span class="k">"alias"</span><span class="o">:</span> <span class="s">"北韩"</span><span class="o">,</span>
                     <span class="k">"location"</span><span class="o">:</span> <span class="o">{</span> <span class="k">"lat"</span><span class="o">:</span> <span class="n">39.03</span><span class="o">,</span> <span class="k">"lon"</span><span class="o">:</span> <span class="n">125.75</span> <span class="o">},</span>
                     <span class="k">"level"</span><span class="o">:</span> <span class="n">0</span>
                     <span class="o">}</span>
