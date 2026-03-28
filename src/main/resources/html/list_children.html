@@ -213,29 +213,27 @@
         setup() {
             const BASE_URL = "https://slave.tooo.top/area/v1/areas";
 
-            // --- 核心：本地树缓存 ---
-            // 结构: { "156": { code: "156", name: "中华人民共和国", parentCode: null, children: ["110000", "120000"...] }, ... }
-            const areaTree = ref({});
+            // --- 响应式状态 ---
+            const areaTree = ref({}); // 本地缓存树
+            const currentCode = ref(''); // 当前选中的代码
+            const loading = ref(false); // 加载状态
+            const isCacheHit = ref(false); // 是否命中缓存
+            const error = ref(''); // 错误信息
 
-            // 当前状态
-            const currentCode = ref('');
-            const loading = ref(false);
-            const isCacheHit = ref(false); // 标记本次是否命中缓存
-            const error = ref('');
-
-            // 初始化：默认加载根节点 (假设根节点代码为 156，或者从 URL 读)
+            // --- 生命周期 ---
             onMounted(() => {
                 const params = new URLSearchParams(window.location.search);
-                const startCode = params.get('code') || '156'; // 默认中国
+                const startCode = params.get('code') || '156';
                 navigateTo(startCode);
 
+                // 监听浏览器后退/前进按钮
                 window.addEventListener('popstate', () => {
                     const p = new URLSearchParams(window.location.search);
                     navigateTo(p.get('code') || '156');
                 });
             });
 
-            // 计算属性
+            // --- 计算属性 ---
             const currentName = computed(() => {
                 const node = areaTree.value[currentCode.value];
                 return node ? node.name : '加载中...';
@@ -255,139 +253,95 @@
             const currentList = computed(() => {
                 const node = areaTree.value[currentCode.value];
                 if (!node || !node.children) return [];
-                // 将子节点代码列表转换为完整对象数组
+                // 返回子节点列表
                 return node.children.map(code => areaTree.value[code]).filter(Boolean);
             });
 
             const cacheCount = computed(() => Object.keys(areaTree.value).length);
 
             // --- 核心逻辑 ---
-
-            // 导航到指定 Code
             const navigateTo = async (code) => {
                 if (!code) return;
+
                 loading.value = true;
                 isCacheHit.value = false;
                 error.value = '';
                 currentCode.value = code;
 
-                // 更新 URL (无刷新)
+                // 更新浏览器地址栏 URL
                 const newUrl = `${window.location.pathname}?code=${code}`;
                 if (window.location.search !== `?code=${code}`) {
                     window.history.pushState({}, '', newUrl);
                 }
 
-                // 1. 检查本地缓存是否已有该节点的子节点列表
+                // 1. 检查缓存
                 const node = areaTree.value[code];
                 if (node && node.children && node.children.length > 0) {
-                    // 缓存命中
                     isCacheHit.value = true;
                     loading.value = false;
-                    console.log(`[Cache Hit] Loaded ${code} (${node.name}) from local tree.`);
                     return;
                 }
 
-                // 2. 缓存未命中，发起 HTTP 请求
+                // 2. 创建临时节点（如果不存在）
+                // 这里预设了 156 的名称，防止首次加载显示“未知区域”
+                if (!areaTree.value[code]) {
+                    areaTree.value[code] = {
+                        code: code,
+                        name: code === '156' ? '中华人民共和国' : '未知区域',
+                        parentCode: null,
+                        children: []
+                    };
+                }
+
+                // 3. 请求服务器数据
                 try {
                     const res = await fetch(`${BASE_URL}/${code}/children`);
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
                     const data = await res.json();
                     let list = [];
+                    // 兼容不同的 API 返回格式
                     if (Array.isArray(data)) list = data;
                     else if (data.list) list = data.list;
                     else if (data.data) list = data.data;
                     else if (data.areas) list = data.areas;
 
-                    // 3. 构建树结构并写入缓存
-                    if (!areaTree.value[code]) {
-                        // 如果当前节点本身还不存在（比如首次加载根节点），先创建它
-                        // 注意：这里假设 API 返回的列表中包含当前节点自身的信息，或者我们需要手动补充
-                        // 通常 /children 接口返回列表，列表里的每一项的 parent_code 指向 code
-                        // 我们需要确保 code 这个节点在树里存在
-                        areaTree.value[code] = {
-                            code: code,
-                            name: '未知区域', // 暂时未知，等下面循环修正或下次加载父级时修正
-                            parentCode: null,
-                            children: []
-                        };
-                    }
-
                     const childCodes = [];
 
                     list.forEach(item => {
                         const itemCode = String(item.code);
-                        const itemParentCode = String(item.parent_code || code); //  fallback 到当前 code
+                        const itemParentCode = String(item.parent_code || code);
 
-                        // 确保父节点（当前节点）的名字被更新（如果 API 返回了子节点里的 parent_name 字段，虽然通常不会，但以防万一）
-                        // 更常见的是：我们利用子节点数据来完善树结构
+                        // 处理 name 对象（API 可能返回字符串或对象）
+                        const nameObj = item.name || {};
 
-                        // 1. 将子节点存入树
-                        if (!areaTree.value[itemCode]) {
-                            areaTree.value[itemCode] = {
-                                code: itemCode,
-                                name: item.name?.name || item.name || 'Unknown',
-                                mnemonic: item.name?.mnemonic || '',
-                                alias: item.name?.alias || '',
-                                location: item.location,
-                                tel: item.telephone_code,
-                                zip: item.zipcode,
-                                parentCode: itemParentCode,
-                                children: [] // 子节点的子节点暂空
-                            };
-                        } else {
-                            // 如果已存在，更新名字等信息（防止第一次只是占位）
-                            areaTree.value[itemCode].name = item.name?.name || item.name || areaTree.value[itemCode].name;
-                            areaTree.value[itemCode].parentCode = itemParentCode;
-                        }
+                        // 构建子节点数据
+                        areaTree.value[itemCode] = {
+                            code: itemCode,
+                            name: nameObj.name || item.name || 'Unknown',
+                            abbreviation: nameObj.abbreviation || '', // 映射简称字段
+                            alias: nameObj.alias || '',
+                            location: item.location || {lat: 0, lon: 0},
+                            tel: item.telephone_code || '',
+                            zip: item.zipcode || '',
+                            parentCode: itemParentCode,
+                            children: []
+                        };
 
                         childCodes.push(itemCode);
 
-                        // 2. 【关键】确保父节点在树中存在并更新名字
+                        // 确保父节点存在（防止 parent_code 指向非当前节点的情况）
                         if (!areaTree.value[itemParentCode]) {
                             areaTree.value[itemParentCode] = {
                                 code: itemParentCode,
-                                name: 'Unknown Parent',
+                                name: itemParentCode === '156' ? '中华人民共和国' : '未知区域',
                                 children: []
                             };
                         }
-                        // 如果当前加载的 code 就是 parentCode，更新它的名字（如果 API 在子项里给了 parent_name，可惜通常不给）
-                        // 所以当前节点的名字，最好在第一次加载它自己的父级时获得，或者在这里通过某种方式获得。
-                        // 修正：如果是根节点首次加载，我们没有它的名字。
-                        // 解决方案：如果当前节点名字是 "未知区域"，且列表里第一项的 parent_name 存在（有些 API 会返回），则更新。
-                        // 否则，我们只能依赖下一次 "返回上级" 时，由上一级传下来？不，本地树方案不需要。
-                        // 实际上，当我们在 "四川" 加载 "成都" 时，我们知道 "四川" 的名字。
-                        // 问题在于首次加载 "中国"。
-                        // 补救：如果当前节点名字未知，且这是根节点，我们可以硬编码或者发起一个单独的 getInfo 请求。
-                        // 但为了简单，我们假设用户总是从根开始点，或者根节点名字可以通过其他方式获得。
-                        // 在此示例中，如果名字是 "未知区域"，我们暂时保留，直到有更多信息。
-                        // *优化*：很多 API 返回的 children 列表里，每个 item 并没有 parent_name。
-                        // 但是！当我们从 A 点进 B 时，A 的名字是已知的。B 的 parentCode 是 A。
-                        // 所以 B 的父节点名字已经在了。
-                        // 唯一的问题是：当前节点 (Code) 自己的名字。
-                        // 如果是首次加载 156，列表里是各省，各省的 parent_code=156。
-                        // 此时 areaTree[156] 的名字还是 "未知区域"。
-                        // 解决方法：在 fetchChildren 成功后，如果当前节点名字未知，且列表非空，
-                        // 我们无法直接从子节点得知父节点名字（除非 API 返回）。
-                        // **变通方案**：如果名字未知，且是根节点，我们可以默认叫 "中华人民共和国" (如果是 156)。
-                        // 或者，我们可以在 goToChild 时，把当前名字写入子节点的 parent 引用中？
-                        // 不，最简单的是：在 goToChild 时，我们不仅要把子节点加入树，还要确保**当前节点**的名字是正确的。
-                        // 因为 goToChild 是由用户点击触发的，点击时当前节点的名字一定是已知的！
-                        // 所以，只要用户是通过点击进来的，名字就不会丢。
-                        // 只有直接刷新页面 URL ?code=156 时，名字会丢失。
-                        // 针对直接刷新：如果是 156，硬编码名字。其他的，暂时显示 Code，直到用户点击一次返回再回来？
-                        // 不，我们可以加一个小逻辑：如果名字未知，尝试从子节点的 parent_name 字段找（如果有）。
-                        // 如果没有，且是 156，设为 "中华人民共和国"。
-
-                        if (code === '156' && areaTree.value[code].name === '未知区域') {
-                            areaTree.value[code].name = '中华人民共和国';
-                        }
                     });
 
-                    // 更新当前节点的 children 列表
+                    // 更新当前节点的子节点列表
                     areaTree.value[code].children = childCodes;
-
-                    console.log(`[Cache Miss] Fetched ${code}, added ${childCodes.length} children to tree. Total nodes: ${Object.keys(areaTree.value).length}`);
 
                 } catch (e) {
                     error.value = '加载失败: ' + e.message;
@@ -397,18 +351,14 @@
                 }
             };
 
-            // 点击子节点
+            // --- 交互方法 ---
             const goToChild = (item) => {
-                // item 已经是 areaTree 里的完整对象了
                 navigateTo(item.code);
             };
 
-            // 点击返回上级
             const goToParent = () => {
                 const node = areaTree.value[currentCode.value];
                 if (!node || !node.parentCode) return;
-
-                // 直接从树里拿父节点 Code，名字肯定在树里（因为是之前加载过的）
                 navigateTo(node.parentCode);
             };
 
@@ -418,10 +368,21 @@
                 return `${Number(loc.lat).toFixed(4)}, ${Number(loc.lon).toFixed(4)}`;
             };
 
+            // --- 返回模板 ---
             return {
-                currentCode, currentName, parentNode, isRoot, currentList,
-                loading, isCacheHit, error, cacheCount,
-                navigateTo, goToChild, goToParent, formatCoord
+                currentCode,
+                currentName,
+                parentNode,
+                isRoot,
+                currentList,
+                loading,
+                isCacheHit,
+                error,
+                cacheCount,
+                navigateTo,
+                goToChild,
+                goToParent,
+                formatCoord
             };
         }
     }).mount('#app');
