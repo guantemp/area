@@ -5,8 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="06d15327-0203-4184-bc12-711a323ebadd" name="Changes" comment="202603282329">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/rest/AreaSevice.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/rest/AreaSevice.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/query/ESAreaQuery.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/query/ESAreaQuery.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -155,7 +154,7 @@
       </method>
     </configuration>
     <configuration name="Bootstrap" type="Application" factoryName="Application">
-      <option name="ALTERNATIVE_JRE_PATH" value="D:/Program Files/jdk-21.0.2" />
+      <option name="ALTERNATIVE_JRE_PATH" value="$PROJECT_DIR$/../../Program Files/jdk-21.0.2" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
       <option name="MAIN_CLASS_NAME" value="com.hoprxi.Bootstrap" />
       <module name="core" />
@@ -193,7 +192,7 @@
       <shortenClasspath name="NONE" />
       <useClassPathOnly />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
-      <option name="ALTERNATIVE_JRE_PATH" value="D:/Program Files/jdk-21.0.2" />
+      <option name="ALTERNATIVE_JRE_PATH" value="$PROJECT_DIR$/../../Program Files/jdk-21.0.2" />
       <option name="SUITE_NAME" value="" />
       <option name="PACKAGE_NAME" value="com.hoprxi.domain.model" />
       <option name="MAIN_CLASS_NAME" value="com.hoprxi.domain.model.AreaRepositoryTest" />
@@ -216,7 +215,7 @@
       <shortenClasspath name="NONE" />
       <useClassPathOnly />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
-      <option name="ALTERNATIVE_JRE_PATH" value="D:/Program Files/jdk-21.0.2" />
+      <option name="ALTERNATIVE_JRE_PATH" value="$PROJECT_DIR$/../../Program Files/jdk-21.0.2" />
       <option name="SUITE_NAME" value="" />
       <option name="PACKAGE_NAME" value="com.hoprxi.infrastructure.persistence" />
       <option name="MAIN_CLASS_NAME" value="com.hoprxi.infrastructure.persistence.ESAreaBatchImportTest" />

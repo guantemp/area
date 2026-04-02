@@ -51,7 +51,7 @@ import java.util.EnumSet;
 public class ESAreaQuery implements AreaQuery {
     private static final Logger LOGGER = LoggerFactory.getLogger(ESAreaQuery.class);
     private static final int COUNTRY_SIZE = 399;
-    private static final int CHILREN_SIZE = 199;
+    private static final int CHILDREN_SIZE = 199;
     private static final int BUFFER_SIZE = 2048;//2KB缓冲区
     private static final RequestOptions COMMON_OPTIONS;
     private static final RestClient CLIENT;
@@ -81,7 +81,6 @@ public class ESAreaQuery implements AreaQuery {
         boolean success = false;
         try {
             Response response = CLIENT.performRequest(request);
-            ;
             try (OutputStream os = new ByteBufOutputStream(buffer); JsonGenerator generator = JSON_FACTORY.createGenerator(os);
                  InputStream is = response.getEntity().getContent(); JsonParser parser = JSON_FACTORY.createParser(is)) {
                 ESAreaQuery.extractSourceSkipMeta(parser, generator);
@@ -321,7 +320,7 @@ public class ESAreaQuery implements AreaQuery {
         StringWriter writer = new StringWriter();
         try (JsonGenerator generator = JSON_FACTORY.createGenerator(writer)) {
             generator.writeStartObject();// 开始生成 JSON
-            generator.writeNumberField("size", CHILREN_SIZE);
+            generator.writeNumberField("size", CHILDREN_SIZE);
             // query 部分
             generator.writeObjectFieldStart("query");
 

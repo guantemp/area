@@ -29,7 +29,7 @@
         <dependency>
             <groupId>org.elasticsearch.client</groupId>
             <artifactId>elasticsearch-rest-client</artifactId>
-            <version>8.11.0</version>
+            <version>8.19.6</version>
         </dependency>
         <dependency>
             <groupId>com.linecorp.armeria</groupId>
@@ -95,7 +95,6 @@
             <artifactId>log4j-api</artifactId>
             <version>2.20.0</version>
         </dependency>
-
         <!-- 【核心修复】2. 桥接器：把 Log4j 的调用转给 SLF4J (Logback) -->
         <!-- 这样就不需要 log4j-core，也不会报 StatusLogger 错误 -->
         <dependency>
