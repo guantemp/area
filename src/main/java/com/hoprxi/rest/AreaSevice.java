@@ -106,7 +106,7 @@ public class AreaSevice {
      *           <li>IO 或解析失败：HTTP 500</li>
      *         </ul>
      *
-     * @see ESAreaQuery#queryChildren(int)
+     * @see ESAreaQuery#children(int)
      */
     @Get("/areas/{code}/children")
     public HttpResponse queryChildren(ServiceRequestContext ctx, @Param("code") int code) {
@@ -114,7 +114,7 @@ public class AreaSevice {
         ctx.blockingTaskExecutor().execute(() -> {
             if (ctx.isCancelled() || ctx.isTimedOut()) return;
             ByteBuf buffer = ctx.alloc().buffer(BATCH_BUFFER_SIZE);
-            try (InputStream is = query.queryChildren(code); JsonParser parser = JSON_FACTORY.createParser(is);
+            try (InputStream is = query.children(code); JsonParser parser = JSON_FACTORY.createParser(is);
                  OutputStream os = new ByteBufOutputStream(buffer); JsonGenerator gen = JSON_FACTORY.createGenerator(os);) {
                 while (parser.nextToken() != null) {
                     gen.copyCurrentEvent(parser);

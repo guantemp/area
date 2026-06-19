@@ -15,7 +15,6 @@
  */
 package com.hoprxi.infrastructure.query;
 
-import com.hoprxi.application.AreaQuery;
 import com.hoprxi.application.AreaSearchException;
 import org.testng.annotations.Test;
 import salt.hoprxi.crypto.util.StoreKeyLoad;
@@ -86,7 +85,7 @@ public class ESAreaQueryTest {
 
     @Test
     public void testFindJurisdiction() {
-        try (InputStream is = query.queryChildren(510500)) {
+        try (InputStream is = query.children(510500)) {
             System.out.println("辖区查询：\n" + new String(is.readAllBytes(), StandardCharsets.UTF_8));
         } catch (IOException e) {
             throw new RuntimeException(e);
