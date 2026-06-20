@@ -214,17 +214,7 @@ public class ESAreaBatchImport implements AreaBatchImport {
                 .append(",\"parent_code\":").append(parentCode)
                 .append(",\"name\":{")
                 .append("\"name\":\"").append(escapedName)
-                .append("\",\"abbreviation\":\"").append(escapedAbbr);
-        StringJoiner sj = new StringJoiner(" ");
-        sj.add(PinYin.toPinYing(name)).add(PinYin.toShortPinYing(name))
-                .add(PinYin.toPinYing(abbreviation)).add(PinYin.toShortPinYing(abbreviation));
-        /*
-        if (!PinYin.toPinYing(area.name().alias()).isBlank())
-            sj.add(PinYin.toPinYing(area.name().alias()));
-        if (!PinYin.toShortPinYing(area.name().alias()).isBlank())
-            sj.add(PinYin.toShortPinYing(area.name().alias()));
-         */
-        sb.append("\",\"pinyin_vector\":\"").append(sj.toString())
+                .append("\",\"abbreviation\":\"").append(escapedAbbr)
                 .append("\"},\"zipcode\":\"\",\"telephone_code\":\"\"")
                 .append(",\"location\":{\"lat\":").append(latitude)//小数6位，精度约为 10 厘米
                 .append(",\"lon\":").append(longitude)
