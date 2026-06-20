@@ -4,8 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="06d15327-0203-4184-bc12-711a323ebadd" name="Changes" comment="202603282329">
+    <list default="true" id="06d15327-0203-4184-bc12-711a323ebadd" name="Changes" comment="202606192340">
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/Bootstrap.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/Bootstrap.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/application/AreaQuery.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/application/AreaQuery.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/query/ESAreaQuery.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/query/ESAreaQuery.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/rest/AreaSevice.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/rest/AreaService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/hoprxi/infrastructure/query/ESAreaQueryTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/hoprxi/infrastructure/query/ESAreaQueryTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -798,7 +802,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="202511022225" />
     <MESSAGE value="202512092143" />
     <MESSAGE value="202512232120" />
     <MESSAGE value="202512232131" />
@@ -823,7 +826,8 @@
     <MESSAGE value="202603280216" />
     <MESSAGE value="202603281355" />
     <MESSAGE value="202603282329" />
-    <option name="LAST_COMMIT_MESSAGE" value="202603282329" />
+    <MESSAGE value="202606192340" />
+    <option name="LAST_COMMIT_MESSAGE" value="202606192340" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/area$ESAreaQueryTest.ic" NAME="ESAreaQueryTest 覆盖结果" MODIFIED="1752756536654" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />

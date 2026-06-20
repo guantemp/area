@@ -102,12 +102,12 @@ public class ESAreaBatchImport implements AreaBatchImport {
             for (int i = 1, j = sheet.getLastRowNum() + 1; i < j; i++) {
                 Row row = sheet.getRow(i);
                 if (row == null) continue;
-                StringBuilder bulkLine = parseBulk(row, TOTAL_COLUMNS);
+                StringBuilder bulkLine = ESAreaBatchImport.parseBulk(row, TOTAL_COLUMNS);
                 if (bulkLine != null) {
                     batch.append(bulkLine);
                 }
                 if (i % 2048 == 0 || i == j - 1) {
-                    if (batch.length() > 0) { //每2048条或最后不足2048条，
+                    if (!batch.isEmpty()) { //每2048条或最后不足2048条，
                         Request request = REQUEST_POOL.get();//?refresh=wait_for&pretty&filter_path=items.*.error
                         request.setOptions(COMMON_OPTIONS);
                         request.setJsonEntity(batch.toString());
@@ -121,7 +121,7 @@ public class ESAreaBatchImport implements AreaBatchImport {
         }
     }
 
-    private StringBuilder parseBulk(Row row, int expectedColumns) {
+    private static StringBuilder parseBulk(Row row, int expectedColumns) {
         /*
         int divisor = row.getPhysicalNumberOfCells();
         String name = null, abbreviation = null;
