@@ -232,7 +232,7 @@ public class ESAreaQuery implements AreaQuery {
     }
 
     @Override
-    public InputStream queryCountry() {
+    public InputStream country() {
         Request request = new Request("GET", "/area/_search");
         request.setOptions(COMMON_OPTIONS);
         request.setJsonEntity(ESAreaQuery.buildCountryQueryRequest());
@@ -240,7 +240,7 @@ public class ESAreaQuery implements AreaQuery {
     }
 
     @Override
-    public Flux<ByteBuf> queryCountryAsync() {
+    public Flux<ByteBuf> countryAsync() {
         Request request = new Request("GET", "/area/_search");
         request.setOptions(COMMON_OPTIONS);
         request.setJsonEntity(ESAreaQuery.buildCountryQueryRequest());

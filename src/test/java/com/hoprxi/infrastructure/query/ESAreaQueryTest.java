@@ -76,7 +76,7 @@ public class ESAreaQueryTest {
 
     @Test
     public void testFindCountry() {
-        try (InputStream is = query.queryCountry()) {
+        try (InputStream is = query.country()) {
             System.out.println("国家查询：：\n" + new String(is.readAllBytes(), StandardCharsets.UTF_8));
         } catch (IOException e) {
             throw new RuntimeException(e);

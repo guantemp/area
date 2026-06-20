@@ -15,7 +15,7 @@
  */
 package com.hoprxi;
 
-import com.hoprxi.rest.AreaSevice;
+import com.hoprxi.rest.AreaService;
 import com.hoprxi.rest.IPSeekerService;
 import com.hoprxi.rest.UploadFileService;
 import com.linecorp.armeria.common.HttpHeaderNames;
@@ -145,7 +145,7 @@ public final class Bootstrap {
 
         //sb.https(PORT+1).tls(new File("certificate.crt"), new File("private.key"), "myPassphrase");
 
-        Server server = sb.annotatedService("/", new AreaSevice())
+        Server server = sb.annotatedService("/", new AreaService())
                 .annotatedService("/", new IPSeekerService())
                 .annotatedService("/", new UploadFileService())
                 .build();

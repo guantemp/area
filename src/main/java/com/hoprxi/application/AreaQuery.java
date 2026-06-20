@@ -78,14 +78,14 @@ public interface AreaQuery {
      *
      * @return 包含国家列表 JSON 数据的输入流
      */
-    InputStream queryCountry();
+    InputStream country();
 
     /**
      * 异步查询所有国家列表。
      *
      * @return 包含国家列表 JSON 数据的异步响应式流
      */
-    Flux<ByteBuf> queryCountryAsync();
+    Flux<ByteBuf> countryAsync();
 
     /**
      * 根据关键字和层级过滤条件同步搜索地域。
