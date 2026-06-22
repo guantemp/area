@@ -19,7 +19,6 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.hoprxi.application.AreaQuery;
 import com.hoprxi.application.AreaSearchException;
 import com.hoprxi.application.NotFoundException;
 import com.hoprxi.application.SearchException;
@@ -58,7 +57,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @since JDK21
  * @version 0.0.2 builder 2026-07-11
  */
-public class ESAreaQuery implements AreaQuery {
+public class ESAreaQuery implements com.hoprxi.application.AreaQuery {
     private static final Logger LOGGER = LoggerFactory.getLogger(ESAreaQuery.class);
     private static final int COUNTRY_SIZE = 399;
     private static final int CHILDREN_SIZE = 199;

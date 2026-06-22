@@ -15,8 +15,12 @@
  */
 package com.hoprxi.infrastructure.query;
 
+import com.hoprxi.application.AreaQuery;
 import com.hoprxi.application.AreaSearchException;
+import io.netty.buffer.ByteBuf;
 import org.testng.annotations.Test;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import salt.hoprxi.crypto.util.StoreKeyLoad;
 
 import java.io.IOException;
@@ -35,7 +39,7 @@ public class ESAreaQueryTest {
                 new String[]{"slave.tooo.top:9200"});
     }
 
-    private static final ESAreaQuery query = new ESAreaQuery();
+    private static final AreaQuery query = new ESAreaQuery();
 
     @Test(expectedExceptions = AreaSearchException.class, expectedExceptionsMessageRegExp = ".*not found.*")
     public void testFind() {
@@ -49,13 +53,32 @@ public class ESAreaQueryTest {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        try (InputStream is = query.find(5100090)) {
+            System.out.println("查询四川：\n" + new String(is.readAllBytes(), StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    public void testFindAsync() {
+        Mono<ByteBuf>[] monos = new Mono[]{
+                query.findAsync(510000),
+                query.findAsync(156),
+                query.findAsync(5100090)
+        };
+        PrintUtil.printMono(monos);
+    }
+
+    @Test
+    public void testSearch() {
         try (InputStream is = query.query("泸州小市 bj", EnumSet.of(ESAreaQuery.Level.COUNTRY, ESAreaQuery.Level.CITY, ESAreaQuery.Level.COUNTY, ESAreaQuery.Level.TOWN),
                 0, 999)) {
             System.out.println("\"名字模糊查询（过滤）：泸州小市 bj\n" + new String(is.readAllBytes(), StandardCharsets.UTF_8));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        try (InputStream is = query.query("510", EnumSet.of(ESAreaQuery.Level.PROVINCE, ESAreaQuery.Level.CITY,  ESAreaQuery.Level.TOWN),
+        try (InputStream is = query.query("510", EnumSet.of(ESAreaQuery.Level.PROVINCE, ESAreaQuery.Level.CITY, ESAreaQuery.Level.TOWN),
                 0, 200)) {
             System.out.println("\"code模糊查询（过滤）：510\n" + new String(is.readAllBytes(), StandardCharsets.UTF_8));
         } catch (IOException e) {
@@ -66,12 +89,20 @@ public class ESAreaQueryTest {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
 
-        try (InputStream is = query.find(5100090)) {
-            System.out.println("查询四川：\n" + new String(is.readAllBytes(), StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    @Test
+    public void testSearchAsync() {
+        Flux<ByteBuf>[] fluxes = new Flux[]{
+                query.queryAsync("泸州小市 bj", EnumSet.of(ESAreaQuery.Level.COUNTRY, ESAreaQuery.Level.CITY, ESAreaQuery.Level.COUNTY, ESAreaQuery.Level.TOWN),
+                        0, 999),
+                query.queryAsync("510", EnumSet.of(ESAreaQuery.Level.PROVINCE, ESAreaQuery.Level.CITY, ESAreaQuery.Level.TOWN),
+                        0, 200),
+                query.queryAsync(EnumSet.of(ESAreaQuery.Level.PROVINCE), null, 50),
+                query.countryAsync(),
+                query.childrenAsync(510500)
+        };
+        PrintUtil.printFlux(fluxes);
     }
 
     @Test
