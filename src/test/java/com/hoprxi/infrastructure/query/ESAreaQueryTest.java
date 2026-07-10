@@ -17,6 +17,7 @@ package com.hoprxi.infrastructure.query;
 
 import com.hoprxi.application.AreaQuery;
 import com.hoprxi.application.AreaSearchException;
+import com.hoprxi.domain.model.Area;
 import io.netty.buffer.ByteBuf;
 import org.testng.annotations.Test;
 import reactor.core.publisher.Flux;
@@ -72,19 +73,19 @@ public class ESAreaQueryTest {
 
     @Test
     public void testSearch() {
-        try (InputStream is = query.query("泸州小市 bj", EnumSet.of(ESAreaQuery.Level.COUNTRY, ESAreaQuery.Level.CITY, ESAreaQuery.Level.COUNTY, ESAreaQuery.Level.TOWN),
+        try (InputStream is = query.query("泸州小市 bj", EnumSet.of(Area.Level.COUNTRY,Area.Level.CITY, Area.Level.COUNTY, Area.Level.TOWN),
                 0, 999)) {
             System.out.println("\"名字模糊查询（过滤）：泸州小市 bj\n" + new String(is.readAllBytes(), StandardCharsets.UTF_8));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        try (InputStream is = query.query("510", EnumSet.of(ESAreaQuery.Level.PROVINCE, ESAreaQuery.Level.CITY, ESAreaQuery.Level.TOWN),
+        try (InputStream is = query.query("510", EnumSet.of(Area.Level.PROVINCE, Area.Level.CITY, Area.Level.TOWN),
                 0, 200)) {
             System.out.println("\"code模糊查询（过滤）：510\n" + new String(is.readAllBytes(), StandardCharsets.UTF_8));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        try (InputStream is = query.query(EnumSet.of(ESAreaQuery.Level.PROVINCE), null, 50)) {
+        try (InputStream is = query.query(EnumSet.of(Area.Level.PROVINCE), null, 50)) {
             System.out.println("\"全局查询：\n" + new String(is.readAllBytes(), StandardCharsets.UTF_8));
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -94,11 +95,11 @@ public class ESAreaQueryTest {
     @Test
     public void testSearchAsync() {
         Flux<ByteBuf>[] fluxes = new Flux[]{
-                query.queryAsync("泸州小市 bj", EnumSet.of(ESAreaQuery.Level.COUNTRY, ESAreaQuery.Level.CITY, ESAreaQuery.Level.COUNTY, ESAreaQuery.Level.TOWN),
+                query.queryAsync("泸州小市 bj", EnumSet.of(Area.Level.COUNTRY, Area.Level.CITY, Area.Level.COUNTY, Area.Level.TOWN),
                         0, 999),
-                query.queryAsync("510", EnumSet.of(ESAreaQuery.Level.PROVINCE, ESAreaQuery.Level.CITY, ESAreaQuery.Level.TOWN),
+                query.queryAsync("510", EnumSet.of(Area.Level.PROVINCE, Area.Level.CITY, Area.Level.TOWN),
                         0, 200),
-                query.queryAsync(EnumSet.of(ESAreaQuery.Level.PROVINCE), null, 50),
+                query.queryAsync(EnumSet.of(Area.Level.PROVINCE), null, 50),
                 query.countryAsync(),
                 query.childrenAsync(510500)
         };

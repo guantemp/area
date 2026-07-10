@@ -172,11 +172,11 @@ public class AreaService {
     public HttpResponse search(ServiceRequestContext ctx, QueryParams params) {
         int offset = params.getInt("offset", OFFSET);
         int size = params.getInt("size", SIZE);
-        EnumSet<ESAreaQuery.Level> filters = EnumSet.noneOf(ESAreaQuery.Level.class);
+        EnumSet<Area.Level> filters = EnumSet.noneOf(Area.Level.class);
         Optional.ofNullable(params.get("filter")).filter(f -> !f.isBlank()).ifPresent(f -> {
             String[] temps = f.split(",");
             for (String temp : temps) {
-                ESAreaQuery.Level level = ESAreaQuery.Level.of(temp);
+                Area.Level level = Area.Level.of(temp);
                 if (level != null)
                     filters.add(level);
             }

@@ -1,3 +1,4 @@
+import com.hoprxi.domain.model.Area;
 import com.hoprxi.infrastructure.query.ESAreaQuery;
 
 import java.util.EnumSet;
@@ -11,12 +12,12 @@ import java.util.regex.Pattern;
 
 public class App {
     public static void main(String[] args) {
-        EnumSet<ESAreaQuery.Level> sets = EnumSet.noneOf(ESAreaQuery.Level.class);
+        EnumSet < Area.Level > sets = EnumSet.noneOf(Area.Level.class);
         System.out.println(sets);
 
         String[] filters = new String[]{"COUNTRY", "PROVINCE", "CITY"};
         for (String filter : filters) {
-            sets.add(ESAreaQuery.Level.of(filter));
+            sets.add(Area.Level.of(filter));
         }
         System.out.println(sets);
         System.out.println(Integer.parseInt("788123"));

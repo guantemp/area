@@ -17,8 +17,6 @@
 package com.hoprxi.domain.model;
 
 
-import salt.hoprxi.to.PinYin;
-
 import java.util.Objects;
 
 /***

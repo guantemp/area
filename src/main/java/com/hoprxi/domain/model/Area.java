@@ -105,6 +105,14 @@ public abstract class Area {
 
     public enum Level {
         COUNTRY, PROVINCE, CITY, COUNTY, TOWN;
+
+        public static Level of(String s) {
+            for (Level level : values()) {
+                if (level.name().equalsIgnoreCase(s))
+                    return level;
+            }
+            return null;
+        }
     }
 }
 

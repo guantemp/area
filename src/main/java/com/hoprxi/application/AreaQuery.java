@@ -15,6 +15,7 @@
  */
 package com.hoprxi.application;
 
+import com.hoprxi.domain.model.Area;
 import io.netty.buffer.ByteBuf;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -35,27 +36,6 @@ import java.util.EnumSet;
  */
 
 public interface AreaQuery {
-    /**
-     * 地域层级枚举。
-     * <p>
-     * 定义了从国家到乡镇的五级行政区划层级。
-     * </p>
-     */
-    enum Level {
-        COUNTRY, PROVINCE, CITY, COUNTY, TOWN;
-
-        /**
-         * @param s of level name
-         * @return <code>NULL if no match</code>
-         */
-        public static Level of(String s) {
-            for (Level Level : values()) {
-                if (Level.name().equalsIgnoreCase(s))
-                    return Level;
-            }
-            return null;
-        }
-    }
 
     /**
      * 根据地域编码同步查询地域详情。
@@ -99,7 +79,7 @@ public interface AreaQuery {
      * @param size    每页返回的记录数
      * @return 包含搜索结果 JSON 数据的输入流
      */
-    InputStream query(String keyword, EnumSet<AreaQuery.Level> filters, int from, int size);
+    InputStream query(String keyword, EnumSet<Area.Level> filters, int from, int size);
 
     /**
      * 根据关键字和层级过滤条件异步搜索地域。
@@ -113,7 +93,7 @@ public interface AreaQuery {
      * @param size    每页返回的记录数
      * @return 包含搜索结果 JSON 数据的异步响应式流
      */
-    Flux<ByteBuf> queryAsync(String keyword, EnumSet<AreaQuery.Level> filters, int from, int size);
+    Flux<ByteBuf> queryAsync(String keyword, EnumSet<Area.Level> filters, int from, int size);
 
     /**
      * 使用游标（search_after）同步查询地域列表。
@@ -126,7 +106,7 @@ public interface AreaQuery {
      * @param size        每页返回的记录数
      * @return 包含搜索结果 JSON 数据的输入流
      */
-    InputStream query(EnumSet<AreaQuery.Level> filters, String searchAfter, int size);
+    InputStream query(EnumSet<Area.Level> filters, String searchAfter, int size);
 
     /**
      * 使用游标（search_after）异步查询地域列表。
@@ -139,7 +119,7 @@ public interface AreaQuery {
      * @param size        每页返回的记录数
      * @return 包含搜索结果 JSON 数据的异步响应式流
      */
-    Flux<ByteBuf> queryAsync(EnumSet<AreaQuery.Level> filters, String searchAfter, int size);
+    Flux<ByteBuf> queryAsync(EnumSet<Area.Level> filters, String searchAfter, int size);
 
     /**
      * 同步查询指定地域的直接子级列表。

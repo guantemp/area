@@ -17,7 +17,6 @@ package com.hoprxi.domain.model.coordinate;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.hoprxi.domain.model.OutOfChinaException;
 
 import java.util.StringJoiner;
 

@@ -19,9 +19,11 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.hoprxi.application.AreaQuery;
 import com.hoprxi.application.AreaSearchException;
 import com.hoprxi.application.NotFoundException;
 import com.hoprxi.application.SearchException;
+import com.hoprxi.domain.model.Area;
 import com.hoprxi.infrastructure.JsonByteBufOutputStream;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -57,7 +59,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @since JDK21
  * @version 0.0.2 builder 2026-07-11
  */
-public class ESAreaQuery implements com.hoprxi.application.AreaQuery {
+public class ESAreaQuery implements AreaQuery {
     private static final Logger LOGGER = LoggerFactory.getLogger(ESAreaQuery.class);
     private static final int COUNTRY_SIZE = 399;
     private static final int CHILDREN_SIZE = 199;
@@ -279,7 +281,7 @@ public class ESAreaQuery implements com.hoprxi.application.AreaQuery {
     }
 
     @Override
-    public InputStream query(String keyword, EnumSet<Level> filters, int from, int size) {
+    public InputStream query(String keyword, EnumSet<Area.Level> filters, int from, int size) {
         Request request = new Request("GET", "/area/_search");
         request.setOptions(COMMON_OPTIONS);
         request.setJsonEntity(ESAreaQuery.buildQueryRequest(keyword, filters, from, size));
@@ -287,14 +289,14 @@ public class ESAreaQuery implements com.hoprxi.application.AreaQuery {
     }
 
     @Override
-    public Flux<ByteBuf> queryAsync(String keyword, EnumSet<Level> filters, int from, int size) {
+    public Flux<ByteBuf> queryAsync(String keyword, EnumSet<Area.Level> filters, int from, int size) {
         Request request = new Request("GET", "/area/_search");
         request.setOptions(COMMON_OPTIONS);
         request.setJsonEntity(ESAreaQuery.buildQueryRequest(keyword, filters, from, size));
         return ESAreaQuery.toFluxByteBuf(request, keyword);
     }
 
-    private static String buildQueryRequest(String key, EnumSet<Level> filters, int from, int size) {
+    private static String buildQueryRequest(String key, EnumSet<Area.Level> filters, int from, int size) {
         try (StringWriter writer = new StringWriter(); JsonGenerator generator = JSON_FACTORY.createGenerator(writer)) {
             generator.writeStartObject(); // 开始生成整个JSON对象
             // 分页
@@ -309,7 +311,7 @@ public class ESAreaQuery implements com.hoprxi.application.AreaQuery {
                 generator.writeStartObject();
                 generator.writeObjectFieldStart("terms");
                 generator.writeArrayFieldStart("level.name");
-                for (Level level : filters) {
+                for (Area.Level level : filters) {
                     generator.writeString(level.name());
                 }
                 generator.writeEndArray(); // 结束 level.name 数组
@@ -373,7 +375,7 @@ public class ESAreaQuery implements com.hoprxi.application.AreaQuery {
         }
     }
 
-    public InputStream query(EnumSet<Level> filters, String searchAfter, int size) {
+    public InputStream query(EnumSet<Area.Level> filters, String searchAfter, int size) {
         Request request = new Request("GET", "/area/_search");
         request.setOptions(COMMON_OPTIONS);
         request.setJsonEntity(ESAreaQuery.buildQueryRequest(filters, searchAfter, size));
@@ -381,14 +383,14 @@ public class ESAreaQuery implements com.hoprxi.application.AreaQuery {
     }
 
     @Override
-    public Flux<ByteBuf> queryAsync(EnumSet<Level> filters, String searchAfter, int size) {
+    public Flux<ByteBuf> queryAsync(EnumSet<Area.Level> filters, String searchAfter, int size) {
         Request request = new Request("GET", "/area/_search");
         request.setOptions(COMMON_OPTIONS);
         request.setJsonEntity(ESAreaQuery.buildQueryRequest(filters, searchAfter, size));
         return ESAreaQuery.toFluxByteBuf(request, "");
     }
 
-    private static String buildQueryRequest(EnumSet<Level> filters, String searchAfter, int size) {
+    private static String buildQueryRequest(EnumSet<Area.Level> filters, String searchAfter, int size) {
         try (StringWriter writer = new StringWriter(); JsonGenerator generator = JSON_FACTORY.createGenerator(writer)) {
             generator.writeStartObject();
             generator.writeNumberField("size", size);   // size 字段
@@ -406,7 +408,7 @@ public class ESAreaQuery implements com.hoprxi.application.AreaQuery {
                 generator.writeStartObject();
                 generator.writeObjectFieldStart("terms");
                 generator.writeArrayFieldStart("level.name");
-                for (Level level : filters) {
+                for (Area.Level level : filters) {
                     generator.writeString(level.name());
                 }
                 generator.writeEndArray(); // 结束 level.name 数组
