@@ -42,7 +42,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.MonoSink;
 import reactor.core.publisher.Sinks;
-import salt.hoprxi.crypto.application.DatabaseSpecDecrypt;
+import salt.hoprxi.crypto.application.DecryptUtil;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -76,8 +76,8 @@ public class ESAreaQuery implements AreaQuery {
         String host = read.getString("host");
         int port = read.getInt("port");
         String entry = host + ":" + port;
-        String user = DatabaseSpecDecrypt.decrypt(entry, read.getString("user"));
-        String password = DatabaseSpecDecrypt.decrypt(entry, read.getString("password"));
+        String user = DecryptUtil.decrypt(entry, read.getString("user"));
+        String password = DecryptUtil.decrypt(entry, read.getString("password"));
 
         RequestOptions.Builder builder = RequestOptions.DEFAULT.toBuilder();
         builder.addHeader(HttpHeaders.AUTHORIZATION, "Basic " + Base64.getEncoder().encodeToString((user + ":" + password).getBytes(StandardCharsets.UTF_8))).addHeader(HttpHeaders.CONTENT_TYPE, "application/json;charset=utf-8");

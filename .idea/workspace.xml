@@ -4,19 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="06d15327-0203-4184-bc12-711a323ebadd" name="Changes" comment="202606221649">
+    <list default="true" id="06d15327-0203-4184-bc12-711a323ebadd" name="Changes" comment="202607102326">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/App.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/App.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/application/AreaQuery.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/application/AreaQuery.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/Area.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/Area.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/Name.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/Name.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/OutOfChinaException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/coordinate/OutOfChinaException.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/coordinate/WGS84.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/domain/model/coordinate/WGS84.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/Bootstrap.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/Bootstrap.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/persistence/ESAreaBatchImport.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/persistence/ESAreaBatchImport.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/persistence/ESAreaRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/persistence/ESAreaRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/query/ESAreaQuery.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/infrastructure/query/ESAreaQuery.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hoprxi/rest/AreaService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hoprxi/rest/AreaService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/hoprxi/domain/model/AreaRepositoryTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/hoprxi/domain/model/AreaRepositoryTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/hoprxi/infrastructure/query/ESAreaQueryTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/hoprxi/infrastructure/query/ESAreaQueryTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/area.conf" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/area.conf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/keystore.jks" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/keystore.jks" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/hoprxi/infrastructure/persistence/ESAreaBatchImportTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/hoprxi/infrastructure/persistence/ESAreaBatchImportTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -173,7 +169,7 @@
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
       <option name="MAIN_CLASS_NAME" value="com.hoprxi.Bootstrap" />
       <module name="core" />
-      <option name="PROGRAM_PARAMETERS" value="-f keystore.jks Qwe123465 -e slave.tooo.top:9200" />
+      <option name="PROGRAM_PARAMETERS" value="-f keystore.jks Qwe123465 -e slave.tooo.top:9200 slave.tooo.top:9201" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -427,7 +423,12 @@
       <workItem from="1782116401081" duration="1843000" />
       <workItem from="1782651940086" duration="643000" />
       <workItem from="1782652593981" duration="3848000" />
-      <workItem from="1783694911831" duration="1312000" />
+      <workItem from="1783694911831" duration="1695000" />
+      <workItem from="1784548175632" duration="1343000" />
+      <workItem from="1784560877829" duration="162000" />
+      <workItem from="1786172026069" duration="416000" />
+      <workItem from="1787633616929" duration="37000" />
+      <workItem from="1787647219731" duration="6771000" />
     </task>
     <task id="LOCAL-00001" summary="202302131358">
       <created>1676267975047</created>
@@ -554,14 +555,6 @@
       <option name="presentableId" value="LOCAL-00018" />
       <option name="project" value="LOCAL" />
       <updated>1752219857307</updated>
-    </task>
-    <task id="LOCAL-00034" summary="202509041142">
-      <option name="closed" value="true" />
-      <created>1756957342900</created>
-      <option name="number" value="00034" />
-      <option name="presentableId" value="LOCAL-00034" />
-      <option name="project" value="LOCAL" />
-      <updated>1756957342900</updated>
     </task>
     <task id="LOCAL-00035" summary="202509071050">
       <option name="closed" value="true" />
@@ -803,7 +796,15 @@
       <option name="project" value="LOCAL" />
       <updated>1781966408978</updated>
     </task>
-    <option name="localTasksCounter" value="65" />
+    <task id="LOCAL-00065" summary="202607102326">
+      <option name="closed" value="true" />
+      <created>1783697200889</created>
+      <option name="number" value="00065" />
+      <option name="presentableId" value="LOCAL-00065" />
+      <option name="project" value="LOCAL" />
+      <updated>1783697200889</updated>
+    </task>
+    <option name="localTasksCounter" value="66" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -821,7 +822,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="202512232221" />
     <MESSAGE value="202512232229" />
     <MESSAGE value="202512232233" />
     <MESSAGE value="202602092316" />
@@ -846,7 +846,8 @@
     <MESSAGE value="202606202236" />
     <MESSAGE value="202606202240" />
     <MESSAGE value="202606221649" />
-    <option name="LAST_COMMIT_MESSAGE" value="202606221649" />
+    <MESSAGE value="202607102326" />
+    <option name="LAST_COMMIT_MESSAGE" value="202607102326" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

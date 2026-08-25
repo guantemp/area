@@ -24,7 +24,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
-import salt.hoprxi.crypto.application.DatabaseSpecDecrypt;
+import salt.hoprxi.crypto.application.DecryptUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,8 +47,8 @@ public class ESAreaBatchImport implements AreaBatchImport {
         String host = read.getString("host");
         int port = read.getInt("port");
         String entry = host + ":" + port;
-        String user = DatabaseSpecDecrypt.decrypt(entry, read.getString("user"));
-        String password = DatabaseSpecDecrypt.decrypt(entry, read.getString("password"));
+        String user = DecryptUtil.decrypt(entry, read.getString("user"));
+        String password = DecryptUtil.decrypt(entry, read.getString("password"));
 
         RequestOptions.Builder builder = RequestOptions.DEFAULT.toBuilder();
         builder.addHeader(HttpHeaders.AUTHORIZATION, "Basic " + Base64.getEncoder().encodeToString((user + ":" + password).getBytes(StandardCharsets.UTF_8))).addHeader(HttpHeaders.CONTENT_TYPE, "application/x-ndjson;charset=utf-8");

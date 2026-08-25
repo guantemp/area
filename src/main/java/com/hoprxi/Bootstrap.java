@@ -19,10 +19,12 @@ import com.hoprxi.rest.AreaService;
 import com.hoprxi.rest.IPSeekerService;
 import com.hoprxi.rest.UploadFileService;
 import com.linecorp.armeria.common.HttpHeaderNames;
+import com.linecorp.armeria.common.HttpMethod;
 import com.linecorp.armeria.common.SessionProtocol;
 import com.linecorp.armeria.server.ClientAddressSource;
 import com.linecorp.armeria.server.Server;
 import com.linecorp.armeria.server.ServerBuilder;
+import com.linecorp.armeria.server.cors.CorsService;
 import com.linecorp.armeria.server.docs.DocService;
 import com.linecorp.armeria.server.encoding.EncodingService;
 import com.linecorp.armeria.server.file.FileService;
@@ -142,6 +144,17 @@ public final class Bootstrap {
                 .exampleRequests("/v1", "query")
                 .build());
         sb.http(PORT);
+
+
+        sb.decorator(CorsService.builder(
+                "https://www.hoperxi.com",
+                        "https://slave.tooo.top"
+                ) // 允许来源
+                .allowRequestMethods(HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE, HttpMethod.OPTIONS)
+                .allowRequestHeaders(HttpHeaderNames.CONTENT_TYPE, HttpHeaderNames.AUTHORIZATION) // 如果有自定义 Header 也加在这里
+                .exposeHeaders(HttpHeaderNames.AUTHORIZATION)
+                .maxAge(3600) // 预检请求缓存时间（秒）
+                .newDecorator());
 
         //sb.https(PORT+1).tls(new File("certificate.crt"), new File("private.key"), "myPassphrase");
 
